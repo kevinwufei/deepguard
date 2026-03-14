@@ -1,0 +1,41 @@
+# DeepGuard - AI Deepfake Detection Platform TODO
+
+## Phase 1: Project Setup & Database
+- [x] Initialize project with web-db-user scaffold
+- [x] Design and create detection_records database table
+- [x] Set up i18n language context (zh/en)
+
+## Phase 2: Global Style & Layout
+- [x] Dark tech theme with cyan/blue accent colors in index.css
+- [x] Responsive top navigation with logo, nav links, language switcher, auth
+- [x] Landing page hero section with key stats
+- [x] Feature cards section on landing page
+- [x] Footer
+
+## Phase 3: File Upload Detection
+- [x] Audio upload detection page (/detect/audio)
+- [x] Video upload detection page (/detect/video)
+- [x] File upload component with drag-and-drop
+- [x] AI analysis via LLM (audio/video deepfake analysis)
+- [x] Risk score display (0-100) with animated gauge
+- [x] Detailed analysis report (anomaly features, confidence)
+- [x] Save detection result to database
+
+## Phase 4: Real-time Detection
+- [x] Real-time camera detection page (/detect/camera)
+- [x] Real-time microphone detection page (/detect/microphone)
+- [x] Browser camera/mic permission handling
+- [x] Frame capture and periodic AI analysis
+- [x] Live risk score updating
+
+## Phase 5: History & i18n
+- [x] Detection history page (/history)
+- [x] History table with filename, time, score, type
+- [x] Language switcher (zh/en) in navbar
+- [x] Full i18n for all UI text
+
+## Phase 6: Polish & Delivery
+- [x] Responsive design verification (mobile/tablet/desktop)
+- [x] Loading states and error handling
+- [x] Vitest unit tests
+- [x] Final checkpoint and delivery

@@ -26,3 +26,20 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 // TODO: Add your tables here
+
+export const detectionRecords = mysqlTable('detection_records', {
+  id: int('id').autoincrement().primaryKey(),
+  userId: int('userId').references(() => users.id, { onDelete: 'set null' }),
+  type: mysqlEnum('type', ['audio', 'video', 'camera', 'microphone']).notNull(),
+  fileName: varchar('fileName', { length: 255 }),
+  fileUrl: varchar('fileUrl', { length: 1024 }),
+  riskScore: int('riskScore').notNull().default(0),
+  verdict: mysqlEnum('verdict', ['safe', 'suspicious', 'deepfake']).notNull().default('safe'),
+  analysisReport: text('analysisReport'),
+  duration: int('duration'),
+  fileSize: int('fileSize'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type DetectionRecord = typeof detectionRecords.$inferSelect;
+export type InsertDetectionRecord = typeof detectionRecords.$inferInsert;

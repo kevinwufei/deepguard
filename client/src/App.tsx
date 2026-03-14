@@ -4,17 +4,32 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import Home from "./pages/Home";
+import Navbar from "./components/Navbar";
+import AudioDetect from "./pages/AudioDetect";
+import VideoDetect from "./pages/VideoDetect";
+import CameraDetect from "./pages/CameraDetect";
+import MicDetect from "./pages/MicDetect";
+import History from "./pages/History";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="pt-16">
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/detect/audio" component={AudioDetect} />
+          <Route path="/detect/video" component={VideoDetect} />
+          <Route path="/detect/camera" component={CameraDetect} />
+          <Route path="/detect/microphone" component={MicDetect} />
+          <Route path="/history" component={History} />
+          <Route path="/404" component={NotFound} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+    </div>
   );
 }
 
@@ -26,14 +41,13 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+      <ThemeProvider defaultTheme="dark">
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

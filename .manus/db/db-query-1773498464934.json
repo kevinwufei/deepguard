@@ -1,0 +1,9 @@
+{
+  "query": "\nCREATE TABLE IF NOT EXISTS detection_records (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NULL,\n  type ENUM('audio', 'video', 'camera', 'microphone') NOT NULL,\n  fileName VARCHAR(255) NULL,\n  fileUrl VARCHAR(1024) NULL,\n  riskScore INT NOT NULL DEFAULT 0,\n  verdict ENUM('safe', 'suspicious', 'deepfake') NOT NULL DEFAULT 'safe',\n  analysisReport JSON NULL,\n  duration INT NULL COMMENT 'file duration in seconds',\n  fileSize INT NULL COMMENT 'file size in bytes',\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL\n);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4CHdtredJ9TSu2M.root --database C63LRtvb89XZRBRQe8dCdG --execute \nCREATE TABLE IF NOT EXISTS detection_records (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NULL,\n  type ENUM('audio', 'video', 'camera', 'microphone') NOT NULL,\n  fileName VARCHAR(255) NULL,\n  fileUrl VARCHAR(1024) NULL,\n  riskScore INT NOT NULL DEFAULT 0,\n  verdict ENUM('safe', 'suspicious', 'deepfake') NOT NULL DEFAULT 'safe',\n  analysisReport JSON NULL,\n  duration INT NULL COMMENT 'file duration in seconds',\n  fileSize INT NULL COMMENT 'file size in bytes',\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL\n);\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 276
+}
