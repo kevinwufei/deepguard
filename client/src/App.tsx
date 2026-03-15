@@ -13,11 +13,13 @@ import CameraDetect from "./pages/CameraDetect";
 import MicDetect from "./pages/MicDetect";
 import History from './pages/History';
 import ScreenDetect from './pages/ScreenDetect';
+import PWAInstallBanner from './components/PWAInstallBanner';
 
 function Router() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <PWAInstallBanner />
       <main className="pt-16">
         <Switch>
           <Route path="/" component={Home} />

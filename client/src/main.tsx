@@ -7,6 +7,10 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
+import { registerServiceWorker } from "./lib/pwa";
+
+// Register PWA Service Worker
+registerServiceWorker();
 
 const queryClient = new QueryClient();
 

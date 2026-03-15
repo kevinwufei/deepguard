@@ -1,0 +1,48 @@
+{
+  "name": "DeepGuard - AI Deepfake Detection",
+  "short_name": "DeepGuard",
+  "description": "Real-time AI deepfake detection for audio, video and live calls. Protect yourself from AI voice cloning and face-swap scams.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#06b6d4",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "categories": ["security", "utilities"],
+  "icons": [
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663281703746/C63LRtvb89XZRBRQe8dCdG/icon-192_e888d875.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663281703746/C63LRtvb89XZRBRQe8dCdG/icon-512_00b373c7.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Audio Detection",
+      "short_name": "Audio",
+      "url": "/detect/audio",
+      "description": "Detect AI voice cloning in audio files"
+    },
+    {
+      "name": "Video Detection",
+      "short_name": "Video",
+      "url": "/detect/video",
+      "description": "Detect deepfake in video files"
+    },
+    {
+      "name": "Screen Detection",
+      "short_name": "Screen",
+      "url": "/detect/screen",
+      "description": "Real-time screen share detection"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

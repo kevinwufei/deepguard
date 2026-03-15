@@ -47,3 +47,19 @@
 - [ ] Plugin/extension download guide page (/extension)
 - [x] Update navbar to include screen detection entry
 - [x] Mobile App technical planning document
+
+## Phase 8: PWA Upgrade
+- [x] manifest.json with icons and theme
+- [x] Service Worker for offline support
+- [x] PWA install prompt banner
+- [x] Mobile viewport and touch optimizations
+- [x] iOS Safari meta tags
+
+## Phase 9: React Native App Code
+- [x] Project scaffold and structure
+- [x] Navigation and routing
+- [x] All detection pages (audio/video/camera/mic/screen)
+- [x] API integration with DeepGuard backend
+- [x] i18n (zh/en)
+- [x] Detection history page
+- [x] README for developers
