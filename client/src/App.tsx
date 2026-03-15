@@ -11,7 +11,8 @@ import AudioDetect from "./pages/AudioDetect";
 import VideoDetect from "./pages/VideoDetect";
 import CameraDetect from "./pages/CameraDetect";
 import MicDetect from "./pages/MicDetect";
-import History from "./pages/History";
+import History from './pages/History';
+import ScreenDetect from './pages/ScreenDetect';
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
           <Route path="/detect/camera" component={CameraDetect} />
           <Route path="/detect/microphone" component={MicDetect} />
           <Route path="/history" component={History} />
+          <Route path="/detect/screen" component={ScreenDetect} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

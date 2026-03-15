@@ -110,6 +110,23 @@ interface Translations {
   history_type_camera: string;
   history_type_microphone: string;
 
+  // Screen share
+  screen_title: string;
+  screen_subtitle: string;
+  screen_start: string;
+  screen_stop: string;
+  screen_permission: string;
+  screen_analyzing: string;
+  screen_live_score: string;
+  screen_how_title: string;
+  screen_how_desc: string;
+  screen_zoom_badge: string;
+  screen_teams_badge: string;
+  screen_meet_badge: string;
+  screen_wechat_badge: string;
+  screen_whatsapp_badge: string;
+  nav_screen: string;
+
   // Footer
   footer_tagline: string;
   footer_rights: string;
@@ -215,6 +232,22 @@ const zh: Translations = {
   history_type_camera: '摄像头',
   history_type_microphone: '麦克风',
 
+  screen_title: '屏幕实时检测',
+  screen_subtitle: '共享屏幕，实时检测 Zoom、微信、Teams 等软件中的 Deepfake 内容',
+  screen_start: '开始屏幕共享检测',
+  screen_stop: '停止检测',
+  screen_permission: '请允许浏览器访问屏幕内容',
+  screen_analyzing: '正在实时分析屏幕...',
+  screen_live_score: '实时风险评分',
+  screen_how_title: '如何检测 Zoom 等软件',
+  screen_how_desc: '开启屏幕共享，选择包含通话的窗口或整个屏幕，DeepGuard 将实时分析画面中的人脸和语音',
+  screen_zoom_badge: 'Zoom',
+  screen_teams_badge: 'Teams',
+  screen_meet_badge: 'Google Meet',
+  screen_wechat_badge: '微信',
+  screen_whatsapp_badge: 'WhatsApp',
+  nav_screen: '屏幕检测',
+
   footer_tagline: '用 AI 对抗 AI，守护数字世界的真实',
   footer_rights: '版权所有',
 };
@@ -318,6 +351,22 @@ const en: Translations = {
   history_type_video: 'Video',
   history_type_camera: 'Camera',
   history_type_microphone: 'Microphone',
+
+  screen_title: 'Screen Share Detection',
+  screen_subtitle: 'Share your screen to detect Deepfake content in Zoom, WeChat, Teams and more in real-time',
+  screen_start: 'Start Screen Share Detection',
+  screen_stop: 'Stop Detection',
+  screen_permission: 'Please allow browser access to screen capture',
+  screen_analyzing: 'Analyzing screen in real-time...',
+  screen_live_score: 'Live Risk Score',
+  screen_how_title: 'How to detect Zoom and other apps',
+  screen_how_desc: 'Start screen sharing, select the window with your call or the entire screen, and DeepGuard will analyze faces and audio in real-time',
+  screen_zoom_badge: 'Zoom',
+  screen_teams_badge: 'Teams',
+  screen_meet_badge: 'Google Meet',
+  screen_wechat_badge: 'WeChat',
+  screen_whatsapp_badge: 'WhatsApp',
+  nav_screen: 'Screen Detection',
 
   footer_tagline: 'Fighting AI with AI — protecting the truth in the digital world',
   footer_rights: 'All rights reserved',

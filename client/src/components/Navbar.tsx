@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines } from 'lucide-react';
+import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useLang } from '@/contexts/LanguageContext';
@@ -22,6 +22,7 @@ export default function Navbar() {
     { href: '/detect/video', label: t.nav_video, icon: Video },
     { href: '/detect/camera', label: t.nav_camera, icon: Camera },
     { href: '/detect/microphone', label: t.nav_microphone, icon: Mic },
+    { href: '/detect/screen', label: t.nav_screen, icon: Monitor },
   ];
 
   return (

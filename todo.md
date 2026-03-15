@@ -39,3 +39,11 @@
 - [x] Loading states and error handling
 - [x] Vitest unit tests
 - [x] Final checkpoint and delivery
+
+## Phase 7: Screen Share Detection & App Planning
+- [x] Screen share detection page (/detect/screen) with getDisplayMedia API
+- [x] Backend API for screen frame analysis (analyzeScreenFrame)
+- [x] Live risk score overlay during screen share session
+- [ ] Plugin/extension download guide page (/extension)
+- [x] Update navbar to include screen detection entry
+- [x] Mobile App technical planning document
