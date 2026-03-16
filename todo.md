@@ -228,3 +228,10 @@
 - [x] Add Voice Deepfake to Navbar Detect dropdown with LIVE badge
 - [x] Register /detect/voice route in App.tsx
 - [x] All 12 tests passing
+
+## Phase 20: Multi-Engine Detection Accuracy Upgrade
+- [ ] Research third-party detection APIs (Hive, SightEngine, AI or Not, Illuminarty)
+- [ ] Upgrade image detection to multi-engine: Hive + SightEngine + LLM weighted average
+- [ ] Upgrade video/audio detection with stricter LLM prompts
+- [ ] Show per-engine scores in detection result UI for transparency
+- [ ] Add API key management for third-party services

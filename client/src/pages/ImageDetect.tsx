@@ -30,6 +30,13 @@ interface HeatmapRegion {
   x: number; y: number; w: number; h: number; intensity: number; label: string;
 }
 
+interface EngineScore {
+  engine: string;
+  score: number;
+  weight: number;
+  available: boolean;
+}
+
 interface DetectionResult {
   riskScore: number;
   verdict: 'safe' | 'suspicious' | 'deepfake';
@@ -40,6 +47,7 @@ interface DetectionResult {
   possibleSources: string[];
   heatmapRegions: HeatmapRegion[];
   forensic: ForensicData;
+  engineBreakdown?: EngineScore[];
 }
 
 const ACCEPTED = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp';
@@ -378,6 +386,44 @@ export default function ImageDetect() {
                   <div className="text-xs text-muted-foreground">AI Model</div>
                 </div>
               </div>
+
+              {/* Multi-Engine Breakdown */}
+              {result.engineBreakdown && result.engineBreakdown.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/40">
+                  <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5" /> Multi-Engine Verification
+                  </p>
+                  <div className="space-y-2">
+                    {result.engineBreakdown.map((eng) => (
+                      <div key={eng.engine} className="flex items-center gap-3">
+                        <div className="w-32 text-xs text-muted-foreground truncate flex-shrink-0">{eng.engine}</div>
+                        {eng.available ? (
+                          <>
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-700 ${
+                                  eng.score >= 66 ? 'bg-rose-400' : eng.score >= 36 ? 'bg-amber-400' : 'bg-emerald-400'
+                                }`}
+                                style={{ width: `${eng.score}%` }}
+                              />
+                            </div>
+                            <div className={`text-xs font-bold w-10 text-right flex-shrink-0 ${
+                              eng.score >= 66 ? 'text-rose-400' : eng.score >= 36 ? 'text-amber-400' : 'text-emerald-400'
+                            }`}>{eng.score}%</div>
+                            <div className="text-xs text-muted-foreground w-12 text-right flex-shrink-0">{Math.round(eng.weight * 100)}% wt</div>
+                          </>
+                        ) : (
+                          <div className="flex-1 text-xs text-muted-foreground/50 italic">Not configured — add API key to enable</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground/60 mt-2">
+                    Final score is a weighted average across all available engines.
+                    {result.engineBreakdown.filter(e => !e.available).length > 0 && ' Add SightEngine or Illuminarty API keys to improve accuracy.'}
+                  </p>
+                </div>
+              )}
 
               {result.possibleSources.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-border/40">

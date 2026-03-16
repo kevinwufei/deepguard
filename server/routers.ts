@@ -116,6 +116,79 @@ Text to analyze:
   }
 }
 
+// ─── Multi-Engine Detection Helpers ────────────────────────────────────────
+
+// Engine 1: SightEngine AI-generated image detection
+// Returns score 0-1 (1 = definitely AI), or null if API key not configured
+async function sightEngineDetect(imageUrl: string): Promise<{ score: number; type: string } | null> {
+  const apiUser = process.env.SIGHTENGINE_API_USER;
+  const apiSecret = process.env.SIGHTENGINE_API_SECRET;
+  if (!apiUser || !apiSecret) return null;
+  try {
+    const params = new URLSearchParams({
+      url: imageUrl,
+      models: 'genai',
+      api_user: apiUser,
+      api_secret: apiSecret,
+    });
+    const res = await fetch(`https://api.sightengine.com/1.0/check.json?${params}`);
+    const data = await res.json() as { type?: { ai_generated?: number }; status?: string };
+    if (data.status === 'failure') return null;
+    const score = data.type?.ai_generated ?? null;
+    if (score === null) return null;
+    return { score, type: score > 0.7 ? 'AI Generated' : score > 0.4 ? 'Possibly AI' : 'Likely Real' };
+  } catch (e) {
+    console.warn('[SightEngine] API call failed:', e);
+    return null;
+  }
+}
+
+// Engine 2: Illuminarty AI image detection
+// Returns score 0-100, or null if API key not configured
+async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isAI: boolean } | null> {
+  const apiKey = process.env.ILLUMINARTY_API_KEY;
+  if (!apiKey) return null;
+  try {
+    const res = await fetch('https://api.illuminarty.ai/v1/detection', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: imageUrl }),
+    });
+    const data = await res.json() as { is_ai?: boolean; score?: number; probability?: number };
+    const score = (data.score ?? data.probability ?? 0) * 100;
+    return { score: Math.round(score), isAI: data.is_ai ?? score > 60 };
+  } catch (e) {
+    console.warn('[Illuminarty] API call failed:', e);
+    return null;
+  }
+}
+
+// Combine multi-engine results with weighted average
+// LLM: 40% weight (visual analysis), SightEngine: 40% (specialized model), Illuminarty: 20%
+function combineEngineScores(
+  llmScore: number,
+  sightEngine: { score: number } | null,
+  illuminarty: { score: number } | null
+): { finalScore: number; engineBreakdown: Array<{ engine: string; score: number; weight: number; available: boolean }> } {
+  const engines = [
+    { engine: 'LLM Visual Analysis', score: llmScore, weight: 0.4, available: true },
+    { engine: 'SightEngine', score: sightEngine ? Math.round(sightEngine.score * 100) : 0, weight: 0.4, available: !!sightEngine },
+    { engine: 'Illuminarty', score: illuminarty ? illuminarty.score : 0, weight: 0.2, available: !!illuminarty },
+  ];
+
+  // Recalculate weights if some engines are unavailable
+  const available = engines.filter(e => e.available);
+  const totalWeight = available.reduce((s, e) => s + e.weight, 0);
+  let finalScore = 0;
+  for (const e of available) {
+    finalScore += e.score * (e.weight / totalWeight);
+  }
+
+  return { finalScore: Math.round(finalScore), engineBreakdown: engines };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Helper: analyze media with LLM for deepfake detection
 async function analyzeMediaForDeepfake(
   type: 'audio' | 'video',
@@ -135,26 +208,65 @@ async function analyzeMediaForDeepfake(
 }> {
   const isAudio = type === 'audio';
   const systemPrompt = isAudio
-    ? `You are an expert AI deepfake audio detection system. Analyze the audio for AI voice cloning, TTS synthesis, or voice manipulation. Return comprehensive JSON.`
-    : `You are an expert AI deepfake video detection system. Analyze the video for face-swapping, deepfake manipulation, AI face generation. Return comprehensive JSON.`;
+    ? `You are a strict AI deepfake AUDIO detection system with HIGH SENSITIVITY.
+
+CRITICAL RULES:
+- AI-synthesized voices (ElevenLabs, Resemble AI, Bark, etc.) typically score 70-100
+- Real human voices from microphones typically score 0-30
+- When in doubt, LEAN TOWARD higher scores
+- Analyze: spectral artifacts, unnatural prosody, missing breath sounds, too-perfect intonation, background noise inconsistencies, frequency response typical of TTS, lack of natural vocal fry or imperfections
+- Resemble AI and ElevenLabs voices are extremely realistic - look for subtle artifacts
+
+Return comprehensive JSON forensic report.`
+    : `You are a strict AI deepfake VIDEO detection system with HIGH SENSITIVITY.
+
+CRITICAL RULES:
+- Deepfake videos (FaceSwap, DeepFaceLab, SimSwap, etc.) typically score 70-100
+- Real unmanipulated videos typically score 0-30
+- When in doubt, LEAN TOWARD higher scores
+- Analyze: facial boundary artifacts, temporal inconsistency between frames, unnatural blinking patterns, lighting inconsistencies on face vs background, hair/ear region artifacts, skin texture too smooth, eye reflection anomalies, lip sync issues
+
+Return comprehensive JSON forensic report.`;
 
   const textPrompt = isAudio
-    ? `Analyze audio "${fileName}" for AI synthesis. Return JSON:
-- riskScore: 0-100
-- verdict: "safe"|"suspicious"|"deepfake"
+    ? `Analyze this audio file for AI synthesis. Be STRICT - if there are ANY signs of AI generation, score accordingly.
+
+Key indicators for AI voice:
+- Too-perfect pronunciation and intonation (no natural hesitations)
+- Missing breath sounds between sentences
+- Unnatural prosody or rhythm
+- Spectral artifacts in high frequencies
+- Background noise that sounds artificially added
+- Lack of natural vocal imperfections (fry, micro-variations)
+
+Return JSON:
+- riskScore: 0-100 (AI probability - AI voices should score 65+)
+- verdict: "safe" (0-35)|"suspicious" (36-65)|"deepfake" (66-100)
 - confidence: 0-100
 - features: [{name, confidence (0-1), description}] (4-6 items)
-- summary: string
-- possibleSources: array of likely AI tools (e.g. ["ElevenLabs", "Whisper TTS", "Bark"])
+- summary: 2-3 sentences explaining WHY it is or isn't AI
+- possibleSources: array of likely AI tools (e.g. ["ElevenLabs", "Resemble AI", "Bark", "Coqui TTS"])
 - metadata: object with keys like "Format", "SampleRate", "Channels", "Codec" (estimated)
 - faceAnomalies: [] (empty for audio)`
-    : `Analyze video "${fileName}" for deepfake manipulation. Return JSON:
-- riskScore: 0-100
-- verdict: "safe"|"suspicious"|"deepfake"
+    : `Analyze this video for deepfake manipulation. Be STRICT - if there are ANY signs of manipulation, score accordingly.
+
+Key indicators for deepfake video:
+- Facial boundary artifacts (blurring around face edges)
+- Temporal inconsistency (face changes between frames)
+- Unnatural blinking or eye movement
+- Lighting on face doesn't match background
+- Hair/ear region looks blurry or distorted
+- Skin texture too smooth or waxy
+- Lip sync issues or mouth artifacts
+- Eye reflections don't match environment
+
+Return JSON:
+- riskScore: 0-100 (AI probability - deepfakes should score 65+)
+- verdict: "safe" (0-35)|"suspicious" (36-65)|"deepfake" (66-100)
 - confidence: 0-100
 - features: [{name, confidence (0-1), description}] (4-6 items)
-- summary: string
-- possibleSources: array of likely deepfake engines (e.g. ["FaceSwap", "DeepFaceLab", "SimSwap"])
+- summary: 2-3 sentences explaining WHY it is or isn't a deepfake
+- possibleSources: array of likely deepfake engines (e.g. ["FaceSwap", "DeepFaceLab", "SimSwap", "Runway"])
 - metadata: object with keys like "Resolution", "FrameRate", "Codec", "Duration" (estimated)
 - frameTimeline: [{frame, timestamp ("0:00"), aiProbability (0-100)}] (6-8 key frames)
 - faceAnomalies: [{type, severity ("low"|"medium"|"high"), description}] (3-5 items)`;
@@ -450,18 +562,21 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         try {
-          const response = await invokeLLM({
+          // Build LLM request separately to avoid nesting issues in Promise.all
+          const llmRequest = invokeLLM({
             messages: [
               {
                 role: 'system',
-                content: `You are an expert AI deepfake image detection system with pixel-level forensic analysis capabilities. Analyze images for:
-1. GAN artifacts and diffusion model signatures
-2. Face manipulation (FaceSwap, deepfake)
-3. EXIF/metadata anomalies
-4. Noise pattern inconsistencies
-5. Compression artifacts
-6. Semantic inconsistencies
-Return comprehensive JSON forensic report.`
+                content: `You are a strict AI-generated image forensic detector with HIGH SENSITIVITY.
+
+CRITICAL RULES:
+- AI-generated images (Midjourney, DALL-E, Stable Diffusion, Flux, etc.) typically score 70-100
+- Real photos from cameras typically score 0-30
+- When in doubt, LEAN TOWARD higher scores (err on the side of flagging AI)
+- DO NOT be conservative - false negatives (missing AI images) are worse than false positives
+- Analyze: GAN artifacts, diffusion model signatures, unnatural textures, perfect symmetry, AI-typical lighting, lack of real-world imperfections, noise patterns inconsistent with camera sensors
+
+Return comprehensive JSON forensic report.`,
               },
               {
                 role: 'user',
@@ -469,19 +584,31 @@ Return comprehensive JSON forensic report.`
                   { type: 'image_url' as const, image_url: { url: input.fileUrl, detail: 'high' as const } },
                   {
                     type: 'text' as const,
-                    text: `Analyze image "${input.fileName}" for deepfake/AI generation. Return JSON:
-- riskScore: 0-100 (AI probability)
-- verdict: "safe"|"suspicious"|"deepfake"
+                    text: `Analyze this image for AI generation. Be STRICT - if there are ANY signs of AI generation, score accordingly.
+
+Key indicators:
+- Overly smooth/perfect skin or textures (AI hallmark)
+- Unnaturally perfect lighting and shadows
+- Background inconsistencies or blurring artifacts
+- Distorted fingers, hands, or text (common AI failure)
+- Eyes too perfect or slightly asymmetric in an AI way
+- Lack of real-world noise, grain, or lens distortion
+- Color gradients too smooth
+- Watermarks or signatures of AI tools
+
+Return JSON:
+- riskScore: 0-100 (AI probability - AI images should score 65+)
+- verdict: "safe" (0-35)|"suspicious" (36-65)|"deepfake" (66-100)
 - confidence: 0-100
-- aiModel: likely AI model name if generated (e.g. "Midjourney v6", "DALL-E 3", "Stable Diffusion XL", "Unknown")
-- features: [{name, confidence (0-1), description}] (5-7 items covering: face symmetry, noise patterns, texture consistency, edge artifacts, lighting coherence, metadata signals, GAN fingerprints)
-- summary: 2-3 sentence explanation
+- aiModel: likely AI model name (e.g. "Midjourney v6", "DALL-E 3", "Stable Diffusion XL", "Flux", "Unknown")
+- features: [{name, confidence (0-1), description}] (5-7 items)
+- summary: 2-3 sentence explanation of WHY it is or isn't AI
 - possibleSources: array of likely AI tools if AI-generated
-- heatmapRegions: [{x (0-1), y (0-1), w (0-1), h (0-1), intensity (0-1), label}] (2-5 suspicious regions, or empty if safe)
-- forensic: {fileName, fileSize, format, dimensions, colorSpace, hasExif (bool), software, creationDate, modificationDate, gpsData, cameraModel, compressionArtifacts, metadataIntegrity, noisePattern}`
-                  }
-                ]
-              }
+- heatmapRegions: [{x (0-1), y (0-1), w (0-1), h (0-1), intensity (0-1), label}] (2-5 suspicious regions)
+- forensic: {fileName, fileSize, format, dimensions, colorSpace, hasExif (bool), software, creationDate, modificationDate, gpsData, cameraModel, compressionArtifacts, metadataIntegrity, noisePattern}`,
+                  },
+                ],
+              },
             ],
             response_format: {
               type: 'json_schema',
@@ -502,7 +629,7 @@ Return comprehensive JSON forensic report.`
                         properties: { name: { type: 'string' }, confidence: { type: 'number' }, description: { type: 'string' } },
                         required: ['name', 'confidence', 'description'],
                         additionalProperties: false,
-                      }
+                      },
                     },
                     summary: { type: 'string' },
                     possibleSources: { type: 'array', items: { type: 'string' } },
@@ -513,11 +640,11 @@ Return comprehensive JSON forensic report.`
                         properties: {
                           x: { type: 'number' }, y: { type: 'number' },
                           w: { type: 'number' }, h: { type: 'number' },
-                          intensity: { type: 'number' }, label: { type: 'string' }
+                          intensity: { type: 'number' }, label: { type: 'string' },
                         },
                         required: ['x', 'y', 'w', 'h', 'intensity', 'label'],
                         additionalProperties: false,
-                      }
+                      },
                     },
                     forensic: {
                       type: 'object',
@@ -536,24 +663,38 @@ Return comprehensive JSON forensic report.`
                   },
                   required: ['riskScore', 'verdict', 'confidence', 'aiModel', 'features', 'summary', 'possibleSources', 'heatmapRegions', 'forensic'],
                   additionalProperties: false,
-                }
-              }
-            }
+                },
+              },
+            },
           });
 
-          const content = response.choices[0]?.message?.content;
+          // Run all engines in parallel
+          const [llmResponse, sightEngineResult, illuminartyResult] = await Promise.all([
+            llmRequest,
+            sightEngineDetect(input.fileUrl),
+            illuminartyDetect(input.fileUrl),
+          ]);
+
+          // Parse LLM result
+          const content = llmResponse.choices[0]?.message?.content;
           if (!content) throw new Error('No response from AI');
           const parsed = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+          const llmScore = Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0)));
+
+          // Combine all engine scores
+          const { finalScore, engineBreakdown } = combineEngineScores(llmScore, sightEngineResult, illuminartyResult);
+          const verdict = finalScore >= 66 ? 'deepfake' : finalScore >= 36 ? 'suspicious' : 'safe';
 
           const result = {
-            riskScore: Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0))),
-            verdict: (parsed.verdict || 'safe') as 'safe' | 'suspicious' | 'deepfake',
+            riskScore: finalScore,
+            verdict: verdict as 'safe' | 'suspicious' | 'deepfake',
             confidence: Math.round(Math.max(0, Math.min(100, parsed.confidence || 80))),
             aiModel: parsed.aiModel || 'Unknown',
             features: parsed.features || [],
             summary: parsed.summary || '',
             possibleSources: parsed.possibleSources || [],
             heatmapRegions: parsed.heatmapRegions || [],
+            engineBreakdown,
             forensic: parsed.forensic || {
               fileName: input.fileName,
               fileSize: input.fileSize ? `${(input.fileSize / 1024).toFixed(1)} KB` : 'Unknown',
@@ -573,7 +714,7 @@ Return comprehensive JSON forensic report.`
               fileUrl: input.fileUrl,
               riskScore: result.riskScore,
               verdict: result.verdict,
-              analysisReport: JSON.stringify({ features: result.features, summary: result.summary, aiModel: result.aiModel }),
+              analysisReport: JSON.stringify({ features: result.features, summary: result.summary, aiModel: result.aiModel, engineBreakdown }),
               fileSize: input.fileSize,
             });
           }
