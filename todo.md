@@ -261,3 +261,8 @@
 - [x] Create model-training/requirements.txt
 - [x] All 16 tests passing (TypeScript 0 errors)
 - [x] Save checkpoint
+
+## Phase 23: One-Click Cloud Training Script
+- [x] Create auto_train.sh (download CIFAKE + train CLIP + push to HuggingFace, fully automated)
+- [x] Create DEPLOY_GUIDE.md (RunPod step-by-step, cost breakdown, FAQ)
+- [x] Save checkpoint and deliver
