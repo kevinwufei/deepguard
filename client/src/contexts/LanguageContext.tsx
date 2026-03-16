@@ -1,376 +1,676 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Language = 'zh' | 'en';
+export type Language = 'zh' | 'en' | 'hi' | 'es' | 'fr' | 'ar' | 'ru' | 'pt' | 'pl' | 'de' | 'ko' | 'ja' | 'tr';
+
+export const LANGUAGES: { code: Language; label: string; nativeName: string; rtl?: boolean }[] = [
+  { code: 'en', label: 'English', nativeName: 'English' },
+  { code: 'zh', label: 'Chinese', nativeName: '中文' },
+  { code: 'hi', label: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'es', label: 'Spanish', nativeName: 'Español' },
+  { code: 'fr', label: 'French', nativeName: 'Français' },
+  { code: 'ar', label: 'Arabic', nativeName: 'العربية', rtl: true },
+  { code: 'ru', label: 'Russian', nativeName: 'Русский' },
+  { code: 'pt', label: 'Portuguese', nativeName: 'Português' },
+  { code: 'pl', label: 'Polish', nativeName: 'Polski' },
+  { code: 'de', label: 'German', nativeName: 'Deutsch' },
+  { code: 'ko', label: 'Korean', nativeName: '한국어' },
+  { code: 'ja', label: 'Japanese', nativeName: '日本語' },
+  { code: 'tr', label: 'Turkish', nativeName: 'Türkçe' },
+];
 
 interface Translations {
-  // Nav
-  nav_home: string;
-  nav_detect: string;
-  nav_history: string;
-  nav_audio: string;
-  nav_video: string;
-  nav_camera: string;
-  nav_microphone: string;
-  nav_login: string;
-  nav_logout: string;
-  nav_tagline: string;
-
-  // Home
-  home_hero_title: string;
-  home_hero_subtitle: string;
-  home_hero_cta: string;
-  home_hero_cta2: string;
-  home_stats_detections: string;
-  home_stats_accuracy: string;
-  home_stats_speed: string;
-  home_stats_detections_label: string;
-  home_stats_accuracy_label: string;
-  home_stats_speed_label: string;
-  home_features_title: string;
-  home_features_subtitle: string;
-  home_feature_audio_title: string;
-  home_feature_audio_desc: string;
-  home_feature_video_title: string;
-  home_feature_video_desc: string;
-  home_feature_camera_title: string;
-  home_feature_camera_desc: string;
-  home_feature_mic_title: string;
-  home_feature_mic_desc: string;
-  home_feature_score_title: string;
-  home_feature_score_desc: string;
-  home_feature_history_title: string;
-  home_feature_history_desc: string;
-  home_how_title: string;
-  home_how_step1: string;
-  home_how_step1_desc: string;
-  home_how_step2: string;
-  home_how_step2_desc: string;
-  home_how_step3: string;
-  home_how_step3_desc: string;
-  home_cta_title: string;
-  home_cta_subtitle: string;
-  home_cta_btn: string;
-
-  // Detection common
-  detect_upload_title: string;
-  detect_upload_hint: string;
-  detect_analyzing: string;
-  detect_result_title: string;
-  detect_risk_score: string;
-  detect_verdict_safe: string;
-  detect_verdict_suspicious: string;
-  detect_verdict_deepfake: string;
-  detect_analysis_detail: string;
-  detect_try_another: string;
-  detect_save_result: string;
-  detect_saved: string;
-  detect_features_detected: string;
-  detect_confidence: string;
-
-  // Audio
-  audio_title: string;
-  audio_subtitle: string;
-  audio_formats: string;
-
-  // Video
-  video_title: string;
-  video_subtitle: string;
-  video_formats: string;
-
-  // Camera
-  camera_title: string;
-  camera_subtitle: string;
-  camera_start: string;
-  camera_stop: string;
-  camera_permission: string;
-  camera_analyzing: string;
-  camera_live_score: string;
-
-  // Microphone
-  mic_title: string;
-  mic_subtitle: string;
-  mic_start: string;
-  mic_stop: string;
-  mic_permission: string;
-  mic_analyzing: string;
-  mic_live_score: string;
-
-  // History
-  history_title: string;
-  history_subtitle: string;
-  history_empty: string;
-  history_col_type: string;
-  history_col_file: string;
-  history_col_time: string;
-  history_col_score: string;
-  history_col_verdict: string;
-  history_login_required: string;
-  history_type_audio: string;
-  history_type_video: string;
-  history_type_camera: string;
-  history_type_microphone: string;
-
-  // Screen share
-  screen_title: string;
-  screen_subtitle: string;
-  screen_start: string;
-  screen_stop: string;
-  screen_permission: string;
-  screen_analyzing: string;
-  screen_live_score: string;
-  screen_how_title: string;
-  screen_how_desc: string;
-  screen_zoom_badge: string;
-  screen_teams_badge: string;
-  screen_meet_badge: string;
-  screen_wechat_badge: string;
-  screen_whatsapp_badge: string;
-  nav_screen: string;
-
-  // Footer
-  footer_tagline: string;
-  footer_rights: string;
+  nav_home: string; nav_detect: string; nav_history: string; nav_audio: string;
+  nav_video: string; nav_camera: string; nav_microphone: string; nav_login: string;
+  nav_logout: string; nav_tagline: string; nav_screen: string;
+  home_hero_title: string; home_hero_subtitle: string; home_hero_cta: string; home_hero_cta2: string;
+  home_stats_detections: string; home_stats_accuracy: string; home_stats_speed: string;
+  home_stats_detections_label: string; home_stats_accuracy_label: string; home_stats_speed_label: string;
+  home_features_title: string; home_features_subtitle: string;
+  home_feature_audio_title: string; home_feature_audio_desc: string;
+  home_feature_video_title: string; home_feature_video_desc: string;
+  home_feature_camera_title: string; home_feature_camera_desc: string;
+  home_feature_mic_title: string; home_feature_mic_desc: string;
+  home_feature_score_title: string; home_feature_score_desc: string;
+  home_feature_history_title: string; home_feature_history_desc: string;
+  home_how_title: string; home_how_step1: string; home_how_step1_desc: string;
+  home_how_step2: string; home_how_step2_desc: string; home_how_step3: string; home_how_step3_desc: string;
+  home_cta_title: string; home_cta_subtitle: string; home_cta_btn: string;
+  detect_upload_title: string; detect_upload_hint: string; detect_analyzing: string;
+  detect_result_title: string; detect_risk_score: string;
+  detect_verdict_safe: string; detect_verdict_suspicious: string; detect_verdict_deepfake: string;
+  detect_analysis_detail: string; detect_try_another: string; detect_save_result: string;
+  detect_saved: string; detect_features_detected: string; detect_confidence: string;
+  audio_title: string; audio_subtitle: string; audio_formats: string;
+  video_title: string; video_subtitle: string; video_formats: string;
+  camera_title: string; camera_subtitle: string; camera_start: string; camera_stop: string;
+  camera_permission: string; camera_analyzing: string; camera_live_score: string;
+  mic_title: string; mic_subtitle: string; mic_start: string; mic_stop: string;
+  mic_permission: string; mic_analyzing: string; mic_live_score: string;
+  history_title: string; history_subtitle: string; history_empty: string;
+  history_col_type: string; history_col_file: string; history_col_time: string;
+  history_col_score: string; history_col_verdict: string; history_login_required: string;
+  history_type_audio: string; history_type_video: string; history_type_camera: string; history_type_microphone: string;
+  screen_title: string; screen_subtitle: string; screen_start: string; screen_stop: string;
+  screen_permission: string; screen_analyzing: string; screen_live_score: string;
+  screen_how_title: string; screen_how_desc: string;
+  screen_zoom_badge: string; screen_teams_badge: string; screen_meet_badge: string;
+  screen_wechat_badge: string; screen_whatsapp_badge: string;
+  nav_text: string; nav_verify: string; nav_api: string;
+  footer_tagline: string; footer_rights: string;
 }
 
 const zh: Translations = {
-  nav_home: '首页',
-  nav_detect: '开始检测',
-  nav_history: '检测历史',
-  nav_audio: '音频检测',
-  nav_video: '视频检测',
-  nav_camera: '摄像头检测',
-  nav_microphone: '麦克风检测',
-  nav_login: '登录',
-  nav_logout: '退出',
-  nav_tagline: 'AI深度伪造检测平台',
-
+  nav_home: '首页', nav_detect: '开始检测', nav_history: '检测历史', nav_audio: '音频检测',
+  nav_video: '视频检测', nav_camera: '摄像头检测', nav_microphone: '麦克风检测',
+  nav_login: '登录', nav_logout: '退出', nav_tagline: 'AI深度伪造检测平台', nav_screen: '屏幕检测',
   home_hero_title: '识破 AI 伪造，守护真实世界',
   home_hero_subtitle: '利用先进的人工智能技术，实时检测音频和视频中的 Deepfake 内容。保护自己和家人免受 AI 语音克隆、换脸诈骗的侵害。',
-  home_hero_cta: '立即开始检测',
-  home_hero_cta2: '了解更多',
-  home_stats_detections: '100万+',
-  home_stats_accuracy: '95%+',
-  home_stats_speed: '<5秒',
-  home_stats_detections_label: '累计检测次数',
-  home_stats_accuracy_label: '检测准确率',
-  home_stats_speed_label: '平均分析速度',
+  home_hero_cta: '立即开始检测', home_hero_cta2: '了解更多',
+  home_stats_detections: '100万+', home_stats_accuracy: '95%+', home_stats_speed: '<5秒',
+  home_stats_detections_label: '累计检测次数', home_stats_accuracy_label: '检测准确率', home_stats_speed_label: '平均分析速度',
   home_features_title: '全方位 Deepfake 防护',
   home_features_subtitle: '覆盖音频、视频、实时通话的完整检测方案，让 AI 诈骗无处遁形',
-  home_feature_audio_title: '音频 Deepfake 检测',
-  home_feature_audio_desc: '上传 MP3、WAV、M4A 等音频文件，AI 深度分析声纹特征，识别 AI 语音克隆和合成语音',
-  home_feature_video_title: '视频 Deepfake 检测',
-  home_feature_video_desc: '支持 MP4、WebM 等格式，检测 AI 换脸、人脸替换、表情操控等深度伪造视频',
-  home_feature_camera_title: '实时摄像头检测',
-  home_feature_camera_desc: '调用浏览器摄像头，对视频通话进行实时 Deepfake 特征分析，即时预警',
-  home_feature_mic_title: '实时麦克风检测',
-  home_feature_mic_desc: '实时分析麦克风语音流，检测 AI 合成语音痕迹，保护您的通话安全',
-  home_feature_score_title: '风险评分系统',
-  home_feature_score_desc: '每次检测生成 0-100 分风险评分，并提供详细分析报告，包含异常特征和置信度',
-  home_feature_history_title: '检测历史记录',
-  home_feature_history_desc: '完整记录所有检测历史，包括文件名、时间、评分，随时回溯查看',
-  home_how_title: '三步完成检测',
-  home_how_step1: '上传或开启检测',
-  home_how_step1_desc: '上传音视频文件，或开启摄像头/麦克风进行实时检测',
-  home_how_step2: 'AI 深度分析',
-  home_how_step2_desc: '先进 AI 模型对内容进行多维度分析，识别 Deepfake 特征',
-  home_how_step3: '获取检测报告',
-  home_how_step3_desc: '获得风险评分和详细分析报告，了解检测结果和异常特征',
-  home_cta_title: '立即保护您的数字安全',
-  home_cta_subtitle: '免费开始使用，无需安装任何软件',
-  home_cta_btn: '免费开始检测',
-
-  detect_upload_title: '拖拽文件到此处，或点击上传',
-  detect_upload_hint: '支持格式：',
-  detect_analyzing: '正在分析中...',
-  detect_result_title: '检测结果',
-  detect_risk_score: '风险评分',
-  detect_verdict_safe: '安全',
-  detect_verdict_suspicious: '可疑',
-  detect_verdict_deepfake: 'Deepfake',
-  detect_analysis_detail: '详细分析',
-  detect_try_another: '检测另一个文件',
-  detect_save_result: '保存结果',
-  detect_saved: '已保存',
-  detect_features_detected: '检测到的异常特征',
-  detect_confidence: '置信度',
-
-  audio_title: '音频 Deepfake 检测',
-  audio_subtitle: '上传音频文件，AI 分析是否为语音克隆或 AI 合成语音',
-  audio_formats: 'MP3、WAV、M4A、OGG、FLAC',
-
-  video_title: '视频 Deepfake 检测',
-  video_subtitle: '上传视频文件，AI 检测换脸、人脸替换等深度伪造内容',
-  video_formats: 'MP4、WebM、MOV、AVI',
-
-  camera_title: '实时摄像头检测',
-  camera_subtitle: '开启摄像头，实时检测视频流中的 Deepfake 特征',
-  camera_start: '开启摄像头检测',
-  camera_stop: '停止检测',
-  camera_permission: '请允许浏览器访问摄像头权限',
-  camera_analyzing: '正在实时分析...',
-  camera_live_score: '实时风险评分',
-
-  mic_title: '实时麦克风检测',
-  mic_subtitle: '开启麦克风，实时检测语音流中的 AI 合成痕迹',
-  mic_start: '开启麦克风检测',
-  mic_stop: '停止检测',
-  mic_permission: '请允许浏览器访问麦克风权限',
-  mic_analyzing: '正在实时分析...',
-  mic_live_score: '实时风险评分',
-
-  history_title: '检测历史记录',
-  history_subtitle: '查看您的所有检测记录',
-  history_empty: '暂无检测记录',
-  history_col_type: '类型',
-  history_col_file: '文件名',
-  history_col_time: '检测时间',
-  history_col_score: '风险评分',
-  history_col_verdict: '结论',
-  history_login_required: '请登录后查看检测历史',
-  history_type_audio: '音频',
-  history_type_video: '视频',
-  history_type_camera: '摄像头',
-  history_type_microphone: '麦克风',
-
-  screen_title: '屏幕实时检测',
-  screen_subtitle: '共享屏幕，实时检测 Zoom、微信、Teams 等软件中的 Deepfake 内容',
-  screen_start: '开始屏幕共享检测',
-  screen_stop: '停止检测',
-  screen_permission: '请允许浏览器访问屏幕内容',
-  screen_analyzing: '正在实时分析屏幕...',
-  screen_live_score: '实时风险评分',
-  screen_how_title: '如何检测 Zoom 等软件',
-  screen_how_desc: '开启屏幕共享，选择包含通话的窗口或整个屏幕，DeepGuard 将实时分析画面中的人脸和语音',
-  screen_zoom_badge: 'Zoom',
-  screen_teams_badge: 'Teams',
-  screen_meet_badge: 'Google Meet',
-  screen_wechat_badge: '微信',
-  screen_whatsapp_badge: 'WhatsApp',
-  nav_screen: '屏幕检测',
-
-  footer_tagline: '用 AI 对抗 AI，守护数字世界的真实',
-  footer_rights: '版权所有',
+  home_feature_audio_title: '音频 Deepfake 检测', home_feature_audio_desc: '上传 MP3、WAV、M4A 等音频文件，AI 深度分析声纹特征，识别 AI 语音克隆和合成语音',
+  home_feature_video_title: '视频 Deepfake 检测', home_feature_video_desc: '支持 MP4、WebM 等格式，检测 AI 换脸、人脸替换、表情操控等深度伪造视频',
+  home_feature_camera_title: '实时摄像头检测', home_feature_camera_desc: '调用浏览器摄像头，对视频通话进行实时 Deepfake 特征分析，即时预警',
+  home_feature_mic_title: '实时麦克风检测', home_feature_mic_desc: '实时分析麦克风语音流，检测 AI 合成语音痕迹，保护您的通话安全',
+  home_feature_score_title: '风险评分系统', home_feature_score_desc: '每次检测生成 0-100 分风险评分，并提供详细分析报告，包含异常特征和置信度',
+  home_feature_history_title: '检测历史记录', home_feature_history_desc: '完整记录所有检测历史，包括文件名、时间、评分，随时回溯查看',
+  home_how_title: '三步完成检测', home_how_step1: '上传或开启检测', home_how_step1_desc: '上传音视频文件，或开启摄像头/麦克风进行实时检测',
+  home_how_step2: 'AI 深度分析', home_how_step2_desc: '先进 AI 模型对内容进行多维度分析，识别 Deepfake 特征',
+  home_how_step3: '获取检测报告', home_how_step3_desc: '获得风险评分和详细分析报告，了解检测结果和异常特征',
+  home_cta_title: '立即保护您的数字安全', home_cta_subtitle: '免费开始使用，无需安装任何软件', home_cta_btn: '免费开始检测',
+  detect_upload_title: '拖拽文件到此处，或点击上传', detect_upload_hint: '支持格式：', detect_analyzing: '正在分析中...',
+  detect_result_title: '检测结果', detect_risk_score: '风险评分',
+  detect_verdict_safe: '安全', detect_verdict_suspicious: '可疑', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: '详细分析', detect_try_another: '检测另一个文件', detect_save_result: '保存结果',
+  detect_saved: '已保存', detect_features_detected: '检测到的异常特征', detect_confidence: '置信度',
+  audio_title: '音频 Deepfake 检测', audio_subtitle: '上传音频文件，AI 分析是否为语音克隆或 AI 合成语音', audio_formats: 'MP3、WAV、M4A、OGG、FLAC',
+  video_title: '视频 Deepfake 检测', video_subtitle: '上传视频文件，AI 检测换脸、人脸替换等深度伪造内容', video_formats: 'MP4、WebM、MOV、AVI',
+  camera_title: '实时摄像头检测', camera_subtitle: '开启摄像头，实时检测视频流中的 Deepfake 特征',
+  camera_start: '开启摄像头检测', camera_stop: '停止检测', camera_permission: '请允许浏览器访问摄像头权限',
+  camera_analyzing: '正在实时分析...', camera_live_score: '实时风险评分',
+  mic_title: '实时麦克风检测', mic_subtitle: '开启麦克风，实时检测语音流中的 AI 合成痕迹',
+  mic_start: '开启麦克风检测', mic_stop: '停止检测', mic_permission: '请允许浏览器访问麦克风权限',
+  mic_analyzing: '正在实时分析...', mic_live_score: '实时风险评分',
+  history_title: '检测历史记录', history_subtitle: '查看您的所有检测记录', history_empty: '暂无检测记录',
+  history_col_type: '类型', history_col_file: '文件名', history_col_time: '检测时间',
+  history_col_score: '风险评分', history_col_verdict: '结论', history_login_required: '请登录后查看检测历史',
+  history_type_audio: '音频', history_type_video: '视频', history_type_camera: '摄像头', history_type_microphone: '麦克风',
+  screen_title: '屏幕实时检测', screen_subtitle: '共享屏幕，实时检测 Zoom、微信、Teams 等软件中的 Deepfake 内容',
+  screen_start: '开始屏幕共享检测', screen_stop: '停止检测', screen_permission: '请允许浏览器访问屏幕内容',
+  screen_analyzing: '正在实时分析屏幕...', screen_live_score: '实时风险评分',
+  screen_how_title: '如何检测 Zoom 等软件', screen_how_desc: '开启屏幕共享，选择包含通话的窗口或整个屏幕，DeepGuard 将实时分析画面中的人脸和语音',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: '微信', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: '文本检测', nav_verify: '真人验证', nav_api: 'API 文档',
+  footer_tagline: '用 AI 对抗 AI，守护数字世界的真实', footer_rights: '版权所有',
 };
 
 const en: Translations = {
-  nav_home: 'Home',
-  nav_detect: 'Detect',
-  nav_history: 'History',
-  nav_audio: 'Audio Detection',
-  nav_video: 'Video Detection',
-  nav_camera: 'Camera Detection',
-  nav_microphone: 'Microphone Detection',
-  nav_login: 'Login',
-  nav_logout: 'Logout',
-  nav_tagline: 'AI Deepfake Detection Platform',
-
+  nav_home: 'Home', nav_detect: 'Detect', nav_history: 'History', nav_audio: 'Audio Detection',
+  nav_video: 'Video Detection', nav_camera: 'Camera Detection', nav_microphone: 'Microphone Detection',
+  nav_login: 'Login', nav_logout: 'Logout', nav_tagline: 'AI Deepfake Detection Platform', nav_screen: 'Screen Detection',
   home_hero_title: 'Expose AI Fakes, Protect Reality',
   home_hero_subtitle: 'Advanced AI technology to detect deepfake audio and video in real-time. Protect yourself and your family from AI voice cloning and face-swap scams.',
-  home_hero_cta: 'Start Detection Now',
-  home_hero_cta2: 'Learn More',
-  home_stats_detections: '1M+',
-  home_stats_accuracy: '95%+',
-  home_stats_speed: '<5s',
-  home_stats_detections_label: 'Total Detections',
-  home_stats_accuracy_label: 'Detection Accuracy',
-  home_stats_speed_label: 'Avg Analysis Speed',
+  home_hero_cta: 'Start Detection Now', home_hero_cta2: 'Learn More',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Total Detections', home_stats_accuracy_label: 'Detection Accuracy', home_stats_speed_label: 'Avg Analysis Speed',
   home_features_title: 'Complete Deepfake Protection',
   home_features_subtitle: 'Full coverage for audio, video, and live calls — making AI fraud impossible to hide',
-  home_feature_audio_title: 'Audio Deepfake Detection',
-  home_feature_audio_desc: 'Upload MP3, WAV, M4A files. AI deeply analyzes voice patterns to identify AI voice cloning and synthetic speech',
-  home_feature_video_title: 'Video Deepfake Detection',
-  home_feature_video_desc: 'Supports MP4, WebM formats. Detects AI face-swap, face replacement, and expression manipulation',
-  home_feature_camera_title: 'Real-time Camera Detection',
-  home_feature_camera_desc: 'Use browser camera for real-time deepfake analysis during video calls with instant alerts',
-  home_feature_mic_title: 'Real-time Mic Detection',
-  home_feature_mic_desc: 'Real-time analysis of microphone audio stream to detect AI synthetic voice traces',
-  home_feature_score_title: 'Risk Scoring System',
-  home_feature_score_desc: 'Each detection generates a 0-100 risk score with detailed analysis report including anomaly features and confidence',
-  home_feature_history_title: 'Detection History',
-  home_feature_history_desc: 'Complete record of all detection history including filename, time, and scores for easy review',
-  home_how_title: 'Three Steps to Detect',
-  home_how_step1: 'Upload or Enable Detection',
-  home_how_step1_desc: 'Upload audio/video files, or enable camera/microphone for real-time detection',
-  home_how_step2: 'AI Deep Analysis',
-  home_how_step2_desc: 'Advanced AI models analyze content across multiple dimensions to identify deepfake features',
-  home_how_step3: 'Get Detection Report',
-  home_how_step3_desc: 'Receive risk score and detailed analysis report with anomaly features and confidence levels',
-  home_cta_title: 'Protect Your Digital Security Now',
-  home_cta_subtitle: 'Start for free — no software installation required',
-  home_cta_btn: 'Start Free Detection',
-
-  detect_upload_title: 'Drag & drop file here, or click to upload',
-  detect_upload_hint: 'Supported formats: ',
-  detect_analyzing: 'Analyzing...',
-  detect_result_title: 'Detection Result',
-  detect_risk_score: 'Risk Score',
-  detect_verdict_safe: 'Safe',
-  detect_verdict_suspicious: 'Suspicious',
-  detect_verdict_deepfake: 'Deepfake',
-  detect_analysis_detail: 'Detailed Analysis',
-  detect_try_another: 'Detect Another File',
-  detect_save_result: 'Save Result',
-  detect_saved: 'Saved',
-  detect_features_detected: 'Detected Anomaly Features',
-  detect_confidence: 'Confidence',
-
-  audio_title: 'Audio Deepfake Detection',
-  audio_subtitle: 'Upload audio files to detect AI voice cloning and synthetic speech',
-  audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
-
-  video_title: 'Video Deepfake Detection',
-  video_subtitle: 'Upload video files to detect face-swap and deepfake manipulation',
-  video_formats: 'MP4, WebM, MOV, AVI',
-
-  camera_title: 'Real-time Camera Detection',
-  camera_subtitle: 'Enable camera for real-time deepfake feature analysis in video streams',
-  camera_start: 'Start Camera Detection',
-  camera_stop: 'Stop Detection',
-  camera_permission: 'Please allow browser access to camera',
-  camera_analyzing: 'Analyzing in real-time...',
-  camera_live_score: 'Live Risk Score',
-
-  mic_title: 'Real-time Microphone Detection',
-  mic_subtitle: 'Enable microphone for real-time AI synthetic voice detection',
-  mic_start: 'Start Mic Detection',
-  mic_stop: 'Stop Detection',
-  mic_permission: 'Please allow browser access to microphone',
-  mic_analyzing: 'Analyzing in real-time...',
-  mic_live_score: 'Live Risk Score',
-
-  history_title: 'Detection History',
-  history_subtitle: 'View all your detection records',
-  history_empty: 'No detection records yet',
-  history_col_type: 'Type',
-  history_col_file: 'File Name',
-  history_col_time: 'Detection Time',
-  history_col_score: 'Risk Score',
-  history_col_verdict: 'Verdict',
-  history_login_required: 'Please login to view detection history',
-  history_type_audio: 'Audio',
-  history_type_video: 'Video',
-  history_type_camera: 'Camera',
-  history_type_microphone: 'Microphone',
-
-  screen_title: 'Screen Share Detection',
-  screen_subtitle: 'Share your screen to detect Deepfake content in Zoom, WeChat, Teams and more in real-time',
-  screen_start: 'Start Screen Share Detection',
-  screen_stop: 'Stop Detection',
-  screen_permission: 'Please allow browser access to screen capture',
-  screen_analyzing: 'Analyzing screen in real-time...',
-  screen_live_score: 'Live Risk Score',
-  screen_how_title: 'How to detect Zoom and other apps',
-  screen_how_desc: 'Start screen sharing, select the window with your call or the entire screen, and DeepGuard will analyze faces and audio in real-time',
-  screen_zoom_badge: 'Zoom',
-  screen_teams_badge: 'Teams',
-  screen_meet_badge: 'Google Meet',
-  screen_wechat_badge: 'WeChat',
-  screen_whatsapp_badge: 'WhatsApp',
-  nav_screen: 'Screen Detection',
-
-  footer_tagline: 'Fighting AI with AI — protecting the truth in the digital world',
-  footer_rights: 'All rights reserved',
+  home_feature_audio_title: 'Audio Deepfake Detection', home_feature_audio_desc: 'Upload MP3, WAV, M4A files. AI deeply analyzes voice patterns to identify AI voice cloning and synthetic speech',
+  home_feature_video_title: 'Video Deepfake Detection', home_feature_video_desc: 'Supports MP4, WebM formats. Detects AI face-swap, face replacement, and expression manipulation',
+  home_feature_camera_title: 'Real-time Camera Detection', home_feature_camera_desc: 'Use browser camera for real-time deepfake analysis during video calls with instant alerts',
+  home_feature_mic_title: 'Real-time Mic Detection', home_feature_mic_desc: 'Real-time analysis of microphone audio stream to detect AI synthetic voice traces',
+  home_feature_score_title: 'Risk Scoring System', home_feature_score_desc: 'Each detection generates a 0-100 risk score with detailed analysis report including anomaly features and confidence',
+  home_feature_history_title: 'Detection History', home_feature_history_desc: 'Complete record of all detection history including filename, time, and scores for easy review',
+  home_how_title: 'Three Steps to Detect', home_how_step1: 'Upload or Enable Detection', home_how_step1_desc: 'Upload audio/video files, or enable camera/microphone for real-time detection',
+  home_how_step2: 'AI Deep Analysis', home_how_step2_desc: 'Advanced AI models analyze content across multiple dimensions to identify deepfake features',
+  home_how_step3: 'Get Detection Report', home_how_step3_desc: 'Receive risk score and detailed analysis report with anomaly features and confidence levels',
+  home_cta_title: 'Protect Your Digital Security Now', home_cta_subtitle: 'Start for free — no software installation required', home_cta_btn: 'Start Free Detection',
+  detect_upload_title: 'Drag & drop file here, or click to upload', detect_upload_hint: 'Supported formats: ', detect_analyzing: 'Analyzing...',
+  detect_result_title: 'Detection Result', detect_risk_score: 'Risk Score',
+  detect_verdict_safe: 'Safe', detect_verdict_suspicious: 'Suspicious', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Detailed Analysis', detect_try_another: 'Detect Another File', detect_save_result: 'Save Result',
+  detect_saved: 'Saved', detect_features_detected: 'Detected Anomaly Features', detect_confidence: 'Confidence',
+  audio_title: 'Audio Deepfake Detection', audio_subtitle: 'Upload audio files to detect AI voice cloning and synthetic speech', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Video Deepfake Detection', video_subtitle: 'Upload video files to detect face-swap and deepfake manipulation', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Real-time Camera Detection', camera_subtitle: 'Enable camera for real-time deepfake feature analysis in video streams',
+  camera_start: 'Start Camera Detection', camera_stop: 'Stop Detection', camera_permission: 'Please allow browser access to camera',
+  camera_analyzing: 'Analyzing in real-time...', camera_live_score: 'Live Risk Score',
+  mic_title: 'Real-time Microphone Detection', mic_subtitle: 'Enable microphone for real-time AI synthetic voice detection',
+  mic_start: 'Start Mic Detection', mic_stop: 'Stop Detection', mic_permission: 'Please allow browser access to microphone',
+  mic_analyzing: 'Analyzing in real-time...', mic_live_score: 'Live Risk Score',
+  history_title: 'Detection History', history_subtitle: 'View all your detection records', history_empty: 'No detection records yet',
+  history_col_type: 'Type', history_col_file: 'File Name', history_col_time: 'Detection Time',
+  history_col_score: 'Risk Score', history_col_verdict: 'Verdict', history_login_required: 'Please login to view detection history',
+  history_type_audio: 'Audio', history_type_video: 'Video', history_type_camera: 'Camera', history_type_microphone: 'Microphone',
+  screen_title: 'Screen Share Detection', screen_subtitle: 'Share your screen to detect Deepfake content in Zoom, WeChat, Teams and more in real-time',
+  screen_start: 'Start Screen Share Detection', screen_stop: 'Stop Detection', screen_permission: 'Please allow browser access to screen capture',
+  screen_analyzing: 'Analyzing screen in real-time...', screen_live_score: 'Live Risk Score',
+  screen_how_title: 'How to detect Zoom and other apps', screen_how_desc: 'Start screen sharing, select the window with your call or the entire screen, and DeepGuard will analyze faces and audio in real-time',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Text Detection', nav_verify: 'Live Verification', nav_api: 'API Docs',
+  footer_tagline: 'Fighting AI with AI — protecting the truth in the digital world', footer_rights: 'All rights reserved',
 };
+
+const hi: Translations = {
+  nav_home: 'होम', nav_detect: 'जांच करें', nav_history: 'इतिहास', nav_audio: 'ऑडियो जांच',
+  nav_video: 'वीडियो जांच', nav_camera: 'कैमरा जांच', nav_microphone: 'माइक्रोफोन जांच',
+  nav_login: 'लॉगिन', nav_logout: 'लॉगआउट', nav_tagline: 'AI डीपफेक डिटेक्शन प्लेटफॉर्म', nav_screen: 'स्क्रीन जांच',
+  home_hero_title: 'AI नकली को पहचानें, सच्चाई की रक्षा करें',
+  home_hero_subtitle: 'उन्नत AI तकनीक से ऑडियो और वीडियो में डीपफेक सामग्री की रियल-टाइम जांच करें। AI वॉयस क्लोनिंग और फेस-स्वैप धोखाधड़ी से खुद को और परिवार को बचाएं।',
+  home_hero_cta: 'अभी जांच शुरू करें', home_hero_cta2: 'और जानें',
+  home_stats_detections: '10 लाख+', home_stats_accuracy: '95%+', home_stats_speed: '<5 सेकंड',
+  home_stats_detections_label: 'कुल जांच', home_stats_accuracy_label: 'जांच सटीकता', home_stats_speed_label: 'औसत विश्लेषण गति',
+  home_features_title: 'संपूर्ण डीपफेक सुरक्षा',
+  home_features_subtitle: 'ऑडियो, वीडियो और लाइव कॉल के लिए पूर्ण कवरेज',
+  home_feature_audio_title: 'ऑडियो डीपफेक जांच', home_feature_audio_desc: 'MP3, WAV, M4A फाइलें अपलोड करें। AI वॉयस क्लोनिंग और सिंथेटिक स्पीच की पहचान करें',
+  home_feature_video_title: 'वीडियो डीपफेक जांच', home_feature_video_desc: 'MP4, WebM फॉर्मेट सपोर्ट। AI फेस-स्वैप और एक्सप्रेशन मैनिपुलेशन डिटेक्ट करें',
+  home_feature_camera_title: 'रियल-टाइम कैमरा जांच', home_feature_camera_desc: 'वीडियो कॉल के दौरान रियल-टाइम डीपफेक विश्लेषण के लिए ब्राउज़र कैमरा उपयोग करें',
+  home_feature_mic_title: 'रियल-टाइम माइक जांच', home_feature_mic_desc: 'AI सिंथेटिक वॉयस ट्रेस डिटेक्ट करने के लिए माइक्रोफोन ऑडियो स्ट्रीम का विश्लेषण',
+  home_feature_score_title: 'जोखिम स्कोरिंग सिस्टम', home_feature_score_desc: 'प्रत्येक जांच 0-100 जोखिम स्कोर और विस्तृत रिपोर्ट देती है',
+  home_feature_history_title: 'जांच इतिहास', home_feature_history_desc: 'सभी जांच इतिहास का पूर्ण रिकॉर्ड',
+  home_how_title: 'तीन चरणों में जांच', home_how_step1: 'अपलोड या जांच सक्षम करें', home_how_step1_desc: 'ऑडियो/वीडियो फाइलें अपलोड करें, या रियल-टाइम जांच के लिए कैमरा/माइक सक्षम करें',
+  home_how_step2: 'AI गहरा विश्लेषण', home_how_step2_desc: 'उन्नत AI मॉडल डीपफेक विशेषताओं की पहचान के लिए सामग्री का विश्लेषण करते हैं',
+  home_how_step3: 'जांच रिपोर्ट प्राप्त करें', home_how_step3_desc: 'जोखिम स्कोर और विस्तृत विश्लेषण रिपोर्ट प्राप्त करें',
+  home_cta_title: 'अभी अपनी डिजिटल सुरक्षा करें', home_cta_subtitle: 'मुफ्त में शुरू करें — कोई सॉफ्टवेयर इंस्टॉलेशन नहीं', home_cta_btn: 'मुफ्त जांच शुरू करें',
+  detect_upload_title: 'फाइल यहाँ खींचें और छोड़ें, या अपलोड करने के लिए क्लिक करें', detect_upload_hint: 'समर्थित फॉर्मेट: ', detect_analyzing: 'विश्लेषण हो रहा है...',
+  detect_result_title: 'जांच परिणाम', detect_risk_score: 'जोखिम स्कोर',
+  detect_verdict_safe: 'सुरक्षित', detect_verdict_suspicious: 'संदिग्ध', detect_verdict_deepfake: 'डीपफेक',
+  detect_analysis_detail: 'विस्तृत विश्लेषण', detect_try_another: 'दूसरी फाइल जांचें', detect_save_result: 'परिणाम सहेजें',
+  detect_saved: 'सहेजा गया', detect_features_detected: 'पता लगाई गई असामान्य विशेषताएं', detect_confidence: 'विश्वास',
+  audio_title: 'ऑडियो डीपफेक जांच', audio_subtitle: 'AI वॉयस क्लोनिंग और सिंथेटिक स्पीच डिटेक्ट करने के लिए ऑडियो फाइलें अपलोड करें', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'वीडियो डीपफेक जांच', video_subtitle: 'फेस-स्वैप और डीपफेक मैनिपुलेशन डिटेक्ट करने के लिए वीडियो फाइलें अपलोड करें', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'रियल-टाइम कैमरा जांच', camera_subtitle: 'वीडियो स्ट्रीम में रियल-टाइम डीपफेक विश्लेषण के लिए कैमरा सक्षम करें',
+  camera_start: 'कैमरा जांच शुरू करें', camera_stop: 'जांच बंद करें', camera_permission: 'कृपया ब्राउज़र को कैमरा एक्सेस दें',
+  camera_analyzing: 'रियल-टाइम विश्लेषण हो रहा है...', camera_live_score: 'लाइव जोखिम स्कोर',
+  mic_title: 'रियल-टाइम माइक्रोफोन जांच', mic_subtitle: 'रियल-टाइम AI सिंथेटिक वॉयस डिटेक्शन के लिए माइक्रोफोन सक्षम करें',
+  mic_start: 'माइक जांच शुरू करें', mic_stop: 'जांच बंद करें', mic_permission: 'कृपया ब्राउज़र को माइक्रोफोन एक्सेस दें',
+  mic_analyzing: 'रियल-टाइम विश्लेषण हो रहा है...', mic_live_score: 'लाइव जोखिम स्कोर',
+  history_title: 'जांच इतिहास', history_subtitle: 'अपने सभी जांच रिकॉर्ड देखें', history_empty: 'अभी तक कोई जांच रिकॉर्ड नहीं',
+  history_col_type: 'प्रकार', history_col_file: 'फाइल नाम', history_col_time: 'जांच समय',
+  history_col_score: 'जोखिम स्कोर', history_col_verdict: 'निर्णय', history_login_required: 'जांच इतिहास देखने के लिए लॉगिन करें',
+  history_type_audio: 'ऑडियो', history_type_video: 'वीडियो', history_type_camera: 'कैमरा', history_type_microphone: 'माइक्रोफोन',
+  screen_title: 'स्क्रीन शेयर जांच', screen_subtitle: 'Zoom, WeChat, Teams में डीपफेक सामग्री डिटेक्ट करने के लिए स्क्रीन शेयर करें',
+  screen_start: 'स्क्रीन शेयर जांच शुरू करें', screen_stop: 'जांच बंद करें', screen_permission: 'कृपया ब्राउज़र को स्क्रीन कैप्चर एक्सेस दें',
+  screen_analyzing: 'स्क्रीन का रियल-टाइम विश्लेषण...', screen_live_score: 'लाइव जोखिम स्कोर',
+  screen_how_title: 'Zoom और अन्य ऐप्स कैसे जांचें', screen_how_desc: 'स्क्रीन शेयरिंग शुरू करें, कॉल वाली विंडो या पूरी स्क्रीन चुनें',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'टेक्स्ट जांच', nav_verify: 'लाइव सत्यापन', nav_api: 'API दस्तावेज़',
+  footer_tagline: 'AI से AI का मुकाबला — डिजिटल दुनिया में सच्चाई की रक्षा', footer_rights: 'सर्वाधिकार सुरक्षित',
+};
+
+const es: Translations = {
+  nav_home: 'Inicio', nav_detect: 'Detectar', nav_history: 'Historial', nav_audio: 'Detección de Audio',
+  nav_video: 'Detección de Video', nav_camera: 'Detección de Cámara', nav_microphone: 'Detección de Micrófono',
+  nav_login: 'Iniciar sesión', nav_logout: 'Cerrar sesión', nav_tagline: 'Plataforma de Detección Deepfake con IA', nav_screen: 'Detección de Pantalla',
+  home_hero_title: 'Expón las Falsificaciones de IA, Protege la Realidad',
+  home_hero_subtitle: 'Tecnología avanzada de IA para detectar deepfakes de audio y video en tiempo real. Protégete a ti y a tu familia de la clonación de voz y estafas de intercambio de rostros.',
+  home_hero_cta: 'Iniciar Detección Ahora', home_hero_cta2: 'Saber Más',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Detecciones Totales', home_stats_accuracy_label: 'Precisión de Detección', home_stats_speed_label: 'Velocidad Promedio',
+  home_features_title: 'Protección Completa contra Deepfakes',
+  home_features_subtitle: 'Cobertura total para audio, video y llamadas en vivo',
+  home_feature_audio_title: 'Detección de Audio Deepfake', home_feature_audio_desc: 'Sube archivos MP3, WAV, M4A. La IA analiza patrones de voz para identificar clonación de voz',
+  home_feature_video_title: 'Detección de Video Deepfake', home_feature_video_desc: 'Soporta MP4, WebM. Detecta intercambio de rostros y manipulación de expresiones',
+  home_feature_camera_title: 'Detección en Tiempo Real por Cámara', home_feature_camera_desc: 'Usa la cámara del navegador para análisis deepfake en tiempo real durante videollamadas',
+  home_feature_mic_title: 'Detección en Tiempo Real por Micrófono', home_feature_mic_desc: 'Análisis en tiempo real del flujo de audio del micrófono para detectar voz sintética de IA',
+  home_feature_score_title: 'Sistema de Puntuación de Riesgo', home_feature_score_desc: 'Cada detección genera una puntuación de riesgo 0-100 con informe detallado',
+  home_feature_history_title: 'Historial de Detecciones', home_feature_history_desc: 'Registro completo de todo el historial de detecciones',
+  home_how_title: 'Tres Pasos para Detectar', home_how_step1: 'Subir o Activar Detección', home_how_step1_desc: 'Sube archivos de audio/video o activa cámara/micrófono para detección en tiempo real',
+  home_how_step2: 'Análisis Profundo de IA', home_how_step2_desc: 'Modelos avanzados de IA analizan el contenido para identificar características deepfake',
+  home_how_step3: 'Obtener Informe', home_how_step3_desc: 'Recibe puntuación de riesgo e informe de análisis detallado',
+  home_cta_title: 'Protege Tu Seguridad Digital Ahora', home_cta_subtitle: 'Comienza gratis — sin instalación de software', home_cta_btn: 'Iniciar Detección Gratuita',
+  detect_upload_title: 'Arrastra y suelta el archivo aquí, o haz clic para subir', detect_upload_hint: 'Formatos soportados: ', detect_analyzing: 'Analizando...',
+  detect_result_title: 'Resultado de Detección', detect_risk_score: 'Puntuación de Riesgo',
+  detect_verdict_safe: 'Seguro', detect_verdict_suspicious: 'Sospechoso', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Análisis Detallado', detect_try_another: 'Detectar Otro Archivo', detect_save_result: 'Guardar Resultado',
+  detect_saved: 'Guardado', detect_features_detected: 'Características Anómalas Detectadas', detect_confidence: 'Confianza',
+  audio_title: 'Detección de Audio Deepfake', audio_subtitle: 'Sube archivos de audio para detectar clonación de voz de IA', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Detección de Video Deepfake', video_subtitle: 'Sube archivos de video para detectar intercambio de rostros', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Detección en Tiempo Real por Cámara', camera_subtitle: 'Activa la cámara para análisis deepfake en tiempo real',
+  camera_start: 'Iniciar Detección por Cámara', camera_stop: 'Detener Detección', camera_permission: 'Por favor permite el acceso a la cámara',
+  camera_analyzing: 'Analizando en tiempo real...', camera_live_score: 'Puntuación de Riesgo en Vivo',
+  mic_title: 'Detección en Tiempo Real por Micrófono', mic_subtitle: 'Activa el micrófono para detección de voz sintética de IA',
+  mic_start: 'Iniciar Detección por Micrófono', mic_stop: 'Detener Detección', mic_permission: 'Por favor permite el acceso al micrófono',
+  mic_analyzing: 'Analizando en tiempo real...', mic_live_score: 'Puntuación de Riesgo en Vivo',
+  history_title: 'Historial de Detecciones', history_subtitle: 'Ver todos tus registros de detección', history_empty: 'No hay registros de detección aún',
+  history_col_type: 'Tipo', history_col_file: 'Nombre de Archivo', history_col_time: 'Hora de Detección',
+  history_col_score: 'Puntuación de Riesgo', history_col_verdict: 'Veredicto', history_login_required: 'Por favor inicia sesión para ver el historial',
+  history_type_audio: 'Audio', history_type_video: 'Video', history_type_camera: 'Cámara', history_type_microphone: 'Micrófono',
+  screen_title: 'Detección por Pantalla Compartida', screen_subtitle: 'Comparte tu pantalla para detectar Deepfake en Zoom, Teams y más',
+  screen_start: 'Iniciar Detección de Pantalla', screen_stop: 'Detener Detección', screen_permission: 'Por favor permite el acceso a la captura de pantalla',
+  screen_analyzing: 'Analizando pantalla en tiempo real...', screen_live_score: 'Puntuación de Riesgo en Vivo',
+  screen_how_title: 'Cómo detectar Zoom y otras apps', screen_how_desc: 'Inicia la compartición de pantalla, selecciona la ventana con tu llamada',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Detección de Texto', nav_verify: 'Verificación en Vivo', nav_api: 'Documentación API',
+  footer_tagline: 'Combatiendo la IA con IA — protegiendo la verdad en el mundo digital', footer_rights: 'Todos los derechos reservados',
+};
+
+const fr: Translations = {
+  nav_home: 'Accueil', nav_detect: 'Détecter', nav_history: 'Historique', nav_audio: 'Détection Audio',
+  nav_video: 'Détection Vidéo', nav_camera: 'Détection Caméra', nav_microphone: 'Détection Micro',
+  nav_login: 'Connexion', nav_logout: 'Déconnexion', nav_tagline: 'Plateforme de Détection Deepfake par IA', nav_screen: 'Détection Écran',
+  home_hero_title: 'Démasquez les Faux IA, Protégez la Réalité',
+  home_hero_subtitle: "Technologie IA avancée pour détecter les deepfakes audio et vidéo en temps réel. Protégez-vous et votre famille contre le clonage vocal et les arnaques par échange de visage.",
+  home_hero_cta: 'Commencer la Détection', home_hero_cta2: 'En Savoir Plus',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Détections Totales', home_stats_accuracy_label: 'Précision de Détection', home_stats_speed_label: 'Vitesse Moyenne',
+  home_features_title: 'Protection Complète contre les Deepfakes',
+  home_features_subtitle: 'Couverture complète pour audio, vidéo et appels en direct',
+  home_feature_audio_title: 'Détection Audio Deepfake', home_feature_audio_desc: 'Téléchargez des fichiers MP3, WAV, M4A. L\'IA analyse les modèles vocaux pour identifier le clonage vocal',
+  home_feature_video_title: 'Détection Vidéo Deepfake', home_feature_video_desc: 'Supporte MP4, WebM. Détecte l\'échange de visage et la manipulation d\'expressions',
+  home_feature_camera_title: 'Détection Caméra en Temps Réel', home_feature_camera_desc: 'Utilisez la caméra du navigateur pour une analyse deepfake en temps réel pendant les appels vidéo',
+  home_feature_mic_title: 'Détection Micro en Temps Réel', home_feature_mic_desc: 'Analyse en temps réel du flux audio du microphone pour détecter la voix synthétique IA',
+  home_feature_score_title: 'Système de Score de Risque', home_feature_score_desc: 'Chaque détection génère un score de risque 0-100 avec rapport détaillé',
+  home_feature_history_title: "Historique des Détections", home_feature_history_desc: 'Enregistrement complet de tout l\'historique des détections',
+  home_how_title: 'Trois Étapes pour Détecter', home_how_step1: 'Télécharger ou Activer', home_how_step1_desc: 'Téléchargez des fichiers audio/vidéo ou activez la caméra/micro pour une détection en temps réel',
+  home_how_step2: 'Analyse Approfondie IA', home_how_step2_desc: 'Les modèles IA avancés analysent le contenu pour identifier les caractéristiques deepfake',
+  home_how_step3: 'Obtenir le Rapport', home_how_step3_desc: 'Recevez un score de risque et un rapport d\'analyse détaillé',
+  home_cta_title: 'Protégez Votre Sécurité Numérique Maintenant', home_cta_subtitle: 'Commencez gratuitement — aucune installation requise', home_cta_btn: 'Démarrer la Détection Gratuite',
+  detect_upload_title: 'Glissez-déposez le fichier ici, ou cliquez pour télécharger', detect_upload_hint: 'Formats supportés: ', detect_analyzing: 'Analyse en cours...',
+  detect_result_title: 'Résultat de Détection', detect_risk_score: 'Score de Risque',
+  detect_verdict_safe: 'Sûr', detect_verdict_suspicious: 'Suspect', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Analyse Détaillée', detect_try_another: 'Détecter un Autre Fichier', detect_save_result: 'Sauvegarder',
+  detect_saved: 'Sauvegardé', detect_features_detected: 'Caractéristiques Anormales Détectées', detect_confidence: 'Confiance',
+  audio_title: 'Détection Audio Deepfake', audio_subtitle: 'Téléchargez des fichiers audio pour détecter le clonage vocal IA', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Détection Vidéo Deepfake', video_subtitle: 'Téléchargez des fichiers vidéo pour détecter l\'échange de visage', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Détection Caméra en Temps Réel', camera_subtitle: 'Activez la caméra pour une analyse deepfake en temps réel',
+  camera_start: 'Démarrer la Détection Caméra', camera_stop: 'Arrêter la Détection', camera_permission: 'Veuillez autoriser l\'accès à la caméra',
+  camera_analyzing: 'Analyse en temps réel...', camera_live_score: 'Score de Risque en Direct',
+  mic_title: 'Détection Micro en Temps Réel', mic_subtitle: 'Activez le microphone pour la détection de voix synthétique IA',
+  mic_start: 'Démarrer la Détection Micro', mic_stop: 'Arrêter la Détection', mic_permission: 'Veuillez autoriser l\'accès au microphone',
+  mic_analyzing: 'Analyse en temps réel...', mic_live_score: 'Score de Risque en Direct',
+  history_title: 'Historique des Détections', history_subtitle: 'Voir tous vos enregistrements de détection', history_empty: 'Aucun enregistrement de détection',
+  history_col_type: 'Type', history_col_file: 'Nom du Fichier', history_col_time: 'Heure de Détection',
+  history_col_score: 'Score de Risque', history_col_verdict: 'Verdict', history_login_required: 'Connectez-vous pour voir l\'historique',
+  history_type_audio: 'Audio', history_type_video: 'Vidéo', history_type_camera: 'Caméra', history_type_microphone: 'Microphone',
+  screen_title: 'Détection par Partage d\'Écran', screen_subtitle: 'Partagez votre écran pour détecter les Deepfakes dans Zoom, Teams et plus',
+  screen_start: 'Démarrer la Détection d\'Écran', screen_stop: 'Arrêter la Détection', screen_permission: 'Veuillez autoriser l\'accès à la capture d\'écran',
+  screen_analyzing: 'Analyse de l\'écran en temps réel...', screen_live_score: 'Score de Risque en Direct',
+  screen_how_title: 'Comment détecter Zoom et autres apps', screen_how_desc: 'Démarrez le partage d\'écran, sélectionnez la fenêtre avec votre appel',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Détection de Texte', nav_verify: 'Vérification en Direct', nav_api: 'Documentation API',
+  footer_tagline: 'Combattre l\'IA avec l\'IA — protéger la vérité dans le monde numérique', footer_rights: 'Tous droits réservés',
+};
+
+const ar: Translations = {
+  nav_home: 'الرئيسية', nav_detect: 'كشف', nav_history: 'السجل', nav_audio: 'كشف الصوت',
+  nav_video: 'كشف الفيديو', nav_camera: 'كشف الكاميرا', nav_microphone: 'كشف الميكروفون',
+  nav_login: 'تسجيل الدخول', nav_logout: 'تسجيل الخروج', nav_tagline: 'منصة كشف التزييف العميق بالذكاء الاصطناعي', nav_screen: 'كشف الشاشة',
+  home_hero_title: 'اكشف التزوير بالذكاء الاصطناعي، احمِ الواقع',
+  home_hero_subtitle: 'تقنية ذكاء اصطناعي متقدمة للكشف عن محتوى التزييف العميق في الصوت والفيديو في الوقت الفعلي. احمِ نفسك وعائلتك من استنساخ الصوت واحتيال تبديل الوجه.',
+  home_hero_cta: 'ابدأ الكشف الآن', home_hero_cta2: 'اعرف المزيد',
+  home_stats_detections: '+1 مليون', home_stats_accuracy: '+95%', home_stats_speed: 'أقل من 5 ثوانٍ',
+  home_stats_detections_label: 'إجمالي الكشوفات', home_stats_accuracy_label: 'دقة الكشف', home_stats_speed_label: 'متوسط سرعة التحليل',
+  home_features_title: 'حماية شاملة من التزييف العميق',
+  home_features_subtitle: 'تغطية كاملة للصوت والفيديو والمكالمات المباشرة',
+  home_feature_audio_title: 'كشف التزييف الصوتي', home_feature_audio_desc: 'ارفع ملفات MP3 و WAV و M4A. يحلل الذكاء الاصطناعي أنماط الصوت للكشف عن الاستنساخ',
+  home_feature_video_title: 'كشف تزييف الفيديو', home_feature_video_desc: 'يدعم MP4 و WebM. يكشف عن تبديل الوجه والتلاعب بالتعابير',
+  home_feature_camera_title: 'كشف الكاميرا في الوقت الفعلي', home_feature_camera_desc: 'استخدم كاميرا المتصفح لتحليل التزييف العميق في الوقت الفعلي أثناء مكالمات الفيديو',
+  home_feature_mic_title: 'كشف الميكروفون في الوقت الفعلي', home_feature_mic_desc: 'تحليل تدفق الصوت في الوقت الفعلي للكشف عن الصوت الاصطناعي',
+  home_feature_score_title: 'نظام تسجيل المخاطر', home_feature_score_desc: 'يولد كل كشف درجة مخاطر من 0-100 مع تقرير تفصيلي',
+  home_feature_history_title: 'سجل الكشوفات', home_feature_history_desc: 'سجل كامل لجميع سجلات الكشف',
+  home_how_title: 'ثلاث خطوات للكشف', home_how_step1: 'رفع أو تفعيل الكشف', home_how_step1_desc: 'ارفع ملفات الصوت/الفيديو أو فعّل الكاميرا/الميكروفون للكشف في الوقت الفعلي',
+  home_how_step2: 'تحليل عميق بالذكاء الاصطناعي', home_how_step2_desc: 'تحلل نماذج الذكاء الاصطناعي المتقدمة المحتوى للكشف عن خصائص التزييف العميق',
+  home_how_step3: 'الحصول على التقرير', home_how_step3_desc: 'احصل على درجة المخاطر وتقرير التحليل التفصيلي',
+  home_cta_title: 'احمِ أمانك الرقمي الآن', home_cta_subtitle: 'ابدأ مجاناً — لا يلزم تثبيت برامج', home_cta_btn: 'ابدأ الكشف المجاني',
+  detect_upload_title: 'اسحب الملف وأفلته هنا، أو انقر للرفع', detect_upload_hint: 'الصيغ المدعومة: ', detect_analyzing: 'جارٍ التحليل...',
+  detect_result_title: 'نتيجة الكشف', detect_risk_score: 'درجة المخاطر',
+  detect_verdict_safe: 'آمن', detect_verdict_suspicious: 'مشبوه', detect_verdict_deepfake: 'تزييف عميق',
+  detect_analysis_detail: 'تحليل مفصل', detect_try_another: 'كشف ملف آخر', detect_save_result: 'حفظ النتيجة',
+  detect_saved: 'محفوظ', detect_features_detected: 'الخصائص الشاذة المكتشفة', detect_confidence: 'الثقة',
+  audio_title: 'كشف التزييف الصوتي', audio_subtitle: 'ارفع ملفات صوتية للكشف عن استنساخ الصوت بالذكاء الاصطناعي', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'كشف تزييف الفيديو', video_subtitle: 'ارفع ملفات فيديو للكشف عن تبديل الوجه', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'كشف الكاميرا في الوقت الفعلي', camera_subtitle: 'فعّل الكاميرا لتحليل التزييف العميق في الوقت الفعلي',
+  camera_start: 'بدء كشف الكاميرا', camera_stop: 'إيقاف الكشف', camera_permission: 'يرجى السماح بالوصول إلى الكاميرا',
+  camera_analyzing: 'التحليل في الوقت الفعلي...', camera_live_score: 'درجة المخاطر المباشرة',
+  mic_title: 'كشف الميكروفون في الوقت الفعلي', mic_subtitle: 'فعّل الميكروفون للكشف عن الصوت الاصطناعي',
+  mic_start: 'بدء كشف الميكروفون', mic_stop: 'إيقاف الكشف', mic_permission: 'يرجى السماح بالوصول إلى الميكروفون',
+  mic_analyzing: 'التحليل في الوقت الفعلي...', mic_live_score: 'درجة المخاطر المباشرة',
+  history_title: 'سجل الكشوفات', history_subtitle: 'عرض جميع سجلات الكشف', history_empty: 'لا توجد سجلات كشف بعد',
+  history_col_type: 'النوع', history_col_file: 'اسم الملف', history_col_time: 'وقت الكشف',
+  history_col_score: 'درجة المخاطر', history_col_verdict: 'الحكم', history_login_required: 'يرجى تسجيل الدخول لعرض السجل',
+  history_type_audio: 'صوت', history_type_video: 'فيديو', history_type_camera: 'كاميرا', history_type_microphone: 'ميكروفون',
+  screen_title: 'كشف مشاركة الشاشة', screen_subtitle: 'شارك شاشتك للكشف عن التزييف العميق في Zoom وTeams والمزيد',
+  screen_start: 'بدء كشف الشاشة', screen_stop: 'إيقاف الكشف', screen_permission: 'يرجى السماح بالوصول إلى التقاط الشاشة',
+  screen_analyzing: 'تحليل الشاشة في الوقت الفعلي...', screen_live_score: 'درجة المخاطر المباشرة',
+  screen_how_title: 'كيفية كشف Zoom والتطبيقات الأخرى', screen_how_desc: 'ابدأ مشاركة الشاشة، حدد النافذة التي تحتوي على مكالمتك',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'كشف النص', nav_verify: 'التحقق المباشر', nav_api: 'وثائق API',
+  footer_tagline: 'محاربة الذكاء الاصطناعي بالذكاء الاصطناعي — حماية الحقيقة في العالم الرقمي', footer_rights: 'جميع الحقوق محفوظة',
+};
+
+const ru: Translations = {
+  nav_home: 'Главная', nav_detect: 'Обнаружить', nav_history: 'История', nav_audio: 'Аудио Детекция',
+  nav_video: 'Видео Детекция', nav_camera: 'Детекция Камеры', nav_microphone: 'Детекция Микрофона',
+  nav_login: 'Войти', nav_logout: 'Выйти', nav_tagline: 'Платформа обнаружения дипфейков на основе ИИ', nav_screen: 'Детекция Экрана',
+  home_hero_title: 'Разоблачите ИИ-фальшивки, Защитите Реальность',
+  home_hero_subtitle: 'Передовые технологии ИИ для обнаружения дипфейков в аудио и видео в реальном времени. Защитите себя и семью от клонирования голоса и мошенничества с заменой лица.',
+  home_hero_cta: 'Начать Обнаружение', home_hero_cta2: 'Узнать Больше',
+  home_stats_detections: '1М+', home_stats_accuracy: '95%+', home_stats_speed: '<5с',
+  home_stats_detections_label: 'Всего Обнаружений', home_stats_accuracy_label: 'Точность Обнаружения', home_stats_speed_label: 'Средняя Скорость',
+  home_features_title: 'Полная Защита от Дипфейков',
+  home_features_subtitle: 'Полное покрытие для аудио, видео и живых звонков',
+  home_feature_audio_title: 'Обнаружение Аудио Дипфейков', home_feature_audio_desc: 'Загружайте файлы MP3, WAV, M4A. ИИ анализирует голосовые паттерны для выявления клонирования',
+  home_feature_video_title: 'Обнаружение Видео Дипфейков', home_feature_video_desc: 'Поддерживает MP4, WebM. Обнаруживает замену лица и манипуляции с выражениями',
+  home_feature_camera_title: 'Обнаружение Камерой в Реальном Времени', home_feature_camera_desc: 'Используйте камеру браузера для анализа дипфейков в реальном времени',
+  home_feature_mic_title: 'Обнаружение Микрофоном в Реальном Времени', home_feature_mic_desc: 'Анализ аудиопотока микрофона в реальном времени для обнаружения синтетического голоса',
+  home_feature_score_title: 'Система Оценки Риска', home_feature_score_desc: 'Каждое обнаружение генерирует оценку риска 0-100 с подробным отчётом',
+  home_feature_history_title: 'История Обнаружений', home_feature_history_desc: 'Полная запись всей истории обнаружений',
+  home_how_title: 'Три Шага для Обнаружения', home_how_step1: 'Загрузить или Включить', home_how_step1_desc: 'Загрузите аудио/видео файлы или включите камеру/микрофон',
+  home_how_step2: 'Глубокий Анализ ИИ', home_how_step2_desc: 'Продвинутые модели ИИ анализируют контент для выявления признаков дипфейка',
+  home_how_step3: 'Получить Отчёт', home_how_step3_desc: 'Получите оценку риска и подробный отчёт об анализе',
+  home_cta_title: 'Защитите Свою Цифровую Безопасность Сейчас', home_cta_subtitle: 'Начните бесплатно — установка не требуется', home_cta_btn: 'Начать Бесплатное Обнаружение',
+  detect_upload_title: 'Перетащите файл сюда или нажмите для загрузки', detect_upload_hint: 'Поддерживаемые форматы: ', detect_analyzing: 'Анализируется...',
+  detect_result_title: 'Результат Обнаружения', detect_risk_score: 'Оценка Риска',
+  detect_verdict_safe: 'Безопасно', detect_verdict_suspicious: 'Подозрительно', detect_verdict_deepfake: 'Дипфейк',
+  detect_analysis_detail: 'Детальный Анализ', detect_try_another: 'Обнаружить Другой Файл', detect_save_result: 'Сохранить Результат',
+  detect_saved: 'Сохранено', detect_features_detected: 'Обнаруженные Аномальные Признаки', detect_confidence: 'Уверенность',
+  audio_title: 'Обнаружение Аудио Дипфейков', audio_subtitle: 'Загрузите аудиофайлы для обнаружения клонирования голоса ИИ', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Обнаружение Видео Дипфейков', video_subtitle: 'Загрузите видеофайлы для обнаружения замены лица', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Обнаружение Камерой в Реальном Времени', camera_subtitle: 'Включите камеру для анализа дипфейков в реальном времени',
+  camera_start: 'Начать Обнаружение Камерой', camera_stop: 'Остановить Обнаружение', camera_permission: 'Пожалуйста, разрешите доступ к камере',
+  camera_analyzing: 'Анализ в реальном времени...', camera_live_score: 'Оценка Риска в Реальном Времени',
+  mic_title: 'Обнаружение Микрофоном в Реальном Времени', mic_subtitle: 'Включите микрофон для обнаружения синтетического голоса ИИ',
+  mic_start: 'Начать Обнаружение Микрофоном', mic_stop: 'Остановить Обнаружение', mic_permission: 'Пожалуйста, разрешите доступ к микрофону',
+  mic_analyzing: 'Анализ в реальном времени...', mic_live_score: 'Оценка Риска в Реальном Времени',
+  history_title: 'История Обнаружений', history_subtitle: 'Просмотр всех записей обнаружений', history_empty: 'Записей обнаружений пока нет',
+  history_col_type: 'Тип', history_col_file: 'Имя Файла', history_col_time: 'Время Обнаружения',
+  history_col_score: 'Оценка Риска', history_col_verdict: 'Вердикт', history_login_required: 'Войдите для просмотра истории',
+  history_type_audio: 'Аудио', history_type_video: 'Видео', history_type_camera: 'Камера', history_type_microphone: 'Микрофон',
+  screen_title: 'Обнаружение через Демонстрацию Экрана', screen_subtitle: 'Поделитесь экраном для обнаружения дипфейков в Zoom, Teams и других',
+  screen_start: 'Начать Обнаружение Экрана', screen_stop: 'Остановить Обнаружение', screen_permission: 'Пожалуйста, разрешите захват экрана',
+  screen_analyzing: 'Анализ экрана в реальном времени...', screen_live_score: 'Оценка Риска в Реальном Времени',
+  screen_how_title: 'Как обнаружить Zoom и другие приложения', screen_how_desc: 'Начните демонстрацию экрана, выберите окно с вашим звонком',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Анализ текста', nav_verify: 'Живая верификация', nav_api: 'Документация API',
+  footer_tagline: 'Борьба с ИИ при помощи ИИ — защита правды в цифровом мире', footer_rights: 'Все права защищены',
+};
+
+const pt: Translations = {
+  nav_home: 'Início', nav_detect: 'Detectar', nav_history: 'Histórico', nav_audio: 'Detecção de Áudio',
+  nav_video: 'Detecção de Vídeo', nav_camera: 'Detecção por Câmera', nav_microphone: 'Detecção por Microfone',
+  nav_login: 'Entrar', nav_logout: 'Sair', nav_tagline: 'Plataforma de Detecção Deepfake com IA', nav_screen: 'Detecção de Tela',
+  home_hero_title: 'Exponha Falsificações de IA, Proteja a Realidade',
+  home_hero_subtitle: 'Tecnologia avançada de IA para detectar deepfakes de áudio e vídeo em tempo real. Proteja-se e à sua família de clonagem de voz e golpes de troca de rosto.',
+  home_hero_cta: 'Iniciar Detecção Agora', home_hero_cta2: 'Saiba Mais',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Total de Detecções', home_stats_accuracy_label: 'Precisão de Detecção', home_stats_speed_label: 'Velocidade Média',
+  home_features_title: 'Proteção Completa contra Deepfakes',
+  home_features_subtitle: 'Cobertura total para áudio, vídeo e chamadas ao vivo',
+  home_feature_audio_title: 'Detecção de Áudio Deepfake', home_feature_audio_desc: 'Envie arquivos MP3, WAV, M4A. A IA analisa padrões de voz para identificar clonagem',
+  home_feature_video_title: 'Detecção de Vídeo Deepfake', home_feature_video_desc: 'Suporta MP4, WebM. Detecta troca de rosto e manipulação de expressões',
+  home_feature_camera_title: 'Detecção por Câmera em Tempo Real', home_feature_camera_desc: 'Use a câmera do navegador para análise deepfake em tempo real durante videochamadas',
+  home_feature_mic_title: 'Detecção por Microfone em Tempo Real', home_feature_mic_desc: 'Análise em tempo real do fluxo de áudio do microfone para detectar voz sintética de IA',
+  home_feature_score_title: 'Sistema de Pontuação de Risco', home_feature_score_desc: 'Cada detecção gera uma pontuação de risco 0-100 com relatório detalhado',
+  home_feature_history_title: 'Histórico de Detecções', home_feature_history_desc: 'Registro completo de todo o histórico de detecções',
+  home_how_title: 'Três Passos para Detectar', home_how_step1: 'Enviar ou Ativar Detecção', home_how_step1_desc: 'Envie arquivos de áudio/vídeo ou ative câmera/microfone para detecção em tempo real',
+  home_how_step2: 'Análise Profunda de IA', home_how_step2_desc: 'Modelos avançados de IA analisam o conteúdo para identificar características deepfake',
+  home_how_step3: 'Obter Relatório', home_how_step3_desc: 'Receba pontuação de risco e relatório de análise detalhado',
+  home_cta_title: 'Proteja Sua Segurança Digital Agora', home_cta_subtitle: 'Comece gratuitamente — sem instalação de software', home_cta_btn: 'Iniciar Detecção Gratuita',
+  detect_upload_title: 'Arraste e solte o arquivo aqui, ou clique para enviar', detect_upload_hint: 'Formatos suportados: ', detect_analyzing: 'Analisando...',
+  detect_result_title: 'Resultado da Detecção', detect_risk_score: 'Pontuação de Risco',
+  detect_verdict_safe: 'Seguro', detect_verdict_suspicious: 'Suspeito', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Análise Detalhada', detect_try_another: 'Detectar Outro Arquivo', detect_save_result: 'Salvar Resultado',
+  detect_saved: 'Salvo', detect_features_detected: 'Características Anômalas Detectadas', detect_confidence: 'Confiança',
+  audio_title: 'Detecção de Áudio Deepfake', audio_subtitle: 'Envie arquivos de áudio para detectar clonagem de voz de IA', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Detecção de Vídeo Deepfake', video_subtitle: 'Envie arquivos de vídeo para detectar troca de rosto', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Detecção por Câmera em Tempo Real', camera_subtitle: 'Ative a câmera para análise deepfake em tempo real',
+  camera_start: 'Iniciar Detecção por Câmera', camera_stop: 'Parar Detecção', camera_permission: 'Por favor, permita o acesso à câmera',
+  camera_analyzing: 'Analisando em tempo real...', camera_live_score: 'Pontuação de Risco ao Vivo',
+  mic_title: 'Detecção por Microfone em Tempo Real', mic_subtitle: 'Ative o microfone para detecção de voz sintética de IA',
+  mic_start: 'Iniciar Detecção por Microfone', mic_stop: 'Parar Detecção', mic_permission: 'Por favor, permita o acesso ao microfone',
+  mic_analyzing: 'Analisando em tempo real...', mic_live_score: 'Pontuação de Risco ao Vivo',
+  history_title: 'Histórico de Detecções', history_subtitle: 'Ver todos os seus registros de detecção', history_empty: 'Nenhum registro de detecção ainda',
+  history_col_type: 'Tipo', history_col_file: 'Nome do Arquivo', history_col_time: 'Hora da Detecção',
+  history_col_score: 'Pontuação de Risco', history_col_verdict: 'Veredicto', history_login_required: 'Faça login para ver o histórico',
+  history_type_audio: 'Áudio', history_type_video: 'Vídeo', history_type_camera: 'Câmera', history_type_microphone: 'Microfone',
+  screen_title: 'Detecção por Compartilhamento de Tela', screen_subtitle: 'Compartilhe sua tela para detectar Deepfakes no Zoom, Teams e mais',
+  screen_start: 'Iniciar Detecção de Tela', screen_stop: 'Parar Detecção', screen_permission: 'Por favor, permita a captura de tela',
+  screen_analyzing: 'Analisando tela em tempo real...', screen_live_score: 'Pontuação de Risco ao Vivo',
+  screen_how_title: 'Como detectar Zoom e outros apps', screen_how_desc: 'Inicie o compartilhamento de tela, selecione a janela com sua chamada',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Detecção de Texto', nav_verify: 'Verificação ao Vivo', nav_api: 'Documentação API',
+  footer_tagline: 'Combatendo IA com IA — protegendo a verdade no mundo digital', footer_rights: 'Todos os direitos reservados',
+};
+
+const pl: Translations = {
+  nav_home: 'Strona główna', nav_detect: 'Wykryj', nav_history: 'Historia', nav_audio: 'Wykrywanie Audio',
+  nav_video: 'Wykrywanie Wideo', nav_camera: 'Wykrywanie Kamerą', nav_microphone: 'Wykrywanie Mikrofonem',
+  nav_login: 'Zaloguj się', nav_logout: 'Wyloguj się', nav_tagline: 'Platforma wykrywania deepfake AI', nav_screen: 'Wykrywanie Ekranu',
+  home_hero_title: 'Demaskuj Fałszerstwa AI, Chroń Rzeczywistość',
+  home_hero_subtitle: 'Zaawansowana technologia AI do wykrywania deepfake w audio i wideo w czasie rzeczywistym. Chroń siebie i rodzinę przed klonowaniem głosu i oszustwami z podmianą twarzy.',
+  home_hero_cta: 'Rozpocznij Wykrywanie', home_hero_cta2: 'Dowiedz się więcej',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Łączne Wykrycia', home_stats_accuracy_label: 'Dokładność Wykrywania', home_stats_speed_label: 'Średnia Prędkość',
+  home_features_title: 'Kompleksowa Ochrona przed Deepfake',
+  home_features_subtitle: 'Pełne pokrycie dla audio, wideo i połączeń na żywo',
+  home_feature_audio_title: 'Wykrywanie Audio Deepfake', home_feature_audio_desc: 'Prześlij pliki MP3, WAV, M4A. AI analizuje wzorce głosu w celu identyfikacji klonowania',
+  home_feature_video_title: 'Wykrywanie Wideo Deepfake', home_feature_video_desc: 'Obsługuje MP4, WebM. Wykrywa podmianę twarzy i manipulację wyrazem twarzy',
+  home_feature_camera_title: 'Wykrywanie Kamerą w Czasie Rzeczywistym', home_feature_camera_desc: 'Użyj kamery przeglądarki do analizy deepfake w czasie rzeczywistym podczas połączeń wideo',
+  home_feature_mic_title: 'Wykrywanie Mikrofonem w Czasie Rzeczywistym', home_feature_mic_desc: 'Analiza strumienia audio mikrofonu w czasie rzeczywistym w celu wykrycia syntetycznego głosu AI',
+  home_feature_score_title: 'System Oceny Ryzyka', home_feature_score_desc: 'Każde wykrycie generuje ocenę ryzyka 0-100 ze szczegółowym raportem',
+  home_feature_history_title: 'Historia Wykryć', home_feature_history_desc: 'Pełny zapis całej historii wykryć',
+  home_how_title: 'Trzy Kroki do Wykrycia', home_how_step1: 'Prześlij lub Włącz Wykrywanie', home_how_step1_desc: 'Prześlij pliki audio/wideo lub włącz kamerę/mikrofon do wykrywania w czasie rzeczywistym',
+  home_how_step2: 'Głęboka Analiza AI', home_how_step2_desc: 'Zaawansowane modele AI analizują treść w celu identyfikacji cech deepfake',
+  home_how_step3: 'Uzyskaj Raport', home_how_step3_desc: 'Otrzymaj ocenę ryzyka i szczegółowy raport z analizy',
+  home_cta_title: 'Chroń Swoje Bezpieczeństwo Cyfrowe Teraz', home_cta_subtitle: 'Zacznij za darmo — bez instalacji oprogramowania', home_cta_btn: 'Rozpocznij Bezpłatne Wykrywanie',
+  detect_upload_title: 'Przeciągnij i upuść plik tutaj lub kliknij, aby przesłać', detect_upload_hint: 'Obsługiwane formaty: ', detect_analyzing: 'Analizowanie...',
+  detect_result_title: 'Wynik Wykrycia', detect_risk_score: 'Ocena Ryzyka',
+  detect_verdict_safe: 'Bezpieczny', detect_verdict_suspicious: 'Podejrzany', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Szczegółowa Analiza', detect_try_another: 'Wykryj Inny Plik', detect_save_result: 'Zapisz Wynik',
+  detect_saved: 'Zapisano', detect_features_detected: 'Wykryte Anomalne Cechy', detect_confidence: 'Pewność',
+  audio_title: 'Wykrywanie Audio Deepfake', audio_subtitle: 'Prześlij pliki audio, aby wykryć klonowanie głosu AI', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Wykrywanie Wideo Deepfake', video_subtitle: 'Prześlij pliki wideo, aby wykryć podmianę twarzy', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Wykrywanie Kamerą w Czasie Rzeczywistym', camera_subtitle: 'Włącz kamerę do analizy deepfake w czasie rzeczywistym',
+  camera_start: 'Rozpocznij Wykrywanie Kamerą', camera_stop: 'Zatrzymaj Wykrywanie', camera_permission: 'Proszę zezwolić na dostęp do kamery',
+  camera_analyzing: 'Analizowanie w czasie rzeczywistym...', camera_live_score: 'Ocena Ryzyka na Żywo',
+  mic_title: 'Wykrywanie Mikrofonem w Czasie Rzeczywistym', mic_subtitle: 'Włącz mikrofon do wykrywania syntetycznego głosu AI',
+  mic_start: 'Rozpocznij Wykrywanie Mikrofonem', mic_stop: 'Zatrzymaj Wykrywanie', mic_permission: 'Proszę zezwolić na dostęp do mikrofonu',
+  mic_analyzing: 'Analizowanie w czasie rzeczywistym...', mic_live_score: 'Ocena Ryzyka na Żywo',
+  history_title: 'Historia Wykryć', history_subtitle: 'Wyświetl wszystkie rekordy wykryć', history_empty: 'Brak rekordów wykryć',
+  history_col_type: 'Typ', history_col_file: 'Nazwa Pliku', history_col_time: 'Czas Wykrycia',
+  history_col_score: 'Ocena Ryzyka', history_col_verdict: 'Werdykt', history_login_required: 'Zaloguj się, aby wyświetlić historię',
+  history_type_audio: 'Audio', history_type_video: 'Wideo', history_type_camera: 'Kamera', history_type_microphone: 'Mikrofon',
+  screen_title: 'Wykrywanie przez Udostępnianie Ekranu', screen_subtitle: 'Udostępnij ekran, aby wykryć Deepfake w Zoom, Teams i innych',
+  screen_start: 'Rozpocznij Wykrywanie Ekranu', screen_stop: 'Zatrzymaj Wykrywanie', screen_permission: 'Proszę zezwolić na przechwytywanie ekranu',
+  screen_analyzing: 'Analizowanie ekranu w czasie rzeczywistym...', screen_live_score: 'Ocena Ryzyka na Żywo',
+  screen_how_title: 'Jak wykryć Zoom i inne aplikacje', screen_how_desc: 'Rozpocznij udostępnianie ekranu, wybierz okno z połączeniem',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Wykrywanie Tekstu', nav_verify: 'Weryfikacja na Żywo', nav_api: 'Dokumentacja API',
+  footer_tagline: 'Walka z AI przy użyciu AI — ochrona prawdy w cyfrowym świecie', footer_rights: 'Wszelkie prawa zastrzeżone',
+};
+
+const de: Translations = {
+  nav_home: 'Startseite', nav_detect: 'Erkennen', nav_history: 'Verlauf', nav_audio: 'Audio-Erkennung',
+  nav_video: 'Video-Erkennung', nav_camera: 'Kamera-Erkennung', nav_microphone: 'Mikrofon-Erkennung',
+  nav_login: 'Anmelden', nav_logout: 'Abmelden', nav_tagline: 'KI-Deepfake-Erkennungsplattform', nav_screen: 'Bildschirm-Erkennung',
+  home_hero_title: 'KI-Fälschungen entlarven, Realität schützen',
+  home_hero_subtitle: 'Fortschrittliche KI-Technologie zur Echtzeit-Erkennung von Deepfakes in Audio und Video. Schützen Sie sich und Ihre Familie vor KI-Stimmklonen und Gesichtstausch-Betrug.',
+  home_hero_cta: 'Erkennung Starten', home_hero_cta2: 'Mehr Erfahren',
+  home_stats_detections: '1M+', home_stats_accuracy: '95%+', home_stats_speed: '<5s',
+  home_stats_detections_label: 'Erkennungen Gesamt', home_stats_accuracy_label: 'Erkennungsgenauigkeit', home_stats_speed_label: 'Durchschn. Analysegeschwindigkeit',
+  home_features_title: 'Vollständiger Deepfake-Schutz',
+  home_features_subtitle: 'Vollständige Abdeckung für Audio, Video und Live-Anrufe',
+  home_feature_audio_title: 'Audio-Deepfake-Erkennung', home_feature_audio_desc: 'Laden Sie MP3-, WAV-, M4A-Dateien hoch. KI analysiert Stimmenmuster zur Identifizierung von Klonen',
+  home_feature_video_title: 'Video-Deepfake-Erkennung', home_feature_video_desc: 'Unterstützt MP4, WebM. Erkennt Gesichtstausch und Ausdrucksmanipulation',
+  home_feature_camera_title: 'Echtzeit-Kamera-Erkennung', home_feature_camera_desc: 'Nutzen Sie die Browser-Kamera für Echtzeit-Deepfake-Analyse bei Videoanrufen',
+  home_feature_mic_title: 'Echtzeit-Mikrofon-Erkennung', home_feature_mic_desc: 'Echtzeit-Analyse des Mikrofon-Audiostroms zur Erkennung synthetischer KI-Stimmen',
+  home_feature_score_title: 'Risikobewertungssystem', home_feature_score_desc: 'Jede Erkennung erzeugt einen Risikowert 0-100 mit detailliertem Bericht',
+  home_feature_history_title: 'Erkennungsverlauf', home_feature_history_desc: 'Vollständige Aufzeichnung des gesamten Erkennungsverlaufs',
+  home_how_title: 'Drei Schritte zur Erkennung', home_how_step1: 'Hochladen oder Erkennung Aktivieren', home_how_step1_desc: 'Laden Sie Audio-/Videodateien hoch oder aktivieren Sie Kamera/Mikrofon',
+  home_how_step2: 'KI-Tiefenanalyse', home_how_step2_desc: 'Fortschrittliche KI-Modelle analysieren Inhalte zur Identifizierung von Deepfake-Merkmalen',
+  home_how_step3: 'Bericht Erhalten', home_how_step3_desc: 'Erhalten Sie Risikowert und detaillierten Analysebericht',
+  home_cta_title: 'Schützen Sie Jetzt Ihre Digitale Sicherheit', home_cta_subtitle: 'Kostenlos starten — keine Software-Installation erforderlich', home_cta_btn: 'Kostenlose Erkennung Starten',
+  detect_upload_title: 'Datei hierher ziehen oder klicken zum Hochladen', detect_upload_hint: 'Unterstützte Formate: ', detect_analyzing: 'Wird analysiert...',
+  detect_result_title: 'Erkennungsergebnis', detect_risk_score: 'Risikowert',
+  detect_verdict_safe: 'Sicher', detect_verdict_suspicious: 'Verdächtig', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Detaillierte Analyse', detect_try_another: 'Andere Datei Erkennen', detect_save_result: 'Ergebnis Speichern',
+  detect_saved: 'Gespeichert', detect_features_detected: 'Erkannte Anomale Merkmale', detect_confidence: 'Konfidenz',
+  audio_title: 'Audio-Deepfake-Erkennung', audio_subtitle: 'Laden Sie Audiodateien hoch, um KI-Stimmklone zu erkennen', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Video-Deepfake-Erkennung', video_subtitle: 'Laden Sie Videodateien hoch, um Gesichtstausch zu erkennen', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Echtzeit-Kamera-Erkennung', camera_subtitle: 'Aktivieren Sie die Kamera für Echtzeit-Deepfake-Analyse',
+  camera_start: 'Kamera-Erkennung Starten', camera_stop: 'Erkennung Stoppen', camera_permission: 'Bitte erlauben Sie den Kamerazugriff',
+  camera_analyzing: 'Echtzeit-Analyse...', camera_live_score: 'Live-Risikowert',
+  mic_title: 'Echtzeit-Mikrofon-Erkennung', mic_subtitle: 'Aktivieren Sie das Mikrofon zur Erkennung synthetischer KI-Stimmen',
+  mic_start: 'Mikrofon-Erkennung Starten', mic_stop: 'Erkennung Stoppen', mic_permission: 'Bitte erlauben Sie den Mikrofonzugriff',
+  mic_analyzing: 'Echtzeit-Analyse...', mic_live_score: 'Live-Risikowert',
+  history_title: 'Erkennungsverlauf', history_subtitle: 'Alle Erkennungsaufzeichnungen anzeigen', history_empty: 'Noch keine Erkennungsaufzeichnungen',
+  history_col_type: 'Typ', history_col_file: 'Dateiname', history_col_time: 'Erkennungszeit',
+  history_col_score: 'Risikowert', history_col_verdict: 'Urteil', history_login_required: 'Bitte anmelden, um den Verlauf anzuzeigen',
+  history_type_audio: 'Audio', history_type_video: 'Video', history_type_camera: 'Kamera', history_type_microphone: 'Mikrofon',
+  screen_title: 'Bildschirmfreigabe-Erkennung', screen_subtitle: 'Teilen Sie Ihren Bildschirm, um Deepfakes in Zoom, Teams und mehr zu erkennen',
+  screen_start: 'Bildschirm-Erkennung Starten', screen_stop: 'Erkennung Stoppen', screen_permission: 'Bitte erlauben Sie die Bildschirmaufnahme',
+  screen_analyzing: 'Echtzeit-Bildschirmanalyse...', screen_live_score: 'Live-Risikowert',
+  screen_how_title: 'Wie man Zoom und andere Apps erkennt', screen_how_desc: 'Starten Sie die Bildschirmfreigabe, wählen Sie das Fenster mit Ihrem Anruf',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Texterkennung', nav_verify: 'Live-Verifizierung', nav_api: 'API-Dokumentation',
+  footer_tagline: 'KI mit KI bekämpfen — die Wahrheit in der digitalen Welt schützen', footer_rights: 'Alle Rechte vorbehalten',
+};
+
+const ko: Translations = {
+  nav_home: '홈', nav_detect: '탐지', nav_history: '기록', nav_audio: '오디오 탐지',
+  nav_video: '비디오 탐지', nav_camera: '카메라 탐지', nav_microphone: '마이크 탐지',
+  nav_login: '로그인', nav_logout: '로그아웃', nav_tagline: 'AI 딥페이크 탐지 플랫폼', nav_screen: '화면 탐지',
+  home_hero_title: 'AI 가짜를 폭로하고 현실을 보호하세요',
+  home_hero_subtitle: '고급 AI 기술로 오디오와 비디오의 딥페이크 콘텐츠를 실시간으로 탐지합니다. AI 음성 복제와 얼굴 교체 사기로부터 자신과 가족을 보호하세요.',
+  home_hero_cta: '지금 탐지 시작', home_hero_cta2: '더 알아보기',
+  home_stats_detections: '100만+', home_stats_accuracy: '95%+', home_stats_speed: '<5초',
+  home_stats_detections_label: '총 탐지 횟수', home_stats_accuracy_label: '탐지 정확도', home_stats_speed_label: '평균 분석 속도',
+  home_features_title: '완전한 딥페이크 보호',
+  home_features_subtitle: '오디오, 비디오, 라이브 통화를 위한 완전한 커버리지',
+  home_feature_audio_title: '오디오 딥페이크 탐지', home_feature_audio_desc: 'MP3, WAV, M4A 파일을 업로드하세요. AI가 음성 패턴을 분석하여 복제를 식별합니다',
+  home_feature_video_title: '비디오 딥페이크 탐지', home_feature_video_desc: 'MP4, WebM 지원. 얼굴 교체 및 표정 조작을 탐지합니다',
+  home_feature_camera_title: '실시간 카메라 탐지', home_feature_camera_desc: '화상 통화 중 실시간 딥페이크 분석을 위해 브라우저 카메라를 사용하세요',
+  home_feature_mic_title: '실시간 마이크 탐지', home_feature_mic_desc: 'AI 합성 음성 흔적을 탐지하기 위한 마이크 오디오 스트림 실시간 분석',
+  home_feature_score_title: '위험 점수 시스템', home_feature_score_desc: '각 탐지는 상세 보고서와 함께 0-100 위험 점수를 생성합니다',
+  home_feature_history_title: '탐지 기록', home_feature_history_desc: '모든 탐지 기록의 완전한 기록',
+  home_how_title: '3단계로 탐지하기', home_how_step1: '업로드 또는 탐지 활성화', home_how_step1_desc: '오디오/비디오 파일을 업로드하거나 실시간 탐지를 위해 카메라/마이크를 활성화하세요',
+  home_how_step2: 'AI 심층 분석', home_how_step2_desc: '고급 AI 모델이 딥페이크 특징을 식별하기 위해 콘텐츠를 분석합니다',
+  home_how_step3: '보고서 받기', home_how_step3_desc: '위험 점수와 상세 분석 보고서를 받으세요',
+  home_cta_title: '지금 디지털 보안을 보호하세요', home_cta_subtitle: '무료로 시작 — 소프트웨어 설치 불필요', home_cta_btn: '무료 탐지 시작',
+  detect_upload_title: '파일을 여기에 끌어다 놓거나 클릭하여 업로드', detect_upload_hint: '지원 형식: ', detect_analyzing: '분석 중...',
+  detect_result_title: '탐지 결과', detect_risk_score: '위험 점수',
+  detect_verdict_safe: '안전', detect_verdict_suspicious: '의심스러움', detect_verdict_deepfake: '딥페이크',
+  detect_analysis_detail: '상세 분석', detect_try_another: '다른 파일 탐지', detect_save_result: '결과 저장',
+  detect_saved: '저장됨', detect_features_detected: '탐지된 이상 특징', detect_confidence: '신뢰도',
+  audio_title: '오디오 딥페이크 탐지', audio_subtitle: 'AI 음성 복제를 탐지하기 위해 오디오 파일을 업로드하세요', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: '비디오 딥페이크 탐지', video_subtitle: '얼굴 교체를 탐지하기 위해 비디오 파일을 업로드하세요', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: '실시간 카메라 탐지', camera_subtitle: '실시간 딥페이크 분석을 위해 카메라를 활성화하세요',
+  camera_start: '카메라 탐지 시작', camera_stop: '탐지 중지', camera_permission: '카메라 접근을 허용해 주세요',
+  camera_analyzing: '실시간 분석 중...', camera_live_score: '실시간 위험 점수',
+  mic_title: '실시간 마이크 탐지', mic_subtitle: 'AI 합성 음성 탐지를 위해 마이크를 활성화하세요',
+  mic_start: '마이크 탐지 시작', mic_stop: '탐지 중지', mic_permission: '마이크 접근을 허용해 주세요',
+  mic_analyzing: '실시간 분석 중...', mic_live_score: '실시간 위험 점수',
+  history_title: '탐지 기록', history_subtitle: '모든 탐지 기록 보기', history_empty: '아직 탐지 기록이 없습니다',
+  history_col_type: '유형', history_col_file: '파일명', history_col_time: '탐지 시간',
+  history_col_score: '위험 점수', history_col_verdict: '판정', history_login_required: '기록을 보려면 로그인하세요',
+  history_type_audio: '오디오', history_type_video: '비디오', history_type_camera: '카메라', history_type_microphone: '마이크',
+  screen_title: '화면 공유 탐지', screen_subtitle: 'Zoom, Teams 등에서 딥페이크를 탐지하기 위해 화면을 공유하세요',
+  screen_start: '화면 탐지 시작', screen_stop: '탐지 중지', screen_permission: '화면 캡처 접근을 허용해 주세요',
+  screen_analyzing: '실시간 화면 분석 중...', screen_live_score: '실시간 위험 점수',
+  screen_how_title: 'Zoom 및 다른 앱 탐지 방법', screen_how_desc: '화면 공유를 시작하고 통화가 있는 창을 선택하세요',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: '텍스트 감지', nav_verify: '실시간 인증', nav_api: 'API 문서',
+  footer_tagline: 'AI로 AI에 맞서 — 디지털 세계에서 진실을 보호합니다', footer_rights: '모든 권리 보유',
+};
+
+const ja: Translations = {
+  nav_home: 'ホーム', nav_detect: '検出', nav_history: '履歴', nav_audio: '音声検出',
+  nav_video: '動画検出', nav_camera: 'カメラ検出', nav_microphone: 'マイク検出',
+  nav_login: 'ログイン', nav_logout: 'ログアウト', nav_tagline: 'AIディープフェイク検出プラットフォーム', nav_screen: '画面検出',
+  home_hero_title: 'AIフェイクを暴露し、現実を守る',
+  home_hero_subtitle: '高度なAI技術でオーディオとビデオのディープフェイクコンテンツをリアルタイムで検出します。AI音声クローンと顔交換詐欺から自分と家族を守りましょう。',
+  home_hero_cta: '今すぐ検出を開始', home_hero_cta2: '詳しく見る',
+  home_stats_detections: '100万+', home_stats_accuracy: '95%+', home_stats_speed: '<5秒',
+  home_stats_detections_label: '総検出数', home_stats_accuracy_label: '検出精度', home_stats_speed_label: '平均分析速度',
+  home_features_title: '完全なディープフェイク保護',
+  home_features_subtitle: 'オーディオ、ビデオ、ライブ通話の完全なカバレッジ',
+  home_feature_audio_title: '音声ディープフェイク検出', home_feature_audio_desc: 'MP3、WAV、M4Aファイルをアップロード。AIが音声パターンを分析してクローンを特定します',
+  home_feature_video_title: '動画ディープフェイク検出', home_feature_video_desc: 'MP4、WebMをサポート。顔交換と表情操作を検出します',
+  home_feature_camera_title: 'リアルタイムカメラ検出', home_feature_camera_desc: 'ビデオ通話中のリアルタイムディープフェイク分析にブラウザカメラを使用',
+  home_feature_mic_title: 'リアルタイムマイク検出', home_feature_mic_desc: 'AI合成音声の痕跡を検出するためのマイクオーディオストリームのリアルタイム分析',
+  home_feature_score_title: 'リスクスコアリングシステム', home_feature_score_desc: '各検出は詳細レポートとともに0-100のリスクスコアを生成します',
+  home_feature_history_title: '検出履歴', home_feature_history_desc: 'すべての検出履歴の完全な記録',
+  home_how_title: '3ステップで検出', home_how_step1: 'アップロードまたは検出を有効化', home_how_step1_desc: 'オーディオ/ビデオファイルをアップロードするか、リアルタイム検出のためにカメラ/マイクを有効にします',
+  home_how_step2: 'AI深層分析', home_how_step2_desc: '高度なAIモデルがディープフェイクの特徴を特定するためにコンテンツを分析します',
+  home_how_step3: 'レポートを取得', home_how_step3_desc: 'リスクスコアと詳細な分析レポートを受け取ります',
+  home_cta_title: '今すぐデジタルセキュリティを保護', home_cta_subtitle: '無料で開始 — ソフトウェアのインストール不要', home_cta_btn: '無料検出を開始',
+  detect_upload_title: 'ファイルをここにドラッグ＆ドロップ、またはクリックしてアップロード', detect_upload_hint: '対応フォーマット: ', detect_analyzing: '分析中...',
+  detect_result_title: '検出結果', detect_risk_score: 'リスクスコア',
+  detect_verdict_safe: '安全', detect_verdict_suspicious: '疑わしい', detect_verdict_deepfake: 'ディープフェイク',
+  detect_analysis_detail: '詳細分析', detect_try_another: '別のファイルを検出', detect_save_result: '結果を保存',
+  detect_saved: '保存済み', detect_features_detected: '検出された異常な特徴', detect_confidence: '信頼度',
+  audio_title: '音声ディープフェイク検出', audio_subtitle: 'AI音声クローンを検出するためにオーディオファイルをアップロード', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: '動画ディープフェイク検出', video_subtitle: '顔交換を検出するために動画ファイルをアップロード', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'リアルタイムカメラ検出', camera_subtitle: 'リアルタイムディープフェイク分析のためにカメラを有効化',
+  camera_start: 'カメラ検出を開始', camera_stop: '検出を停止', camera_permission: 'カメラへのアクセスを許可してください',
+  camera_analyzing: 'リアルタイム分析中...', camera_live_score: 'ライブリスクスコア',
+  mic_title: 'リアルタイムマイク検出', mic_subtitle: 'AI合成音声検出のためにマイクを有効化',
+  mic_start: 'マイク検出を開始', mic_stop: '検出を停止', mic_permission: 'マイクへのアクセスを許可してください',
+  mic_analyzing: 'リアルタイム分析中...', mic_live_score: 'ライブリスクスコア',
+  history_title: '検出履歴', history_subtitle: 'すべての検出記録を表示', history_empty: 'まだ検出記録がありません',
+  history_col_type: 'タイプ', history_col_file: 'ファイル名', history_col_time: '検出時刻',
+  history_col_score: 'リスクスコア', history_col_verdict: '判定', history_login_required: '履歴を表示するにはログインしてください',
+  history_type_audio: 'オーディオ', history_type_video: 'ビデオ', history_type_camera: 'カメラ', history_type_microphone: 'マイク',
+  screen_title: '画面共有検出', screen_subtitle: 'Zoom、Teamsなどでディープフェイクを検出するために画面を共有',
+  screen_start: '画面検出を開始', screen_stop: '検出を停止', screen_permission: '画面キャプチャへのアクセスを許可してください',
+  screen_analyzing: 'リアルタイム画面分析中...', screen_live_score: 'ライブリスクスコア',
+  screen_how_title: 'Zoomや他のアプリを検出する方法', screen_how_desc: '画面共有を開始し、通話のあるウィンドウを選択してください',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'テキスト検出', nav_verify: 'ライブ認証', nav_api: 'APIドキュメント',
+  footer_tagline: 'AIでAIに対抗 — デジタル世界で真実を守る', footer_rights: '全著作権所有',
+};
+
+const tr: Translations = {
+  nav_home: 'Ana Sayfa', nav_detect: 'Tespit Et', nav_history: 'Geçmiş', nav_audio: 'Ses Tespiti',
+  nav_video: 'Video Tespiti', nav_camera: 'Kamera Tespiti', nav_microphone: 'Mikrofon Tespiti',
+  nav_login: 'Giriş Yap', nav_logout: 'Çıkış Yap', nav_tagline: 'AI Deepfake Tespit Platformu', nav_screen: 'Ekran Tespiti',
+  home_hero_title: 'AI Sahteciliğini Ortaya Çıkarın, Gerçeği Koruyun',
+  home_hero_subtitle: 'Ses ve videodaki deepfake içeriği gerçek zamanlı olarak tespit etmek için gelişmiş AI teknolojisi. Kendinizi ve ailenizi AI ses klonlama ve yüz değiştirme dolandırıcılığından koruyun.',
+  home_hero_cta: 'Tespiti Şimdi Başlat', home_hero_cta2: 'Daha Fazla Bilgi',
+  home_stats_detections: '1M+', home_stats_accuracy: '%95+', home_stats_speed: '<5sn',
+  home_stats_detections_label: 'Toplam Tespit', home_stats_accuracy_label: 'Tespit Doğruluğu', home_stats_speed_label: 'Ort. Analiz Hızı',
+  home_features_title: 'Eksiksiz Deepfake Koruması',
+  home_features_subtitle: 'Ses, video ve canlı aramalar için tam kapsam',
+  home_feature_audio_title: 'Ses Deepfake Tespiti', home_feature_audio_desc: 'MP3, WAV, M4A dosyaları yükleyin. AI, klonlamayı tespit etmek için ses kalıplarını analiz eder',
+  home_feature_video_title: 'Video Deepfake Tespiti', home_feature_video_desc: 'MP4, WebM destekler. Yüz değiştirme ve ifade manipülasyonunu tespit eder',
+  home_feature_camera_title: 'Gerçek Zamanlı Kamera Tespiti', home_feature_camera_desc: 'Video görüşmeleri sırasında gerçek zamanlı deepfake analizi için tarayıcı kamerasını kullanın',
+  home_feature_mic_title: 'Gerçek Zamanlı Mikrofon Tespiti', home_feature_mic_desc: 'AI sentetik ses izlerini tespit etmek için mikrofon ses akışının gerçek zamanlı analizi',
+  home_feature_score_title: 'Risk Puanlama Sistemi', home_feature_score_desc: 'Her tespit, ayrıntılı raporla birlikte 0-100 risk puanı üretir',
+  home_feature_history_title: 'Tespit Geçmişi', home_feature_history_desc: 'Tüm tespit geçmişinin eksiksiz kaydı',
+  home_how_title: 'Üç Adımda Tespit', home_how_step1: 'Yükle veya Tespiti Etkinleştir', home_how_step1_desc: 'Ses/video dosyaları yükleyin veya gerçek zamanlı tespit için kamera/mikrofonu etkinleştirin',
+  home_how_step2: 'AI Derin Analizi', home_how_step2_desc: 'Gelişmiş AI modelleri deepfake özelliklerini tespit etmek için içeriği analiz eder',
+  home_how_step3: 'Raporu Al', home_how_step3_desc: 'Risk puanı ve ayrıntılı analiz raporu alın',
+  home_cta_title: 'Dijital Güvenliğinizi Şimdi Koruyun', home_cta_subtitle: 'Ücretsiz başlayın — yazılım kurulumu gerekmez', home_cta_btn: 'Ücretsiz Tespiti Başlat',
+  detect_upload_title: 'Dosyayı buraya sürükleyin veya yüklemek için tıklayın', detect_upload_hint: 'Desteklenen formatlar: ', detect_analyzing: 'Analiz ediliyor...',
+  detect_result_title: 'Tespit Sonucu', detect_risk_score: 'Risk Puanı',
+  detect_verdict_safe: 'Güvenli', detect_verdict_suspicious: 'Şüpheli', detect_verdict_deepfake: 'Deepfake',
+  detect_analysis_detail: 'Ayrıntılı Analiz', detect_try_another: 'Başka Dosya Tespit Et', detect_save_result: 'Sonucu Kaydet',
+  detect_saved: 'Kaydedildi', detect_features_detected: 'Tespit Edilen Anormal Özellikler', detect_confidence: 'Güven',
+  audio_title: 'Ses Deepfake Tespiti', audio_subtitle: 'AI ses klonlamayı tespit etmek için ses dosyaları yükleyin', audio_formats: 'MP3, WAV, M4A, OGG, FLAC',
+  video_title: 'Video Deepfake Tespiti', video_subtitle: 'Yüz değiştirmeyi tespit etmek için video dosyaları yükleyin', video_formats: 'MP4, WebM, MOV, AVI',
+  camera_title: 'Gerçek Zamanlı Kamera Tespiti', camera_subtitle: 'Gerçek zamanlı deepfake analizi için kamerayı etkinleştirin',
+  camera_start: 'Kamera Tespitini Başlat', camera_stop: 'Tespiti Durdur', camera_permission: 'Lütfen kamera erişimine izin verin',
+  camera_analyzing: 'Gerçek zamanlı analiz...', camera_live_score: 'Canlı Risk Puanı',
+  mic_title: 'Gerçek Zamanlı Mikrofon Tespiti', mic_subtitle: 'AI sentetik ses tespiti için mikrofonu etkinleştirin',
+  mic_start: 'Mikrofon Tespitini Başlat', mic_stop: 'Tespiti Durdur', mic_permission: 'Lütfen mikrofon erişimine izin verin',
+  mic_analyzing: 'Gerçek zamanlı analiz...', mic_live_score: 'Canlı Risk Puanı',
+  history_title: 'Tespit Geçmişi', history_subtitle: 'Tüm tespit kayıtlarınızı görüntüleyin', history_empty: 'Henüz tespit kaydı yok',
+  history_col_type: 'Tür', history_col_file: 'Dosya Adı', history_col_time: 'Tespit Zamanı',
+  history_col_score: 'Risk Puanı', history_col_verdict: 'Karar', history_login_required: 'Geçmişi görüntülemek için giriş yapın',
+  history_type_audio: 'Ses', history_type_video: 'Video', history_type_camera: 'Kamera', history_type_microphone: 'Mikrofon',
+  screen_title: 'Ekran Paylaşımı Tespiti', screen_subtitle: 'Zoom, Teams ve diğerlerinde Deepfake tespit etmek için ekranınızı paylaşın',
+  screen_start: 'Ekran Tespitini Başlat', screen_stop: 'Tespiti Durdur', screen_permission: 'Lütfen ekran yakalamaya izin verin',
+  screen_analyzing: 'Gerçek zamanlı ekran analizi...', screen_live_score: 'Canlı Risk Puanı',
+  screen_how_title: 'Zoom ve diğer uygulamaları nasıl tespit edersiniz', screen_how_desc: 'Ekran paylaşımını başlatın, aramanızın bulunduğu pencereyi seçin',
+  screen_zoom_badge: 'Zoom', screen_teams_badge: 'Teams', screen_meet_badge: 'Google Meet', screen_wechat_badge: 'WeChat', screen_whatsapp_badge: 'WhatsApp',
+  nav_text: 'Metin Tespiti', nav_verify: 'Canlı Doğrulama', nav_api: 'API Belgeleri',
+  footer_tagline: 'AI ile AI\'ya karşı savaşmak — dijital dünyada gerçeği korumak', footer_rights: 'Tüm hakları saklıdır',
+};
+
+const TRANSLATIONS: Record<Language, Translations> = { zh, en, hi, es, fr, ar, ru, pt, pl, de, ko, ja, tr };
 
 interface LanguageContextType {
   lang: Language;
@@ -379,16 +679,25 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: 'zh',
+  lang: 'en',
   setLang: () => {},
-  t: zh,
+  t: en,
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Language>(() => {
     const saved = localStorage.getItem('deepguard_lang');
-    return (saved as Language) || 'zh';
+    if (saved && saved in TRANSLATIONS) return saved as Language;
+    // Auto-detect browser language
+    const browserLang = navigator.language.split('-')[0] as Language;
+    return browserLang in TRANSLATIONS ? browserLang : 'en';
   });
+
+  useEffect(() => {
+    // Apply RTL for Arabic
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const handleSetLang = (newLang: Language) => {
     setLang(newLang);
@@ -396,7 +705,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang: handleSetLang, t: lang === 'zh' ? zh : en }}>
+    <LanguageContext.Provider value={{ lang, setLang: handleSetLang, t: TRANSLATIONS[lang] }}>
       {children}
     </LanguageContext.Provider>
   );

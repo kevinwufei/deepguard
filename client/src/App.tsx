@@ -13,6 +13,9 @@ import CameraDetect from "./pages/CameraDetect";
 import MicDetect from "./pages/MicDetect";
 import History from './pages/History';
 import ScreenDetect from './pages/ScreenDetect';
+import TextDetect from './pages/TextDetect';
+import ApiDocs from './pages/ApiDocs';
+import LiveVerify from './pages/LiveVerify';
 import PWAInstallBanner from './components/PWAInstallBanner';
 
 function Router() {
@@ -29,6 +32,9 @@ function Router() {
           <Route path="/detect/microphone" component={MicDetect} />
           <Route path="/history" component={History} />
           <Route path="/detect/screen" component={ScreenDetect} />
+          <Route path="/detect/text" component={TextDetect} />
+          <Route path="/detect/verify" component={LiveVerify} />
+          <Route path="/api-docs" component={ApiDocs} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

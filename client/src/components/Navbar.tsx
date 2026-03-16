@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines, Monitor } from 'lucide-react';
+import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines, Monitor, FileText, UserCheck, Code2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useLang } from '@/contexts/LanguageContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useLang, LANGUAGES } from '@/contexts/LanguageContext';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { getLoginUrl } from '@/const';
 import { trpc } from '@/lib/trpc';
@@ -23,7 +23,11 @@ export default function Navbar() {
     { href: '/detect/camera', label: t.nav_camera, icon: Camera },
     { href: '/detect/microphone', label: t.nav_microphone, icon: Mic },
     { href: '/detect/screen', label: t.nav_screen, icon: Monitor },
+    { href: '/detect/text', label: t.nav_text || 'Text Detection', icon: FileText },
+    { href: '/detect/verify', label: t.nav_verify || 'Live Verification', icon: UserCheck },
   ];
+
+  const currentLang = LANGUAGES.find(l => l.code === lang);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -81,16 +85,30 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Language switcher */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground gap-1.5"
-              onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">{lang === 'zh' ? 'EN' : '中文'}</span>
-            </Button>
+            {/* Language switcher - multi-language dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-1.5">
+                  <Globe className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{currentLang?.nativeName}</span>
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44 bg-card border-border max-h-80 overflow-y-auto">
+                {LANGUAGES.map((l, i) => (
+                  <div key={l.code}>
+                    {i > 0 && i % 6 === 0 && <DropdownMenuSeparator />}
+                    <DropdownMenuItem
+                      onClick={() => setLang(l.code)}
+                      className={`flex items-center justify-between cursor-pointer ${lang === l.code ? 'text-primary bg-primary/10' : ''}`}
+                    >
+                      <span className="font-medium">{l.nativeName}</span>
+                      <span className="text-xs text-muted-foreground">{l.label}</span>
+                    </DropdownMenuItem>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Auth */}
             {isAuthenticated ? (
@@ -150,18 +168,26 @@ export default function Navbar() {
                 {t.nav_history}
               </Button>
             </Link>
-            <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => { setLang(lang === 'zh' ? 'en' : 'zh'); setMobileOpen(false); }}
-              >
-                <Globe className="w-4 h-4" />
-                {lang === 'zh' ? 'EN' : '中文'}
-              </Button>
+            <div className="pt-2 border-t border-border/50">
+              {/* Mobile language grid */}
+              <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                <Globe className="w-3 h-3" /> Language
+              </p>
+              <div className="grid grid-cols-3 gap-1">
+                {LANGUAGES.map(l => (
+                  <Button
+                    key={l.code}
+                    variant={lang === l.code ? 'default' : 'ghost'}
+                    size="sm"
+                    className={`text-xs h-8 ${lang === l.code ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                    onClick={() => { setLang(l.code); setMobileOpen(false); }}
+                  >
+                    {l.nativeName}
+                  </Button>
+                ))}
+              </div>
               {!isAuthenticated && (
-                <Button size="sm" className="bg-primary text-primary-foreground" asChild>
+                <Button size="sm" className="w-full mt-2 bg-primary text-primary-foreground" asChild>
                   <a href={getLoginUrl()}>{t.nav_login}</a>
                 </Button>
               )}
