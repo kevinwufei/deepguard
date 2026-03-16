@@ -8,14 +8,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { getLoginUrl } from '@/const';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 // Competitor pricing reference: deepguardtech.com Pro ~$42, Business ~$70, Enterprise ~$280
 // Our pricing: 30%+ cheaper across all tiers
-const PLANS = [
+function makePlans(t: (k: string) => string) { return [
   {
     id: 'free',
-    name: 'Free',
-    tagline: 'Try DeepGuard with no commitment',
+    name: t('pricing_free_name'),
+    tagline: t('pricing_free_tagline'),
     monthlyPrice: 0,
     yearlyPrice: 0,
     color: 'text-muted-foreground',
@@ -23,7 +24,7 @@ const PLANS = [
     bgColor: 'bg-card',
     badgeColor: '',
     badge: '',
-    cta: 'Get Started Free',
+    cta: t('pricing_free_cta'),
     ctaVariant: 'outline' as const,
     highlight: false,
     features: [
@@ -43,16 +44,16 @@ const PLANS = [
   },
   {
     id: 'pro',
-    name: 'Pro',
-    tagline: 'For journalists, researchers & creators',
+    name: t('pricing_pro_name'),
+    tagline: t('pricing_pro_tagline'),
     monthlyPrice: 19,
     yearlyPrice: 15,
     color: 'text-primary',
     borderColor: 'border-primary/60',
     bgColor: 'bg-primary/5',
     badgeColor: 'bg-primary/20 text-primary border-primary/30',
-    badge: 'Most Popular',
-    cta: 'Start Pro — $19/mo',
+    badge: t('pricing_most_popular'),
+    cta: t('pricing_pro_cta'),
     ctaVariant: 'default' as const,
     highlight: true,
     features: [
@@ -72,16 +73,16 @@ const PLANS = [
   },
   {
     id: 'business',
-    name: 'Business',
-    tagline: 'For teams, agencies & media companies',
+    name: t('pricing_business_name'),
+    tagline: t('pricing_business_tagline'),
     monthlyPrice: 49,
     yearlyPrice: 39,
     color: 'text-cyan-400',
     borderColor: 'border-cyan-500/40',
     bgColor: 'bg-cyan-500/5',
     badgeColor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-    badge: 'Best Value',
-    cta: 'Start Business — $49/mo',
+    badge: t('pricing_best_value'),
+    cta: t('pricing_business_cta'),
     ctaVariant: 'outline' as const,
     highlight: false,
     features: [
@@ -128,7 +129,7 @@ const PLANS = [
       { text: 'On-premise deployment option', included: true },
     ],
   },
-];
+]; }
 
 const MEETING_ADDON = {
   perSession: 4.99,
@@ -181,6 +182,9 @@ const FAQS = [
 ];
 
 export default function Pricing() {
+  const { t } = useTranslation();
+  const PLANS = makePlans(t);
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const { isAuthenticated } = useAuth();
   const [isYearly, setIsYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);

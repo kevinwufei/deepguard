@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Shield, AlertTriangle, CheckCircle2, Zap, Phone, Radio, Activity, StopCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
+import { useTranslation } from 'react-i18next';
 
 interface VoiceFrame {
   timestamp: number;
@@ -22,6 +23,7 @@ function getRiskLevel(score: number): 'safe' | 'suspicious' | 'deepfake' {
 }
 
 export default function VoiceDetect() {
+  const { t } = useTranslation();
   const [isListening, setIsListening] = useState(false);
   const [frames, setFrames] = useState<VoiceFrame[]>([]);
   const [currentScore, setCurrentScore] = useState<number | null>(null);

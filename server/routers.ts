@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats } from "./db";
+import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, createSharedReport, getSharedReportByToken, incrementReportViewCount } from "./db";
 import { nanoid } from "nanoid";
 
 // Helper: analyze text with multi-model LLM approach
@@ -143,6 +143,25 @@ async function sightEngineDetect(imageUrl: string): Promise<{ score: number; typ
   }
 }
 
+// Engine 3 (optional): DeepGuard CLIP model — loaded from HuggingFace if available
+// Returns score 0-100 (100 = definitely AI-generated), or null if service not running
+async function clipModelDetect(imageUrl: string): Promise<{ score: number } | null> {
+  try {
+    const res = await fetch('http://localhost:8765/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: imageUrl }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { score?: number };
+    if (typeof data.score !== 'number') return null;
+    return { score: Math.round(data.score * 100) };
+  } catch {
+    return null; // Service not running — silently skip
+  }
+}
+
 // Engine 2: Illuminarty AI image detection
 // Returns score 0-100, or null if API key not configured or API returns empty
 async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isAI: boolean } | null> {
@@ -175,16 +194,18 @@ async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isA
 }
 
 // Combine multi-engine results with weighted average
-// LLM: 40% weight (visual analysis), SightEngine: 40% (specialized model), Illuminarty: 20%
+// LLM: 35%, SightEngine: 35%, Illuminarty: 15%, DeepGuard CLIP: 15%
 function combineEngineScores(
   llmScore: number,
   sightEngine: { score: number } | null,
-  illuminarty: { score: number } | null
+  illuminarty: { score: number } | null,
+  clipModel?: { score: number } | null
 ): { finalScore: number; engineBreakdown: Array<{ engine: string; score: number; weight: number; available: boolean }> } {
   const engines = [
-    { engine: 'LLM Visual Analysis', score: llmScore, weight: 0.4, available: true },
-    { engine: 'SightEngine', score: sightEngine ? Math.round(sightEngine.score * 100) : 0, weight: 0.4, available: !!sightEngine },
-    { engine: 'Illuminarty', score: illuminarty ? illuminarty.score : 0, weight: 0.2, available: !!illuminarty },
+    { engine: 'LLM Visual Analysis', score: llmScore, weight: 0.35, available: true },
+    { engine: 'SightEngine', score: sightEngine ? Math.round(sightEngine.score * 100) : 0, weight: 0.35, available: !!sightEngine },
+    { engine: 'Illuminarty', score: illuminarty ? illuminarty.score : 0, weight: 0.15, available: !!illuminarty },
+    { engine: 'DeepGuard CLIP', score: clipModel ? clipModel.score : 0, weight: 0.15, available: !!clipModel },
   ];
 
   // Recalculate weights if some engines are unavailable
@@ -680,20 +701,19 @@ Return JSON:
           });
 
           // Run all engines in parallel
-          const [llmResponse, sightEngineResult, illuminartyResult] = await Promise.all([
+          const [llmResponse, sightEngineResult, illuminartyResult, clipResult] = await Promise.all([
             llmRequest,
             sightEngineDetect(input.fileUrl),
             illuminartyDetect(input.fileUrl),
+            clipModelDetect(input.fileUrl),
           ]);
-
           // Parse LLM result
           const content = llmResponse.choices[0]?.message?.content;
           if (!content) throw new Error('No response from AI');
           const parsed = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
           const llmScore = Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0)));
-
           // Combine all engine scores
-          const { finalScore, engineBreakdown } = combineEngineScores(llmScore, sightEngineResult, illuminartyResult);
+          const { finalScore, engineBreakdown } = combineEngineScores(llmScore, sightEngineResult, illuminartyResult, clipResult);
           const verdict = finalScore >= 66 ? 'deepfake' : finalScore >= 36 ? 'suspicious' : 'safe';
 
           const result = {
@@ -812,6 +832,47 @@ Return JSON:
         return { success: true };
       }),
   }),
+  // Shared public reports
+  reports: router({
+    // Create a shareable link for a detection result
+    create: publicProcedure
+      .input(z.object({
+        type: z.enum(['audio', 'video', 'camera', 'microphone', 'text', 'screen', 'image']),
+        fileName: z.string().optional(),
+        fileUrl: z.string().optional(),
+        riskScore: z.number().int().min(0).max(100),
+        verdict: z.enum(['safe', 'suspicious', 'deepfake']),
+        analysisReport: z.string().optional(),
+        detectionRecordId: z.number().int().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { nanoid } = await import('nanoid');
+        const token = nanoid(16);
+        await createSharedReport({
+          token,
+          userId: ctx.user?.id ?? null,
+          detectionRecordId: input.detectionRecordId ?? null,
+          type: input.type,
+          fileName: input.fileName ?? null,
+          fileUrl: input.fileUrl ?? null,
+          riskScore: input.riskScore,
+          verdict: input.verdict,
+          analysisReport: input.analysisReport ?? null,
+        });
+        return { token };
+      }),
+    // Get a shared report by token (public)
+    get: publicProcedure
+      .input(z.object({ token: z.string() }))
+      .query(async ({ input }) => {
+        const report = await getSharedReportByToken(input.token);
+        if (!report) throw new Error('Report not found');
+        // Increment view count asynchronously
+        incrementReportViewCount(input.token).catch(() => {});
+        return report;
+      }),
+  }),
+
   // Admin: training data export
   trainingData: router({
     stats: protectedProcedure.query(async ({ ctx }) => {

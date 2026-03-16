@@ -1,10 +1,11 @@
 import { History as HistoryIcon, AudioLines, Video, Camera, Mic, Shield, CheckCircle2, AlertTriangle, XCircle, Lock, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLang } from '@/contexts/LanguageContext';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { getLoginUrl } from '@/const';
 import { Link } from 'wouter';
+import { useLang } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const typeConfig = {
   audio: { icon: AudioLines, color: 'text-cyan-400', bg: 'bg-cyan-400/10' },
@@ -20,7 +21,8 @@ const verdictConfig = {
 };
 
 export default function History() {
-  const { t, lang } = useLang();
+  const { t } = useTranslation();
+  const { lang } = useLang();
   const { isAuthenticated, loading } = useAuth();
   const { data: records, isLoading } = trpc.detection.getHistory.useQuery(
     { limit: 50 },
@@ -29,7 +31,7 @@ export default function History() {
 
   const formatDate = (date: Date | string) => {
     const d = new Date(date);
-    return d.toLocaleString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+    return d.toLocaleString(lang === 'zh' ? 'zh-CN' : undefined, {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
@@ -37,19 +39,19 @@ export default function History() {
 
   const getTypeLabel = (type: string) => {
     const map: Record<string, string> = {
-      audio: t.history_type_audio,
-      video: t.history_type_video,
-      camera: t.history_type_camera,
-      microphone: t.history_type_microphone,
+      audio: t('history_type_audio'),
+      video: t('history_type_video'),
+      camera: t('history_type_camera'),
+      microphone: t('history_type_microphone'),
     };
     return map[type] || type;
   };
 
   const getVerdictLabel = (verdict: string) => {
     const map: Record<string, string> = {
-      safe: t.detect_verdict_safe,
-      suspicious: t.detect_verdict_suspicious,
-      deepfake: t.detect_verdict_deepfake,
+      safe: t('detect_verdict_safe'),
+      suspicious: t('detect_verdict_suspicious'),
+      deepfake: t('detect_verdict_deepfake'),
     };
     return map[verdict] || verdict;
   };
@@ -63,9 +65,9 @@ export default function History() {
             <HistoryIcon className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            {t.history_title}
+            {t('history_title')}
           </h1>
-          <p className="text-muted-foreground">{t.history_subtitle}</p>
+          <p className="text-muted-foreground">{t('history_subtitle')}</p>
         </div>
 
         {/* Not logged in */}
@@ -74,14 +76,14 @@ export default function History() {
             <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-muted-foreground/50" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">{t.history_login_required}</h3>
+            <h3 className="font-semibold text-foreground mb-2">{t('history_login_required')}</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              {lang === 'zh' ? '登录后即可查看您的所有检测历史记录' : 'Login to view all your detection history records'}
+              {t('history_login_required')}
             </p>
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2" asChild>
               <a href={getLoginUrl()}>
                 <Shield className="w-4 h-4" />
-                {t.nav_login}
+                {t('nav_login')}
               </a>
             </Button>
           </div>
@@ -102,13 +104,13 @@ export default function History() {
             <div className="w-16 h-16 rounded-2xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-4">
               <HistoryIcon className="w-8 h-8 text-muted-foreground/50" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">{t.history_empty}</h3>
+            <h3 className="font-semibold text-foreground mb-2">{t('history_empty')}</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              {lang === 'zh' ? '开始您的第一次检测吧' : 'Start your first detection'}
+              {t('history_empty')}
             </p>
             <Link href="/detect/audio">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
-                {t.home_hero_cta}
+                {t('home_hero_cta')}
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -121,9 +123,9 @@ export default function History() {
             {/* Summary stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               {[
-                { label: lang === 'zh' ? '总检测次数' : 'Total', value: records.length, color: 'text-primary' },
-                { label: lang === 'zh' ? '安全' : 'Safe', value: records.filter(r => r.verdict === 'safe').length, color: 'text-emerald-400' },
-                { label: lang === 'zh' ? 'Deepfake' : 'Deepfake', value: records.filter(r => r.verdict === 'deepfake').length, color: 'text-red-400' },
+                { label: t('history_stat_total'), value: records.length, color: 'text-primary' },
+                { label: t('common_safe'), value: records.filter(r => r.verdict === 'safe').length, color: 'text-emerald-400' },
+                { label: t('common_deepfake'), value: records.filter(r => r.verdict === 'deepfake').length, color: 'text-red-400' },
               ].map((stat, i) => (
                 <div key={i} className="rounded-xl border border-border/40 bg-card/60 p-4 text-center">
                   <div className={`text-2xl font-bold ${stat.color}`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
@@ -136,11 +138,11 @@ export default function History() {
 
             {/* Table header - desktop */}
             <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs text-muted-foreground font-medium">
-              <div className="col-span-1">{t.history_col_type}</div>
-              <div className="col-span-4">{t.history_col_file}</div>
-              <div className="col-span-3">{t.history_col_time}</div>
-              <div className="col-span-2">{t.history_col_score}</div>
-              <div className="col-span-2">{t.history_col_verdict}</div>
+              <div className="col-span-1">{t('history_col_type')}</div>
+              <div className="col-span-4">{t('history_col_file')}</div>
+              <div className="col-span-3">{t('history_col_time')}</div>
+              <div className="col-span-2">{t('history_col_score')}</div>
+              <div className="col-span-2">{t('history_col_verdict')}</div>
             </div>
 
             {/* Records */}
@@ -170,7 +172,7 @@ export default function History() {
                       </div>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-xs text-muted-foreground">{formatDate(record.createdAt)}</span>
-                        <span className={`text-xs font-semibold ${vc.color}`}>{t.detect_risk_score}: {record.riskScore}</span>
+                        <span className={`text-xs font-semibold ${vc.color}`}>{t('detect_risk_score')}: {record.riskScore}</span>
                       </div>
                     </div>
                   </div>

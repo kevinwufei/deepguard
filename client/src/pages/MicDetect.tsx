@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Mic, MicOff, Loader2, Shield, AlertTriangle, CheckCircle2, XCircle, Save, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLang } from '@/contexts/LanguageContext';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useLang } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 interface LiveResult {
   riskScore: number;
@@ -13,7 +14,8 @@ interface LiveResult {
 }
 
 export default function MicDetect() {
-  const { t, lang } = useLang();
+  const { t } = useTranslation();
+  const { lang } = useLang();
   const { isAuthenticated } = useAuth();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -172,7 +174,7 @@ export default function MicDetect() {
         duration: sessionDuration,
       });
       setSaved(true);
-      toast.success(t.detect_saved);
+      toast.success(t('detect_saved'));
     } catch {
       toast.error('Save failed');
     }
@@ -183,9 +185,9 @@ export default function MicDetect() {
   }, []);
 
   const verdictConfig = {
-    safe: { color: 'text-emerald-400', icon: CheckCircle2, label: t.detect_verdict_safe },
-    suspicious: { color: 'text-amber-400', icon: AlertTriangle, label: t.detect_verdict_suspicious },
-    deepfake: { color: 'text-red-400', icon: XCircle, label: t.detect_verdict_deepfake },
+    safe: { color: 'text-emerald-400', icon: CheckCircle2, label: t('detect_verdict_safe') },
+    suspicious: { color: 'text-amber-400', icon: AlertTriangle, label: t('detect_verdict_suspicious') },
+    deepfake: { color: 'text-red-400', icon: XCircle, label: t('detect_verdict_deepfake') },
   };
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -199,9 +201,9 @@ export default function MicDetect() {
             <Mic className="w-8 h-8 text-emerald-400" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            {t.mic_title}
+            {t('mic_title')}
           </h1>
-          <p className="text-muted-foreground">{t.mic_subtitle}</p>
+          <p className="text-muted-foreground">{t('mic_subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -221,7 +223,7 @@ export default function MicDetect() {
                     <div className="w-16 h-16 rounded-full border-2 border-dashed border-border flex items-center justify-center">
                       <MicOff className="w-7 h-7 text-muted-foreground/40" />
                     </div>
-                    <p className="text-sm text-muted-foreground">{t.mic_permission}</p>
+                    <p className="text-sm text-muted-foreground">{t('mic_permission')}</p>
                   </div>
                 )}
 
@@ -237,7 +239,7 @@ export default function MicDetect() {
                 {isAnalyzing && (
                   <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30">
                     <Loader2 className="w-3 h-3 text-primary animate-spin" />
-                    <span className="text-xs text-primary">{t.mic_analyzing}</span>
+                    <span className="text-xs text-primary">{t('mic_analyzing')}</span>
                   </div>
                 )}
               </div>
@@ -262,7 +264,7 @@ export default function MicDetect() {
                 {permissionError && (
                   <div className="mb-3 flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {t.mic_permission}
+                    {t('mic_permission')}
                   </div>
                 )}
                 <Button
@@ -270,9 +272,9 @@ export default function MicDetect() {
                   onClick={isRunning ? stopDetection : startDetection}
                 >
                   {isRunning ? (
-                    <><MicOff className="w-4 h-4" />{t.mic_stop}</>
+                    <><MicOff className="w-4 h-4" />{t('mic_stop')}</>
                   ) : (
-                    <><Mic className="w-4 h-4" />{t.mic_start}</>
+                    <><Mic className="w-4 h-4" />{t('mic_start')}</>
                   )}
                 </Button>
               </div>
@@ -284,7 +286,7 @@ export default function MicDetect() {
             <div className="rounded-2xl border border-border/60 bg-card p-5">
               <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary" />
-                {t.mic_live_score}
+                {t('mic_live_score')}
               </h3>
 
               {liveResult ? (
@@ -293,7 +295,7 @@ export default function MicDetect() {
                     <div className={`text-5xl font-bold ${verdictConfig[liveResult.verdict].color}`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {liveResult.riskScore}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">{t.detect_risk_score}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{t('detect_risk_score')}</div>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
@@ -322,7 +324,7 @@ export default function MicDetect() {
                 <div className="text-center py-6">
                   <div className="text-4xl font-bold text-muted-foreground/30 mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>--</div>
                   <p className="text-xs text-muted-foreground">
-                    {isRunning ? t.mic_analyzing : t.mic_start}
+                    {isRunning ? t('mic_analyzing') : t('mic_start')}
                   </p>
                 </div>
               )}
@@ -335,7 +337,7 @@ export default function MicDetect() {
                 disabled={saved || saveResult.isPending}
               >
                 <Save className="w-4 h-4" />
-                {saved ? t.detect_saved : t.detect_save_result}
+                {saved ? t('detect_saved') : t('detect_save_result')}
               </Button>
             )}
 

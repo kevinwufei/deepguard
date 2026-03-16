@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Camera, CameraOff, Loader2, Shield, AlertTriangle, CheckCircle2, XCircle, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLang } from '@/contexts/LanguageContext';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useLang } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 interface LiveResult {
   riskScore: number;
@@ -13,7 +14,8 @@ interface LiveResult {
 }
 
 export default function CameraDetect() {
-  const { t, lang } = useLang();
+  const { t } = useTranslation();
+  const { lang } = useLang();
   const { isAuthenticated } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -114,7 +116,7 @@ export default function CameraDetect() {
         duration: sessionDuration,
       });
       setSaved(true);
-      toast.success(t.detect_saved);
+      toast.success(t('detect_saved'));
     } catch {
       toast.error('Save failed');
     }
@@ -127,9 +129,9 @@ export default function CameraDetect() {
   }, []);
 
   const verdictConfig = {
-    safe: { color: 'text-emerald-400', icon: CheckCircle2, label: t.detect_verdict_safe },
-    suspicious: { color: 'text-amber-400', icon: AlertTriangle, label: t.detect_verdict_suspicious },
-    deepfake: { color: 'text-red-400', icon: XCircle, label: t.detect_verdict_deepfake },
+    safe: { color: 'text-emerald-400', icon: CheckCircle2, label: t('detect_verdict_safe') },
+    suspicious: { color: 'text-amber-400', icon: AlertTriangle, label: t('detect_verdict_suspicious') },
+    deepfake: { color: 'text-red-400', icon: XCircle, label: t('detect_verdict_deepfake') },
   };
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -143,9 +145,9 @@ export default function CameraDetect() {
             <Camera className="w-8 h-8 text-violet-400" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            {t.camera_title}
+            {t('camera_title')}
           </h1>
-          <p className="text-muted-foreground">{t.camera_subtitle}</p>
+          <p className="text-muted-foreground">{t('camera_subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -164,7 +166,7 @@ export default function CameraDetect() {
                 {!isRunning && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                     <CameraOff className="w-12 h-12 text-muted-foreground/40" />
-                    <p className="text-muted-foreground text-sm">{t.camera_permission}</p>
+                    <p className="text-muted-foreground text-sm">{t('camera_permission')}</p>
                   </div>
                 )}
 
@@ -181,7 +183,7 @@ export default function CameraDetect() {
                 {isAnalyzing && (
                   <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30">
                     <Loader2 className="w-3 h-3 text-primary animate-spin" />
-                    <span className="text-xs text-primary">{t.camera_analyzing}</span>
+                    <span className="text-xs text-primary">{t('camera_analyzing')}</span>
                   </div>
                 )}
 
@@ -202,7 +204,7 @@ export default function CameraDetect() {
                 {permissionError && (
                   <div className="mb-3 flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {t.camera_permission}
+                    {t('camera_permission')}
                   </div>
                 )}
                 <Button
@@ -210,9 +212,9 @@ export default function CameraDetect() {
                   onClick={isRunning ? stopDetection : startDetection}
                 >
                   {isRunning ? (
-                    <><CameraOff className="w-4 h-4" />{t.camera_stop}</>
+                    <><CameraOff className="w-4 h-4" />{t('camera_stop')}</>
                   ) : (
-                    <><Camera className="w-4 h-4" />{t.camera_start}</>
+                    <><Camera className="w-4 h-4" />{t('camera_start')}</>
                   )}
                 </Button>
               </div>
@@ -225,7 +227,7 @@ export default function CameraDetect() {
             <div className="rounded-2xl border border-border/60 bg-card p-5">
               <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary" />
-                {t.camera_live_score}
+                {t('camera_live_score')}
               </h3>
 
               {liveResult ? (
@@ -235,7 +237,7 @@ export default function CameraDetect() {
                     <div className={`text-5xl font-bold ${verdictConfig[liveResult.verdict].color}`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                       {liveResult.riskScore}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">{t.detect_risk_score}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{t('detect_risk_score')}</div>
                   </div>
 
                   {/* Score bar */}
@@ -270,7 +272,7 @@ export default function CameraDetect() {
                 <div className="text-center py-6">
                   <div className="text-4xl font-bold text-muted-foreground/30 mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>--</div>
                   <p className="text-xs text-muted-foreground">
-                    {isRunning ? t.camera_analyzing : t.camera_start}
+                    {isRunning ? t('camera_analyzing') : t('camera_start')}
                   </p>
                 </div>
               )}
@@ -284,7 +286,7 @@ export default function CameraDetect() {
                 disabled={saved || saveResult.isPending}
               >
                 <Save className="w-4 h-4" />
-                {saved ? t.detect_saved : t.detect_save_result}
+                {saved ? t('detect_saved') : t('detect_save_result')}
               </Button>
             )}
 

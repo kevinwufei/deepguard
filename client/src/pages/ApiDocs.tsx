@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Code2, Copy, CheckCircle2, Terminal, Zap, Shield, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 function CodeBlock({ code, language = 'bash' }: { code: string; language?: string }) {
   const [copied, setCopied] = useState(false);
@@ -126,6 +127,7 @@ const useCases = [
 ];
 
 export default function ApiDocs() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
@@ -157,14 +159,14 @@ export default function ApiDocs() {
             <CodeBlock code="https://deepguard.org/api" language="url" />
           </div>
           <div className="p-5 rounded-xl border border-border/60 bg-card">
-            <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">Authentication</p>
+            <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wider">{t('api_docs_auth')}</p>
             <CodeBlock code='Authorization: Bearer YOUR_API_KEY' language="header" />
           </div>
         </div>
 
         {/* Endpoints */}
         <div className="mb-10">
-          <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Endpoints</h2>
+          <h2 className="text-xl font-bold mb-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('api_docs_endpoints')}</h2>
 
           {/* Tab selector */}
           <div className="flex gap-2 mb-6 flex-wrap">

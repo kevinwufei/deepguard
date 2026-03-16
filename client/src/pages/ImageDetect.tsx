@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { FileImage, Upload, X, Shield, AlertTriangle, CheckCircle2,
   Layers, Search, FileText, Download, Info, ChevronDown, ChevronUp,
-  Cpu, Eye, Hash, Clock, Camera, Zap, BarChart3
+  Cpu, Eye, Hash, Clock, Camera, Zap, BarChart3, Share2
 } from 'lucide-react';
 import { FeedbackWidget } from '@/components/FeedbackWidget';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
+import { useTranslation } from 'react-i18next';
 
 interface ForensicData {
   fileName: string;
@@ -142,7 +143,56 @@ function HeatmapCanvas({ imageUrl, regions }: { imageUrl: string; regions: Heatm
   );
 }
 
+// Share button component
+function ShareButton({ result, file }: { result: DetectionResult | null; file: File | null }) {
+  const { t } = useTranslation();
+  const [isSharing, setIsSharing] = useState(false);
+  const createReport = trpc.reports.create.useMutation();
+
+  const handleShare = async () => {
+    if (!result) return;
+    setIsSharing(true);
+    try {
+      const { token } = await createReport.mutateAsync({
+        type: 'image',
+        fileName: file?.name,
+        riskScore: result.riskScore,
+        verdict: result.verdict,
+        analysisReport: JSON.stringify({
+          summary: result.summary,
+          engineBreakdown: result.engineBreakdown,
+          features: result.features,
+        }),
+      });
+      const shareUrl = `${window.location.origin}/report/${token}`;
+      if (navigator.share) {
+        await navigator.share({ title: 'DeepGuard Detection Report', url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(t('share_link_copied') || 'Share link copied to clipboard!');
+      }
+    } catch {
+      toast.error('Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  return (
+    <Button
+      onClick={handleShare}
+      disabled={isSharing}
+      variant="outline"
+      className="flex-1 border-border/60 hover:border-primary/40 gap-2 min-w-[120px]"
+    >
+      <Share2 className="w-4 h-4" />
+      {isSharing ? (t('creating_link') || 'Creating...') : (t('share_report') || 'Share Report')}
+    </Button>
+  );
+}
+
 export default function ImageDetect() {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -382,7 +432,7 @@ export default function ImageDetect() {
                 </div>
                 <div className="text-center p-3 rounded-xl bg-muted/30">
                   <div className="text-lg font-bold text-foreground capitalize">{result.verdict}</div>
-                  <div className="text-xs text-muted-foreground">Verdict</div>
+                  <div className="text-xs text-muted-foreground">{t('image_verdict')}</div>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-muted/30">
                   <div className="text-sm font-bold text-foreground truncate">{result.aiModel || 'Unknown'}</div>
@@ -536,12 +586,13 @@ export default function ImageDetect() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
-              <Button onClick={handleDownloadReport} variant="outline" className="flex-1 border-border/60 hover:border-primary/40 gap-2">
-                <Download className="w-4 h-4" /> Download Report
+            <div className="flex gap-3 flex-wrap">
+              <Button onClick={handleDownloadReport} variant="outline" className="flex-1 border-border/60 hover:border-primary/40 gap-2 min-w-[120px]">
+                <Download className="w-4 h-4" /> {t('download_report') || 'Download Report'}
               </Button>
-              <Button onClick={() => { setFile(null); setPreviewUrl(null); setResult(null); }} variant="outline" className="flex-1 border-border/60 hover:border-primary/40 gap-2">
-                <FileImage className="w-4 h-4" /> Analyze Another
+              <ShareButton result={result} file={file} />
+              <Button onClick={() => { setFile(null); setPreviewUrl(null); setResult(null); }} variant="outline" className="flex-1 border-border/60 hover:border-primary/40 gap-2 min-w-[120px]">
+                <FileImage className="w-4 h-4" /> {t('analyze_another') || 'Analyze Another'}
               </Button>
             </div>
 

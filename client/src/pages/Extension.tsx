@@ -6,6 +6,7 @@ import {
   Image, Video, Volume2, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const FEATURES = [
   {
@@ -62,6 +63,7 @@ const SOCIAL_PLATFORMS = [
 ];
 
 export default function Extension() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Browser Extension — DeepGuard AI Detection';
   }, []);

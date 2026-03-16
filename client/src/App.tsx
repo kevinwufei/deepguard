@@ -26,14 +26,20 @@ import UseCases from './pages/UseCases';
 import BatchDetect from './pages/BatchDetect';
 import VoiceDetect from './pages/VoiceDetect';
 import TrainingData from './pages/TrainingData';
+import SharedReport from './pages/SharedReport';
 
 function Router() {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <PWAInstallBanner />
-      <main className="pt-16">
-        <Switch>
+    <Switch>
+      {/* Public report page — no navbar */}
+      <Route path="/report/:token" component={SharedReport} />
+      {/* All other routes with navbar */}
+      <Route>
+        <div className="min-h-screen bg-background">
+          <Navbar />
+          <PWAInstallBanner />
+          <main className="pt-16">
+            <Switch>
           <Route path="/" component={Home} />
           <Route path="/detect/audio" component={AudioDetect} />
           <Route path="/detect/video" component={VideoDetect} />
@@ -52,12 +58,14 @@ function Router() {
           <Route path="/use-cases" component={UseCases} />
           <Route path="/batch" component={BatchDetect} />
           <Route path="/detect/voice" component={VoiceDetect} />
-          <Route path="/admin/training-data" component={TrainingData} />
-          <Route path="/404" component={NotFound} />
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-    </div>
+              <Route path="/admin/training-data" component={TrainingData} />
+              <Route path="/404" component={NotFound} />
+              <Route component={NotFound} />
+            </Switch>
+          </main>
+        </div>
+      </Route>
+    </Switch>
   );
 }
 

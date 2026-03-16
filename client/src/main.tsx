@@ -8,6 +8,7 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { registerServiceWorker } from "./lib/pwa";
+import './i18n'; // Initialize i18next
 
 // Register PWA Service Worker
 registerServiceWorker();

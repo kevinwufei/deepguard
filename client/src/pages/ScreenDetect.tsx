@@ -4,10 +4,11 @@ import {
   CheckCircle2, XCircle, Save, Info, Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLang } from '@/contexts/LanguageContext';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { useLang } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 interface LiveResult {
   riskScore: number;
@@ -31,7 +32,8 @@ const STEPS = [
 ];
 
 export default function ScreenDetect() {
-  const { t, lang } = useLang();
+  const { t } = useTranslation();
+  const { lang } = useLang();
   const { isAuthenticated } = useAuth();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -165,7 +167,7 @@ export default function ScreenDetect() {
         duration: sessionDuration,
       });
       setSaved(true);
-      toast.success(t.detect_saved);
+      toast.success(t('detect_saved'));
     } catch {
       toast.error('Save failed');
     }
@@ -176,9 +178,9 @@ export default function ScreenDetect() {
   }, []);
 
   const verdictConfig = {
-    safe: { color: 'text-emerald-400', bgColor: 'bg-emerald-400/10', borderColor: 'border-emerald-400/30', icon: CheckCircle2, label: t.detect_verdict_safe },
-    suspicious: { color: 'text-amber-400', bgColor: 'bg-amber-400/10', borderColor: 'border-amber-400/30', icon: AlertTriangle, label: t.detect_verdict_suspicious },
-    deepfake: { color: 'text-red-400', bgColor: 'bg-red-400/10', borderColor: 'border-red-400/30', icon: XCircle, label: t.detect_verdict_deepfake },
+    safe: { color: 'text-emerald-400', bgColor: 'bg-emerald-400/10', borderColor: 'border-emerald-400/30', icon: CheckCircle2, label: t('detect_verdict_safe') },
+    suspicious: { color: 'text-amber-400', bgColor: 'bg-amber-400/10', borderColor: 'border-amber-400/30', icon: AlertTriangle, label: t('detect_verdict_suspicious') },
+    deepfake: { color: 'text-red-400', bgColor: 'bg-red-400/10', borderColor: 'border-red-400/30', icon: XCircle, label: t('detect_verdict_deepfake') },
   };
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -192,9 +194,9 @@ export default function ScreenDetect() {
             <Monitor className="w-8 h-8 text-orange-400" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            {t.screen_title}
+            {t('screen_title')}
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">{t.screen_subtitle}</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">{t('screen_subtitle')}</p>
 
           {/* Supported apps badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
@@ -268,7 +270,7 @@ export default function ScreenDetect() {
                 {isAnalyzing && (
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30">
                     <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                    <span className="text-xs text-primary font-medium">{t.screen_analyzing}</span>
+                    <span className="text-xs text-primary font-medium">{t('screen_analyzing')}</span>
                   </div>
                 )}
 
@@ -289,7 +291,7 @@ export default function ScreenDetect() {
                 {permissionError && (
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {t.screen_permission}
+                    {t('screen_permission')}
                   </div>
                 )}
 
@@ -302,9 +304,9 @@ export default function ScreenDetect() {
                   onClick={isRunning ? stopDetection : startDetection}
                 >
                   {isRunning ? (
-                    <><MonitorOff className="w-5 h-5" />{t.screen_stop}</>
+                    <><MonitorOff className="w-5 h-5" />{t('screen_stop')}</>
                   ) : (
-                    <><Monitor className="w-5 h-5" />{t.screen_start}</>
+                    <><Monitor className="w-5 h-5" />{t('screen_start')}</>
                   )}
                 </Button>
 
@@ -353,7 +355,7 @@ export default function ScreenDetect() {
             <div className="rounded-2xl border border-border/60 bg-card p-5">
               <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary" />
-                {t.screen_live_score}
+                {t('screen_live_score')}
               </h3>
 
               {liveResult ? (() => {
@@ -365,7 +367,7 @@ export default function ScreenDetect() {
                       <div className={`text-5xl font-bold ${cfg.color}`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                         {liveResult.riskScore}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">{t.detect_risk_score}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{t('detect_risk_score')}</div>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
@@ -427,7 +429,7 @@ export default function ScreenDetect() {
                 disabled={saved || saveResult.isPending}
               >
                 <Save className="w-4 h-4" />
-                {saved ? t.detect_saved : t.detect_save_result}
+                {saved ? t('detect_saved') : t('detect_save_result')}
               </Button>
             )}
 

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Key, Plus, Trash2, Copy, Eye, EyeOff, BarChart3, Zap, Shield, Globe, Lock, CheckCircle } from 'lucide-react';
 import { getLoginUrl } from '@/const';
 import Navbar from '@/components/Navbar';
+import { useTranslation } from 'react-i18next';
 
 const TIER_CONFIG = {
   free: { label: 'Free', color: 'bg-slate-500/20 text-slate-300 border-slate-500/30', limit: '100 req/day', price: '$0' },
@@ -18,6 +19,7 @@ const TIER_CONFIG = {
 };
 
 export default function ApiConsole() {
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const [newKeyName, setNewKeyName] = useState('');
   const [createdKey, setCreatedKey] = useState<string | null>(null);
@@ -81,7 +83,7 @@ export default function ApiConsole() {
             <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
               <Key className="w-5 h-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">API Console</h1>
+            <h1 className="text-2xl font-bold">{t('api_console_title')}</h1>
           </div>
           <p className="text-muted-foreground">
             Manage your API keys and integrate DeepGuard detection into any application.

@@ -29,6 +29,13 @@
       "when": 1773695176367,
       "tag": "0003_thin_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773702302644,
+      "tag": "0004_next_kronos",
+      "breakpoints": true
     }
   ]
 }

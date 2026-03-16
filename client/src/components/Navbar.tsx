@@ -12,9 +12,11 @@ import { useLang, LANGUAGES } from '@/contexts/LanguageContext';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { getLoginUrl } from '@/const';
 import { trpc } from '@/lib/trpc';
+import { useTranslation } from 'react-i18next';
 
 export default function Navbar() {
-  const { t, lang, setLang } = useLang();
+  const { lang, setLang } = useLang();
+  const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
@@ -23,27 +25,27 @@ export default function Navbar() {
   });
 
   const detectItems = [
-    { href: '/detect/image', label: 'Image Detection', icon: Image, badge: 'NEW', color: 'text-violet-400' },
-    { href: '/detect/video', label: 'Video Detection', icon: Video, color: 'text-blue-400' },
-    { href: '/detect/audio', label: 'Audio Detection', icon: AudioLines, color: 'text-cyan-400' },
-    { href: '/detect/voice', label: 'Voice Deepfake', icon: Mic, badge: 'LIVE', color: 'text-violet-400' },
-    { href: '/detect/text', label: 'Text Detection', icon: FileText, color: 'text-emerald-400' },
-    { href: '/detect/screen', label: 'Screen Monitor', icon: Monitor, color: 'text-amber-400' },
-    { href: '/batch', label: 'Batch Detection', icon: Layers, color: 'text-violet-400' },
+    { href: '/detect/image', label: t('nav_image_detection'), icon: Image, badge: t('common_new'), color: 'text-violet-400' },
+    { href: '/detect/video', label: t('nav_video_detection'), icon: Video, color: 'text-blue-400' },
+    { href: '/detect/audio', label: t('nav_audio_detection'), icon: AudioLines, color: 'text-cyan-400' },
+    { href: '/detect/voice', label: t('nav_voice_deepfake'), icon: Mic, badge: t('common_live'), color: 'text-violet-400' },
+    { href: '/detect/text', label: t('nav_text_detection'), icon: FileText, color: 'text-emerald-400' },
+    { href: '/detect/screen', label: t('nav_screen_monitor'), icon: Monitor, color: 'text-amber-400' },
+    { href: '/batch', label: t('nav_batch_detection'), icon: Layers, color: 'text-violet-400' },
   ];
 
   const solutionsItems = [
-    { href: '/meeting-guard', label: 'Meeting Guard', icon: VideoIcon, desc: 'Real-time Zoom/Teams detection', color: 'text-rose-400' },
-    { href: '/extension', label: 'Browser Extension', icon: Chrome, desc: 'Right-click detection anywhere', color: 'text-primary' },
-    { href: '/api-docs', label: 'Enterprise API', icon: Code2, desc: 'Integrate into your workflow', color: 'text-violet-400' },
-    { href: '/api-console', label: 'API Console', icon: LayoutDashboard, desc: 'Test API endpoints', color: 'text-cyan-400' },
+    { href: '/meeting-guard', label: t('nav_meeting_guard'), icon: VideoIcon, desc: t('nav_meeting_guard_desc'), color: 'text-rose-400' },
+    { href: '/extension', label: t('nav_browser_extension'), icon: Chrome, desc: t('nav_browser_extension_desc'), color: 'text-primary' },
+    { href: '/api-docs', label: t('nav_enterprise_api'), icon: Code2, desc: t('nav_enterprise_api_desc'), color: 'text-violet-400' },
+    { href: '/api-console', label: t('nav_api_console'), icon: LayoutDashboard, desc: t('nav_api_console_desc'), color: 'text-cyan-400' },
   ];
 
   const useCaseItems = [
-    { href: '/use-cases', label: 'Finance & Enterprise', icon: Building2, color: 'text-rose-400' },
-    { href: '/use-cases', label: 'HR & Recruiting', icon: Users, color: 'text-amber-400' },
-    { href: '/use-cases', label: 'Media & Journalism', icon: Newspaper, color: 'text-primary' },
-    { href: '/use-cases', label: 'Legal & Government', icon: Scale, color: 'text-violet-400' },
+    { href: '/use-cases', label: t('nav_finance'), icon: Building2, color: 'text-rose-400' },
+    { href: '/use-cases', label: t('nav_hr'), icon: Users, color: 'text-amber-400' },
+    { href: '/use-cases', label: t('nav_media'), icon: Newspaper, color: 'text-primary' },
+    { href: '/use-cases', label: t('nav_legal'), icon: Scale, color: 'text-violet-400' },
   ];
 
   const currentLang = LANGUAGES.find(l => l.code === lang);
@@ -62,7 +64,7 @@ export default function Navbar() {
               <span className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 Deep<span className="text-primary">Guard</span>
               </span>
-              <p className="text-[10px] text-muted-foreground leading-none hidden sm:block">AI Detection Platform</p>
+              <p className="text-[10px] text-muted-foreground leading-none hidden sm:block">{t('nav_platform_tagline')}</p>
             </div>
           </Link>
 
@@ -72,7 +74,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className={`text-sm gap-1 ${['/detect/image', '/detect/video', '/detect/audio', '/detect/text', '/detect/screen', '/batch'].includes(location) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                  Detect
+                  {t('nav_detect')}
                   <ChevronDown className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -95,7 +97,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className={`text-sm gap-1 ${['/meeting-guard', '/extension', '/api-docs', '/api-console'].includes(location) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                  Solutions
+                  {t('nav_solutions')}
                   <ChevronDown className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -120,7 +122,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className={`text-sm gap-1 ${location === '/use-cases' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                  Use Cases
+                  {t('nav_use_cases')}
                   <ChevronDown className="w-3.5 h-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -136,7 +138,7 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/use-cases" className="flex items-center gap-2.5 cursor-pointer py-2 text-primary">
-                    <span className="text-xs">View all use cases →</span>
+                    <span className="text-xs">{t('nav_view_all_use_cases')}</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -145,14 +147,14 @@ export default function Navbar() {
             {/* Technology */}
             <Link href="/technology">
               <Button variant="ghost" size="sm" className={`text-sm ${location === '/technology' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                Technology
+                {t('nav_technology')}
               </Button>
             </Link>
 
             {/* Pricing */}
             <Link href="/pricing">
               <Button variant="ghost" size="sm" className={`text-sm ${location === '/pricing' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                Pricing
+                {t('nav_pricing')}
               </Button>
             </Link>
 
@@ -161,7 +163,7 @@ export default function Navbar() {
               <Link href="/history">
                 <Button variant="ghost" size="sm" className={`text-sm gap-1.5 ${location === '/history' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
                   <History className="w-3.5 h-3.5" />
-                  History
+                  {t('nav_history')}
                 </Button>
               </Link>
             )}
@@ -208,13 +210,13 @@ export default function Navbar() {
                 <DropdownMenuContent align="end" className="bg-card border-border">
                   <DropdownMenuItem asChild>
                     <Link href="/history" className="flex items-center gap-2 cursor-pointer">
-                      <History className="w-4 h-4" /> Detection History
+                      <History className="w-4 h-4" /> {t('nav_history')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout.mutate()} className="text-destructive gap-2 cursor-pointer">
                     <LogOut className="w-4 h-4" />
-                    {t.nav_logout}
+                    {t('nav_logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -280,20 +282,20 @@ export default function Navbar() {
             <Link href="/technology" onClick={() => setMobileOpen(false)}>
               <Button variant="ghost" className="w-full justify-start gap-2">
                 <Cpu className="w-4 h-4 text-primary" />
-                Technology
+                {t('nav_technology')}
               </Button>
             </Link>
             <Link href="/pricing" onClick={() => setMobileOpen(false)}>
               <Button variant="ghost" className="w-full justify-start gap-2">
                 <DollarSign className="w-4 h-4 text-primary" />
-                Pricing
+                {t('nav_pricing')}
               </Button>
             </Link>
             {isAuthenticated && (
               <Link href="/history" onClick={() => setMobileOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start gap-2">
                   <History className="w-4 h-4" />
-                  History
+                  {t('nav_history')}
                 </Button>
               </Link>
             )}

@@ -76,3 +76,23 @@ export const apiUsageLogs = mysqlTable('api_usage_logs', {
 });
 
 export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
+
+// Shareable public report links
+export const sharedReports = mysqlTable('shared_reports', {
+  id: int('id').autoincrement().primaryKey(),
+  token: varchar('token', { length: 32 }).notNull().unique(),
+  userId: int('userId').references(() => users.id, { onDelete: 'set null' }),
+  detectionRecordId: int('detectionRecordId').references(() => detectionRecords.id, { onDelete: 'set null' }),
+  type: mysqlEnum('type', ['audio', 'video', 'camera', 'microphone', 'text', 'screen', 'image']).notNull(),
+  fileName: varchar('fileName', { length: 255 }),
+  fileUrl: varchar('fileUrl', { length: 1024 }),
+  riskScore: int('riskScore').notNull().default(0),
+  verdict: mysqlEnum('verdict', ['safe', 'suspicious', 'deepfake']).notNull().default('safe'),
+  analysisReport: text('analysisReport'),
+  viewCount: int('viewCount').notNull().default(0),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  expiresAt: timestamp('expiresAt'),
+});
+
+export type SharedReport = typeof sharedReports.$inferSelect;
+export type InsertSharedReport = typeof sharedReports.$inferInsert;

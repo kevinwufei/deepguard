@@ -1,9 +1,9 @@
 import { Video, Shield } from 'lucide-react';
-import { useLang } from '@/contexts/LanguageContext';
 import FileUploadDetect from '@/components/FileUploadDetect';
+import { useTranslation } from 'react-i18next';
 
 export default function VideoDetect() {
-  const { t, lang } = useLang();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen py-12 grid-bg">
@@ -14,9 +14,9 @@ export default function VideoDetect() {
             <Video className="w-8 h-8 text-blue-400" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            {t.video_title}
+            {t('video_title')}
           </h1>
-          <p className="text-muted-foreground">{t.video_subtitle}</p>
+          <p className="text-muted-foreground">{t('video_subtitle')}</p>
         </div>
 
         {/* Detection card */}
@@ -33,9 +33,7 @@ export default function VideoDetect() {
           <div className="flex items-start gap-3">
             <Shield className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {lang === 'zh'
-                ? '上传的视频文件仅用于 AI 分析，分析完成后立即删除，不会被存储或用于其他用途。'
-                : 'Uploaded video files are used only for AI analysis and deleted immediately after. They are never stored or used for any other purpose.'}
+              {t('video_privacy_note')}
             </p>
           </div>
         </div>

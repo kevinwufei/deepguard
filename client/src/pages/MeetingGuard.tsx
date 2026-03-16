@@ -6,6 +6,7 @@ import {
   Building2, ChevronRight, Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const HOW_IT_WORKS = [
   {
@@ -81,6 +82,7 @@ const PLATFORMS = [
 ];
 
 export default function MeetingGuard() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Real-Time Meeting Deepfake Detection — DeepGuard';
   }, []);

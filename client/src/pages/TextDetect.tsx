@@ -4,6 +4,7 @@ import { FileText, FlaskConical, AlertTriangle, CheckCircle2, HelpCircle, Loader
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 type Verdict = 'human' | 'mixed' | 'ai_generated';
 type DetectionResult = {
@@ -68,6 +69,7 @@ function SentenceHighlight({ sentences }: { sentences: Array<{ text: string; aiP
 }
 
 export default function TextDetect() {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [showSentences, setShowSentences] = useState(true);

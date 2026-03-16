@@ -6,6 +6,7 @@ import {
   DollarSign, Video, FileImage, Mic, FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
   { id: 'enterprise', label: 'Enterprise & Finance', icon: Building2 },
@@ -231,6 +232,7 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export default function UseCases() {
+  const { t } = useTranslation();
   const [active, setActive] = useState('enterprise');
   const uc = USE_CASES[active as keyof typeof USE_CASES];
 

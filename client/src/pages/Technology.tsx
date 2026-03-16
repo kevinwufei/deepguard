@@ -6,6 +6,7 @@ import {
   Microscope, Network, Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const BENCHMARK_DATA = [
   { model: 'Midjourney v6', accuracy: 96.2, falsePositive: 1.8, samples: '42,000' },
@@ -85,6 +86,7 @@ const DATASETS = [
 ];
 
 export default function Technology() {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Technology & Benchmarks — DeepGuard';
   }, []);
@@ -170,7 +172,7 @@ export default function Technology() {
             <div className="rounded-2xl border border-border/60 overflow-hidden">
               <div className="grid grid-cols-4 bg-muted/50 px-6 py-3 border-b border-border/40">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Model / Tool</div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">Accuracy</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">{t('tech_accuracy_title')}</div>
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">False Positive</div>
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Test Samples</div>
               </div>

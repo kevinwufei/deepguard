@@ -8,6 +8,7 @@ import {
   Database, Download, BarChart3, CheckCircle, XCircle, HelpCircle,
   Image, Video, Mic, FileText, RefreshCw, Lock, ArrowLeft, Layers
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: number | string; color: string }) {
   return (
@@ -22,6 +23,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType
 }
 
 export default function TrainingData() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [exported, setExported] = useState(false);
 

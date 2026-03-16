@@ -3,6 +3,7 @@ import { UserCheck, Camera, Shield, AlertTriangle, CheckCircle2, Loader2, Rotate
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 type VerifyResult = {
   realPersonProbability: number;
@@ -14,6 +15,7 @@ type VerifyResult = {
 };
 
 export default function LiveVerify() {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);

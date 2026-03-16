@@ -1,6 +1,6 @@
 import { desc, eq, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey } from "../drizzle/schema";
+import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey, sharedReports, InsertSharedReport } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { createHash } from 'crypto';
 
@@ -184,4 +184,28 @@ export async function getFeedbackStats() {
     aiSamples: aiLabeled[0]?.count ?? 0,
     realSamples: realLabeled[0]?.count ?? 0,
   };
+}
+
+// Shared report helpers
+export async function createSharedReport(report: InsertSharedReport) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(sharedReports).values(report);
+}
+
+export async function getSharedReportByToken(token: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.select().from(sharedReports)
+    .where(eq(sharedReports.token, token))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function incrementReportViewCount(token: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(sharedReports)
+    .set({ viewCount: sql`${sharedReports.viewCount} + 1` })
+    .where(eq(sharedReports.token, token));
 }

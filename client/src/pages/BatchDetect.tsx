@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface BatchFile {
   id: string;
@@ -41,6 +42,7 @@ function FileTypeIcon({ mimeType }: { mimeType: string }) {
 }
 
 export default function BatchDetect() {
+  const { t } = useTranslation();
   const [files, setFiles] = useState<BatchFile[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);

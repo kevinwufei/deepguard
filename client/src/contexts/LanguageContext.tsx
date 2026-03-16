@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import i18n from '@/i18n';
 
 export type Language = 'zh' | 'en' | 'hi' | 'es' | 'fr' | 'ar' | 'ru' | 'pt' | 'pl' | 'de' | 'ko' | 'ja' | 'tr';
 
@@ -701,6 +702,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const handleSetLang = (newLang: Language) => {
     setLang(newLang);
     localStorage.setItem('deepguard_lang', newLang);
+    // Sync with react-i18next so all pages using useTranslation() update too
+    i18n.changeLanguage(newLang);
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
   };
 
   return (
