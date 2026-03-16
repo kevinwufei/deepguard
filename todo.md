@@ -246,3 +246,18 @@
 - [x] Illuminarty test: API key valid, 200 OK
 - [x] All 16 tests passing (4 test files)
 - [x] Save checkpoint
+
+## Phase 22: User Feedback + CLIP Model Training
+- [x] Add userFeedback + feedbackLabel + feedbackNote + feedbackAt columns to detection_records table
+- [x] Add submitDetectionFeedback + getTrainingData + getFeedbackStats helpers to db.ts
+- [x] Add feedback.submit + trainingData.stats + trainingData.export tRPC procedures
+- [x] Create FeedbackWidget component (correct/incorrect/unsure + ground truth label + optional note)
+- [x] Integrate FeedbackWidget into ImageDetect result page (shows when recordId is returned)
+- [x] analyzeImage mutation now returns recordId for feedback linking
+- [x] Create /admin/training-data page (stats, progress bar, CSV/JSON export, schema docs)
+- [x] Create model-training/train_clip_detector.py (CLIP ViT-B/32 fine-tuning, 4 unfrozen layers)
+- [x] Create model-training/inference.py (single image prediction script)
+- [x] Create model-training/README.md (full training guide, cost estimates, HF Hub deployment)
+- [x] Create model-training/requirements.txt
+- [x] All 16 tests passing (TypeScript 0 errors)
+- [x] Save checkpoint

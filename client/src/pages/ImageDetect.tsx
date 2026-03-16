@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  FileImage, Upload, X, Shield, AlertTriangle, CheckCircle2,
+import { FileImage, Upload, X, Shield, AlertTriangle, CheckCircle2,
   Layers, Search, FileText, Download, Info, ChevronDown, ChevronUp,
   Cpu, Eye, Hash, Clock, Camera, Zap, BarChart3
 } from 'lucide-react';
+import { FeedbackWidget } from '@/components/FeedbackWidget';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -151,6 +151,7 @@ export default function ImageDetect() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DetectionResult | null>(null);
+  const [recordId, setRecordId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'heatmap' | 'forensic' | 'report'>('heatmap');
 
   useEffect(() => {
@@ -199,7 +200,9 @@ export default function ImageDetect() {
       setUploadProgress(75);
       const res = await analyzeImage.mutateAsync({ fileUrl: uploadUrl, fileName: file.name, mimeType: file.type, fileSize: file.size });
       setUploadProgress(100);
-      setResult(res as DetectionResult);
+      const typedRes = res as DetectionResult & { recordId?: number | null };
+      setResult(typedRes);
+      setRecordId(typedRes.recordId ?? null);
       setActiveTab('heatmap');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
@@ -551,6 +554,15 @@ export default function ImageDetect() {
                 </div>
               </div>
             </div>
+
+            {/* Feedback widget for training data collection */}
+            {recordId && (
+              <FeedbackWidget
+                recordId={recordId}
+                detectionType="image"
+                currentVerdict={result.verdict}
+              />
+            )}
           </div>
         )}
 

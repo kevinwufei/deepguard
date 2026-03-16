@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats } from "./db";
+import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats } from "./db";
 import { nanoid } from "nanoid";
 
 // Helper: analyze text with multi-model LLM approach
@@ -717,8 +717,9 @@ Return JSON:
             },
           };
 
+          let recordId: number | null = null;
           if (ctx.user) {
-            await createDetectionRecord({
+            const dbResult = await createDetectionRecord({
               userId: ctx.user.id,
               type: 'image',
               fileName: input.fileName,
@@ -728,8 +729,10 @@ Return JSON:
               analysisReport: JSON.stringify({ features: result.features, summary: result.summary, aiModel: result.aiModel, engineBreakdown }),
               fileSize: input.fileSize,
             });
+            // @ts-ignore - drizzle insertId
+            recordId = dbResult[0]?.insertId ?? null;
           }
-          return result;
+          return { ...result, recordId };
         } catch (err) {
           console.error('[ImageDetection] Failed:', err);
           const riskScore = Math.floor(Math.random() * 30) + 5;
@@ -791,10 +794,49 @@ Return JSON:
         return { success: true };
       }),
 
-    stats: protectedProcedure.query(async ({ ctx }) => {
+     stats: protectedProcedure.query(async ({ ctx }) => {
       return getApiUsageStats(ctx.user.id);
     }),
   }),
+  // User feedback for model training data collection
+  feedback: router({
+    submit: publicProcedure
+      .input(z.object({
+        recordId: z.number(),
+        feedback: z.enum(['correct', 'incorrect', 'unsure']),
+        label: z.enum(['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio']).nullable(),
+        note: z.string().max(500).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await submitDetectionFeedback(input.recordId, input.feedback, input.label, input.note);
+        return { success: true };
+      }),
+  }),
+  // Admin: training data export
+  trainingData: router({
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+      return getFeedbackStats();
+    }),
+    export: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const data = await getTrainingData(input.limit || 5000);
+        return data.map(r => ({
+          id: r.id,
+          type: r.type,
+          fileUrl: r.fileUrl,
+          fileName: r.fileName,
+          riskScore: r.riskScore,
+          verdict: r.verdict,
+          userFeedback: r.userFeedback,
+          feedbackLabel: r.feedbackLabel,
+          feedbackNote: r.feedbackNote,
+          feedbackAt: r.feedbackAt,
+          createdAt: r.createdAt,
+        }));
+      }),
+  }),
 });
-
 export type AppRouter = typeof appRouter;

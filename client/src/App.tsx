@@ -25,6 +25,7 @@ import Extension from './pages/Extension';
 import UseCases from './pages/UseCases';
 import BatchDetect from './pages/BatchDetect';
 import VoiceDetect from './pages/VoiceDetect';
+import TrainingData from './pages/TrainingData';
 
 function Router() {
   return (
@@ -51,6 +52,7 @@ function Router() {
           <Route path="/use-cases" component={UseCases} />
           <Route path="/batch" component={BatchDetect} />
           <Route path="/detect/voice" component={VoiceDetect} />
+          <Route path="/admin/training-data" component={TrainingData} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

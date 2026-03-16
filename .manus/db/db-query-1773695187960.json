@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `detection_records` ADD `userFeedback` enum('correct','incorrect','unsure');\nALTER TABLE `detection_records` ADD `feedbackLabel` enum('ai_generated','real','deepfake_video','ai_audio','human_audio');\nALTER TABLE `detection_records` ADD `feedbackNote` text;\nALTER TABLE `detection_records` ADD `feedbackAt` timestamp;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4CHdtredJ9TSu2M.root --database C63LRtvb89XZRBRQe8dCdG --execute ALTER TABLE `detection_records` ADD `userFeedback` enum('correct','incorrect','unsure');\nALTER TABLE `detection_records` ADD `feedbackLabel` enum('ai_generated','real','deepfake_video','ai_audio','human_audio');\nALTER TABLE `detection_records` ADD `feedbackNote` text;\nALTER TABLE `detection_records` ADD `feedbackAt` timestamp;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1640
+}

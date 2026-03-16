@@ -143,3 +143,45 @@ export async function getApiUsageStats(userId: number) {
   const totalCalls = keys.reduce((sum, k) => sum + k.usageCount, 0);
   return { keys, totalCalls };
 }
+
+// User feedback helpers for training data collection
+export async function submitDetectionFeedback(
+  recordId: number,
+  feedback: 'correct' | 'incorrect' | 'unsure',
+  label: 'ai_generated' | 'real' | 'deepfake_video' | 'ai_audio' | 'human_audio' | null,
+  note?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(detectionRecords)
+    .set({ userFeedback: feedback, feedbackLabel: label ?? undefined, feedbackNote: note ?? null, feedbackAt: new Date() })
+    .where(eq(detectionRecords.id, recordId));
+}
+
+export async function getTrainingData(limit = 5000) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Return records that have user feedback (labeled data for training)
+  return db.select().from(detectionRecords)
+    .where(sql`${detectionRecords.userFeedback} IS NOT NULL`)
+    .orderBy(desc(detectionRecords.createdAt))
+    .limit(limit);
+}
+
+export async function getFeedbackStats() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const total = await db.select({ count: sql<number>`count(*)` }).from(detectionRecords);
+  const withFeedback = await db.select({ count: sql<number>`count(*)` }).from(detectionRecords)
+    .where(sql`${detectionRecords.userFeedback} IS NOT NULL`);
+  const aiLabeled = await db.select({ count: sql<number>`count(*)` }).from(detectionRecords)
+    .where(eq(detectionRecords.feedbackLabel, 'ai_generated'));
+  const realLabeled = await db.select({ count: sql<number>`count(*)` }).from(detectionRecords)
+    .where(eq(detectionRecords.feedbackLabel, 'real'));
+  return {
+    totalDetections: total[0]?.count ?? 0,
+    labeledSamples: withFeedback[0]?.count ?? 0,
+    aiSamples: aiLabeled[0]?.count ?? 0,
+    realSamples: realLabeled[0]?.count ?? 0,
+  };
+}

@@ -39,6 +39,11 @@ export const detectionRecords = mysqlTable('detection_records', {
   duration: int('duration'),
   fileSize: int('fileSize'),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
+  // User feedback for model training data collection
+  userFeedback: mysqlEnum('userFeedback', ['correct', 'incorrect', 'unsure']),
+  feedbackLabel: mysqlEnum('feedbackLabel', ['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio']),
+  feedbackNote: text('feedbackNote'),
+  feedbackAt: timestamp('feedbackAt'),
 });
 
 export type DetectionRecord = typeof detectionRecords.$inferSelect;
