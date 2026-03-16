@@ -23,8 +23,7 @@ export default function VideoDetect() {
         <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8">
           <FileUploadDetect
             type="video"
-            acceptedFormats={t.video_formats}
-            acceptMimeTypes="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
+            accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
             maxSizeMB={5120}
           />
         </div>

@@ -23,8 +23,7 @@ export default function AudioDetect() {
         <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8">
           <FileUploadDetect
             type="audio"
-            acceptedFormats={t.audio_formats}
-            acceptMimeTypes="audio/mpeg,audio/wav,audio/mp4,audio/ogg,audio/flac,audio/x-flac,audio/aac,.mp3,.wav,.m4a,.ogg,.flac"
+            accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,audio/flac,audio/x-flac,audio/aac,.mp3,.wav,.m4a,.ogg,.flac"
             maxSizeMB={5120}
           />
         </div>

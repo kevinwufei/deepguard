@@ -136,3 +136,16 @@
 - [x] Create ApiConsole page (API key management dashboard)
 - [x] Fix TypeScript compile error (missing ApiConsole module)
 - [x] Increase max file upload size to 5GB (server body limit + frontend validation)
+
+## Phase 15: Fix Video Detection & API Architecture
+- [ ] Diagnose video upload detection failure
+- [ ] Fix video detection pipeline
+- [ ] Evaluate and integrate third-party deepfake detection APIs
+- [ ] Document detection system architecture for user
+
+## Phase 15: Fix Video Detection & API Clarification
+- [ ] Fix video upload: replace base64 with direct multipart/form-data upload to avoid browser memory crash
+- [ ] Fix server: accept multipart upload and stream directly to S3
+- [ ] Show proper progress bar during large file upload
+- [ ] Fix default maxSizeMB display in UI (show 5GB not 50MB)
+- [ ] Upgrade API docs page with real working examples
