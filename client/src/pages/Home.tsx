@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import { useEffect } from 'react';
 import { Shield, AudioLines, Video, Camera, Mic, BarChart3, History, ArrowRight, ChevronRight, Zap, Lock, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLang } from '@/contexts/LanguageContext';
@@ -8,6 +9,10 @@ import { useAuth } from '@/_core/hooks/useAuth';
 export default function Home() {
   const { t } = useLang();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    document.title = 'DeepGuard - AI Deepfake Detection & Anti-Scam Platform';
+  }, []);
 
   const features = [
     { icon: AudioLines, title: t.home_feature_audio_title, desc: t.home_feature_audio_desc, href: '/detect/audio', color: 'text-cyan-400' },

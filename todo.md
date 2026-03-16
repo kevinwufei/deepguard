@@ -63,3 +63,8 @@
 - [x] i18n (zh/en)
 - [x] Detection history page
 - [x] README for developers
+
+## Phase 10: SEO Fixes
+- [x] Fix page title to be 30-60 characters
+- [x] Add keywords meta tag to homepage
+- [x] Add/improve description meta tag
