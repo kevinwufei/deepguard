@@ -30,7 +30,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const detectionRecords = mysqlTable('detection_records', {
   id: int('id').autoincrement().primaryKey(),
   userId: int('userId').references(() => users.id, { onDelete: 'set null' }),
-  type: mysqlEnum('type', ['audio', 'video', 'camera', 'microphone', 'text', 'screen']).notNull(),
+  type: mysqlEnum('type', ['audio', 'video', 'camera', 'microphone', 'text', 'screen', 'image']).notNull(),
   fileName: varchar('fileName', { length: 255 }),
   fileUrl: varchar('fileUrl', { length: 1024 }),
   riskScore: int('riskScore').notNull().default(0),

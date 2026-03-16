@@ -149,3 +149,72 @@
 - [ ] Show proper progress bar during large file upload
 - [ ] Fix default maxSizeMB display in UI (show 5GB not 50MB)
 - [ ] Upgrade API docs page with real working examples
+
+## Phase 16: Major UX & Trust Upgrade
+- [ ] Redesign homepage: instant demo drag-drop upload + strong value prop headline
+- [ ] Add supported AI models showcase (Midjourney, SD, DALL-E, FaceSwap, etc.)
+- [ ] Add accuracy stats prominently (95%+, 2M dataset, etc.)
+- [ ] Add Pricing page (/pricing) with 4 tiers: Free / Pro $13.99 / Business $49 / Enterprise
+- [ ] Add Technology/Trust page (/technology) with benchmarks, datasets, methodology
+- [ ] Add Use Cases page (/use-cases) with journalist, law enforcement, dating, KYC scenarios
+- [ ] Upgrade detection result with Heatmap visualization (canvas-based region highlighting)
+- [ ] Add anomaly explanation text (why it's flagged as AI)
+- [ ] Add batch detection page (/detect/batch) for uploading multiple files
+- [ ] Update Navbar with Pricing, Technology, Use Cases links
+
+## Phase 17: Competitor Analysis Upgrades (Sensity.ai + UncovAI)
+
+### Image Detection + Forensics (Sensity.ai inspired)
+- [ ] Image deepfake detection page (/detect/image) with pixel-level heatmap canvas
+- [ ] File forensic analysis tab in results (EXIF, metadata, modification history)
+- [ ] PDF forensic report export (court-ready, with DeepGuard branding)
+- [ ] Bounding box overlay on detected face regions
+- [ ] analyzeImage tRPC procedure in server/routers.ts
+- [ ] GAN face detection (entirely synthetic faces)
+- [ ] Acoustic waveform visualization for audio analysis
+
+### New Solution Pages (UncovAI inspired)
+- [ ] Zoom/Teams Meeting Bot page (/solutions/meetings)
+- [ ] Browser Extension page (/solutions/browser-extension)
+- [ ] WhatsApp Bot page (/solutions/whatsapp)
+- [ ] URL/Phishing detection page (/detect/url)
+
+### Use Case Pages
+- [ ] CEO Fraud Detection use case (/use-cases/ceo-fraud)
+- [ ] HR Scam Detection use case (/use-cases/hr-scam)
+- [ ] Law Enforcement / Government use case (/use-cases/government)
+
+### Technology Page
+- [ ] Technology & Benchmarks page (/technology) with multilayer stack diagram
+- [ ] Accuracy metrics (98% claim, dataset sizes, false positive rates)
+- [ ] Detection methodology explanation (pixel + voice + file forensics)
+
+### Homepage Redesign
+- [ ] Instant demo upload area on homepage (drag & drop)
+- [ ] CEO Fraud / HR Scam use case cards
+- [ ] Multilayer detection architecture diagram
+- [ ] Press/media coverage logos section
+- [ ] Competitor comparison table
+
+### Batch Detection
+- [ ] Batch detection page (/detect/batch)
+
+### Navigation Updates
+- [ ] Update Navbar with new pages (Solutions dropdown, Use Cases, Technology, Pricing)
+- [ ] Update App.tsx routes for all new pages
+- [ ] Save checkpoint and deliver
+
+## Phase 18: Competitor Analysis Completion & Full Platform Delivery
+- [x] Pricing page updated (Pro $19, Business $49, Enterprise $199, meeting single-session $4.99)
+- [x] Image detection page with pixel-level Heatmap canvas + EXIF forensics + PDF report
+- [x] analyzeImage tRPC procedure added to server/routers.ts
+- [x] Technology credibility page (/technology) with benchmarks, datasets, model architecture
+- [x] Meeting Guard page (/meeting-guard) - Zoom/Teams real-time detection
+- [x] Browser Extension page (/extension) - Chrome extension marketing
+- [x] Use Cases page (/use-cases) - CEO fraud, HR scam, media, legal, government
+- [x] Batch Detection page (/batch) - enterprise bulk upload with CSV export
+- [x] Homepage revamp - instant demo upload widget, competitor comparison table, how-it-works, footer
+- [x] Navbar upgraded - Detect/Solutions/Use Cases dropdowns, Technology, Pricing, Get Started CTA
+- [x] All routes registered in App.tsx
+- [x] 12 vitest tests passing (auth + detection + new pages)
+- [x] Cost analysis: Pro $19 = 91% margin, Business $49 = 82% margin, meeting $4.99/session = 42% margin

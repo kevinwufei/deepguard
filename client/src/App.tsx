@@ -17,6 +17,13 @@ import TextDetect from './pages/TextDetect';
 import ApiDocs from './pages/ApiDocs';
 import ApiConsole from './pages/ApiConsole';
 import PWAInstallBanner from './components/PWAInstallBanner';
+import Pricing from './pages/Pricing';
+import ImageDetect from './pages/ImageDetect';
+import Technology from './pages/Technology';
+import MeetingGuard from './pages/MeetingGuard';
+import Extension from './pages/Extension';
+import UseCases from './pages/UseCases';
+import BatchDetect from './pages/BatchDetect';
 
 function Router() {
   return (
@@ -35,6 +42,13 @@ function Router() {
           <Route path="/detect/text" component={TextDetect} />
           <Route path="/api-console" component={ApiConsole} />
           <Route path="/api-docs" component={ApiDocs} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/detect/image" component={ImageDetect} />
+          <Route path="/technology" component={Technology} />
+          <Route path="/meeting-guard" component={MeetingGuard} />
+          <Route path="/extension" component={Extension} />
+          <Route path="/use-cases" component={UseCases} />
+          <Route path="/batch" component={BatchDetect} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>
