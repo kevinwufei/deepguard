@@ -144,19 +144,30 @@ async function sightEngineDetect(imageUrl: string): Promise<{ score: number; typ
 }
 
 // Engine 2: Illuminarty AI image detection
-// Returns score 0-100, or null if API key not configured
+// Returns score 0-100, or null if API key not configured or API returns empty
 async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isAI: boolean } | null> {
   const apiKey = process.env.ILLUMINARTY_API_KEY;
   if (!apiKey) return null;
   try {
-    const res = await fetch('https://api.illuminarty.ai/v1/detection', {
+    // Illuminarty API endpoint (confirmed working)
+    const res = await fetch('https://api.illuminarty.ai/detect', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: imageUrl }),
     });
-    const data = await res.json() as { is_ai?: boolean; score?: number; probability?: number };
-    const score = (data.score ?? data.probability ?? 0) * 100;
-    return { score: Math.round(score), isAI: data.is_ai ?? score > 60 };
+    if (!res.ok) { console.warn('[Illuminarty] HTTP error:', res.status); return null; }
+    const text = await res.text();
+    if (!text || text.trim() === '') {
+      // API returns empty body for some image types - treat as unavailable
+      console.warn('[Illuminarty] Empty response body, skipping engine');
+      return null;
+    }
+    const data = JSON.parse(text) as { is_ai?: boolean; score?: number; probability?: number; ai_probability?: number };
+    const rawScore = data.ai_probability ?? data.score ?? data.probability ?? null;
+    if (rawScore === null) return null;
+    // Score may be 0-1 or 0-100, normalize to 0-100
+    const score = rawScore <= 1 ? Math.round(rawScore * 100) : Math.round(rawScore);
+    return { score, isAI: data.is_ai ?? score > 60 };
   } catch (e) {
     console.warn('[Illuminarty] API call failed:', e);
     return null;

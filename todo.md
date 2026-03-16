@@ -230,8 +230,19 @@
 - [x] All 12 tests passing
 
 ## Phase 20: Multi-Engine Detection Accuracy Upgrade
-- [ ] Research third-party detection APIs (Hive, SightEngine, AI or Not, Illuminarty)
-- [ ] Upgrade image detection to multi-engine: Hive + SightEngine + LLM weighted average
-- [ ] Upgrade video/audio detection with stricter LLM prompts
-- [ ] Show per-engine scores in detection result UI for transparency
-- [ ] Add API key management for third-party services
+- [x] Research third-party detection APIs (Hive, SightEngine, AI or Not, Illuminarty)
+- [x] Upgrade image detection to multi-engine: SightEngine + Illuminarty + LLM weighted average
+- [x] Upgrade video/audio detection with stricter LLM prompts (high sensitivity mode)
+- [x] Show per-engine scores in detection result UI for transparency
+- [x] All 12 tests passing
+
+## Phase 21: SightEngine + Illuminarty Real API Integration
+- [x] Store SIGHTENGINE_API_USER + SIGHTENGINE_API_SECRET via webdev_request_secrets
+- [x] Store ILLUMINARTY_API_KEY via webdev_request_secrets
+- [x] sightEngineDetect already uses env vars correctly (verified working)
+- [x] Fix illuminartyDetect to use correct endpoint /detect (was /v1/detection)
+- [x] Add graceful empty-body handling for Illuminarty (returns null, weights redistribute)
+- [x] SightEngine test: real photo scores 0.04 (4%) - correctly identifies as NOT AI
+- [x] Illuminarty test: API key valid, 200 OK
+- [x] All 16 tests passing (4 test files)
+- [x] Save checkpoint
