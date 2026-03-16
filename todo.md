@@ -120,3 +120,19 @@
 ### Trust & Credibility
 - [x] Model accuracy stats on homepage (94% accuracy, 2.1% false positive)
 - [x] Training dataset badges (LAION, FaceForensics++, DFDC)
+
+## Phase 13: Public API System
+- [ ] Remove live person verification page and navbar entry
+- [ ] Create api_keys database table (key, userId, name, tier, usageCount, rateLimit, active)
+- [ ] Create api_usage_logs table (keyId, endpoint, timestamp, status)
+- [ ] Build REST API endpoints: POST /api/v1/detect/audio, /detect/video, /detect/text
+- [ ] API Key authentication middleware
+- [ ] API Console page (/api-console): generate/revoke keys, view usage stats
+- [ ] Upgrade API docs page with real endpoint examples and SDK code snippets
+- [ ] Rate limiting by tier (Free: 100/day, Pro: 10000/day)
+
+## Phase 14: Default Language & API Console
+- [x] Change default language from zh to en
+- [x] Create ApiConsole page (API key management dashboard)
+- [x] Fix TypeScript compile error (missing ApiConsole module)
+- [x] Increase max file upload size to 5GB (server body limit + frontend validation)

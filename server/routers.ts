@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createDetectionRecord, getDetectionRecordsByUser } from "./db";
+import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats } from "./db";
 import { nanoid } from "nanoid";
 
 // Helper: analyze text with multi-model LLM approach
@@ -446,6 +446,34 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         return getDetectionRecordsByUser(ctx.user.id, input.limit || 50);
       }),
+  }),
+
+  // API Key management
+  apiKeys: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getApiKeysByUser(ctx.user.id);
+    }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(100),
+        tier: z.enum(['free', 'pro', 'enterprise']).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { rawKey, keyPrefix } = await createApiKey(ctx.user.id, input.name, input.tier || 'free');
+        return { rawKey, keyPrefix };
+      }),
+
+    revoke: protectedProcedure
+      .input(z.object({ keyId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await revokeApiKey(input.keyId, ctx.user.id);
+        return { success: true };
+      }),
+
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      return getApiUsageStats(ctx.user.id);
+    }),
   }),
 });
 

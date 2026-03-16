@@ -25,7 +25,7 @@ export default function VideoDetect() {
             type="video"
             acceptedFormats={t.video_formats}
             acceptMimeTypes="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
-            maxSizeMB={50}
+            maxSizeMB={5120}
           />
         </div>
 

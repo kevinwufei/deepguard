@@ -1,7 +1,8 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, detectionRecords, InsertDetectionRecord } from "../drizzle/schema";
+import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { createHash } from 'crypto';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -76,4 +77,69 @@ export async function getRecentDetections(limit = 20) {
   return db.select().from(detectionRecords)
     .orderBy(desc(detectionRecords.createdAt))
     .limit(limit);
+}
+
+// API Key helpers
+export function hashApiKey(key: string): string {
+  return createHash('sha256').update(key).digest('hex');
+}
+
+export async function createApiKey(userId: number, name: string, tier: 'free' | 'pro' | 'enterprise' = 'free') {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { nanoid } = await import('nanoid');
+  const rawKey = `dg_${tier === 'free' ? 'free' : tier === 'pro' ? 'pro' : 'ent'}_${nanoid(32)}`;
+  const keyHash = hashApiKey(rawKey);
+  const keyPrefix = rawKey.slice(0, 12);
+  const dailyLimit = tier === 'free' ? 100 : tier === 'pro' ? 10000 : 1000000;
+  await db.insert(apiKeys).values({ userId, name, keyHash, keyPrefix, tier, dailyLimit });
+  return { rawKey, keyPrefix };
+}
+
+export async function getApiKeysByUser(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(apiKeys)
+    .where(eq(apiKeys.userId, userId))
+    .orderBy(desc(apiKeys.createdAt));
+}
+
+export async function revokeApiKey(keyId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(apiKeys)
+    .set({ isActive: 0 })
+    .where(and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId)));
+}
+
+export async function validateApiKey(rawKey: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const keyHash = hashApiKey(rawKey);
+  const result = await db.select().from(apiKeys)
+    .where(and(eq(apiKeys.keyHash, keyHash), eq(apiKeys.isActive, 1)))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function incrementApiKeyUsage(keyId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(apiKeys)
+    .set({ usageCount: sql`${apiKeys.usageCount} + 1`, lastUsedAt: new Date() })
+    .where(eq(apiKeys.id, keyId));
+}
+
+export async function logApiUsage(apiKeyId: number, endpoint: string, statusCode: number, responseTimeMs?: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(apiUsageLogs).values({ apiKeyId, endpoint, statusCode, responseTimeMs });
+}
+
+export async function getApiUsageStats(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const keys = await db.select().from(apiKeys).where(eq(apiKeys.userId, userId));
+  const totalCalls = keys.reduce((sum, k) => sum + k.usageCount, 0);
+  return { keys, totalCalls };
 }

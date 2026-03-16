@@ -25,7 +25,7 @@ export default function AudioDetect() {
             type="audio"
             acceptedFormats={t.audio_formats}
             acceptMimeTypes="audio/mpeg,audio/wav,audio/mp4,audio/ogg,audio/flac,audio/x-flac,audio/aac,.mp3,.wav,.m4a,.ogg,.flac"
-            maxSizeMB={16}
+            maxSizeMB={5120}
           />
         </div>
 

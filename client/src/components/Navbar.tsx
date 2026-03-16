@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines, Monitor, FileText, UserCheck, Code2 } from 'lucide-react';
+import { Shield, Menu, X, ChevronDown, Globe, LogOut, History, Mic, Video, Camera, AudioLines, Monitor, FileText, Code2, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useLang, LANGUAGES } from '@/contexts/LanguageContext';
@@ -24,7 +24,11 @@ export default function Navbar() {
     { href: '/detect/microphone', label: t.nav_microphone, icon: Mic },
     { href: '/detect/screen', label: t.nav_screen, icon: Monitor },
     { href: '/detect/text', label: t.nav_text || 'Text Detection', icon: FileText },
-    { href: '/detect/verify', label: t.nav_verify || 'Live Verification', icon: UserCheck },
+  ];
+
+  const toolItems = [
+    { href: '/api-console', label: 'API Console', icon: LayoutDashboard },
+    { href: '/api-docs', label: t.nav_api || 'API Docs', icon: Code2 },
   ];
 
   const currentLang = LANGUAGES.find(l => l.code === lang);
@@ -65,6 +69,26 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-48 bg-card border-border">
                 {detectItems.map(item => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
+                      <item.icon className="w-4 h-4 text-primary" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Tools Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground gap-1">
+                  {t.nav_api || 'API'}
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48 bg-card border-border">
+                {toolItems.map(item => (
                   <DropdownMenuItem key={item.href} asChild>
                     <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
                       <item.icon className="w-4 h-4 text-primary" />

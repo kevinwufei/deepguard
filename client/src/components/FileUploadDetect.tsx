@@ -41,7 +41,8 @@ export default function FileUploadDetect({
 
   const handleFile = useCallback((f: File) => {
     if (f.size > maxSizeMB * 1024 * 1024) {
-      setError(`File size exceeds ${maxSizeMB}MB limit`);
+      const limitLabel = maxSizeMB >= 1024 ? `${(maxSizeMB / 1024).toFixed(0)}GB` : `${maxSizeMB}MB`;
+      setError(`File size exceeds ${limitLabel} limit`);
       return;
     }
     setFile(f);

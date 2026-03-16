@@ -688,9 +688,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Language>(() => {
     const saved = localStorage.getItem('deepguard_lang');
     if (saved && saved in TRANSLATIONS) return saved as Language;
-    // Auto-detect browser language
-    const browserLang = navigator.language.split('-')[0] as Language;
-    return browserLang in TRANSLATIONS ? browserLang : 'en';
+    // Default to English
+    return 'en';
   });
 
   useEffect(() => {

@@ -15,7 +15,7 @@ import History from './pages/History';
 import ScreenDetect from './pages/ScreenDetect';
 import TextDetect from './pages/TextDetect';
 import ApiDocs from './pages/ApiDocs';
-import LiveVerify from './pages/LiveVerify';
+import ApiConsole from './pages/ApiConsole';
 import PWAInstallBanner from './components/PWAInstallBanner';
 
 function Router() {
@@ -33,7 +33,7 @@ function Router() {
           <Route path="/history" component={History} />
           <Route path="/detect/screen" component={ScreenDetect} />
           <Route path="/detect/text" component={TextDetect} />
-          <Route path="/detect/verify" component={LiveVerify} />
+          <Route path="/api-console" component={ApiConsole} />
           <Route path="/api-docs" component={ApiDocs} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />

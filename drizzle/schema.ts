@@ -43,3 +43,31 @@ export const detectionRecords = mysqlTable('detection_records', {
 
 export type DetectionRecord = typeof detectionRecords.$inferSelect;
 export type InsertDetectionRecord = typeof detectionRecords.$inferInsert;
+
+export const apiKeys = mysqlTable('api_keys', {
+  id: int('id').autoincrement().primaryKey(),
+  userId: int('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 100 }).notNull(),
+  keyHash: varchar('keyHash', { length: 128 }).notNull().unique(),
+  keyPrefix: varchar('keyPrefix', { length: 16 }).notNull(),
+  tier: mysqlEnum('tier', ['free', 'pro', 'enterprise']).notNull().default('free'),
+  usageCount: int('usageCount').notNull().default(0),
+  dailyLimit: int('dailyLimit').notNull().default(100),
+  isActive: int('isActive').notNull().default(1),
+  lastUsedAt: timestamp('lastUsedAt'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = typeof apiKeys.$inferInsert;
+
+export const apiUsageLogs = mysqlTable('api_usage_logs', {
+  id: int('id').autoincrement().primaryKey(),
+  apiKeyId: int('apiKeyId').notNull().references(() => apiKeys.id, { onDelete: 'cascade' }),
+  endpoint: varchar('endpoint', { length: 100 }).notNull(),
+  statusCode: int('statusCode').notNull().default(200),
+  responseTimeMs: int('responseTimeMs'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
