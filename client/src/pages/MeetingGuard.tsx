@@ -251,6 +251,67 @@ export default function MeetingGuard() {
         </div>
       </section>
 
+      {/* Zero-Trust Layer (Truly-inspired) */}
+      <section className="py-20">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Beyond Deepfake Detection: Zero-Trust for Video Calls</h2>
+              <p className="text-muted-foreground text-sm max-w-xl mx-auto">Inspired by enterprise security frameworks, DeepGuard Business adds three additional verification layers beyond visual deepfake detection.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {[
+                {
+                  icon: Eye,
+                  title: 'Facial Biometric Authentication',
+                  desc: 'Compare the face on the call against a pre-enrolled reference image. Confirms the person is who they claim to be, not just "not a deepfake".',
+                  badge: 'Business',
+                  color: 'text-violet-400',
+                  bg: 'bg-violet-400/10',
+                  border: 'border-violet-400/20',
+                },
+                {
+                  icon: Monitor,
+                  title: 'Device Fingerprinting',
+                  desc: 'Verify the hardware signature of the device being used. Flags if the same person joins from an unrecognized device or virtual machine.',
+                  badge: 'Business',
+                  color: 'text-primary',
+                  bg: 'bg-primary/10',
+                  border: 'border-primary/20',
+                },
+                {
+                  icon: Shield,
+                  title: 'Network Intelligence',
+                  desc: 'Detect VPN, Tor, or data center IP addresses that are commonly used to mask the true location of a fraudster.',
+                  badge: 'Enterprise',
+                  color: 'text-emerald-400',
+                  bg: 'bg-emerald-400/10',
+                  border: 'border-emerald-400/20',
+                },
+              ].map((item, i) => (
+                <div key={i} className={`p-5 rounded-2xl border ${item.border} bg-card`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-xl ${item.bg} flex items-center justify-center`}>
+                      <item.icon className={`w-5 h-5 ${item.color}`} />
+                    </div>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.bg} ${item.color} border ${item.border}`}>{item.badge}</span>
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2 text-sm">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link href="/pricing">
+                <Button variant="outline" className="border-border/60 gap-2">
+                  Unlock Zero-Trust Features <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust signals */}
       <section className="py-12 bg-card/30 border-t border-border/40">
         <div className="container">

@@ -58,6 +58,49 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
     if (f) handleFile(f);
   }, [handleFile]);
 
+  // Chunked upload: splits file into 6MB chunks to avoid proxy 413 limits
+  const uploadFileChunked = async (
+    file: File,
+    onProgress: (pct: number) => void
+  ): Promise<string> => {
+    const CHUNK_SIZE = 6 * 1024 * 1024; // 6MB per chunk
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunk = file.slice(start, end);
+
+      const formData = new FormData();
+      formData.append('file', chunk, file.name);
+      formData.append('uploadId', uploadId);
+      formData.append('chunkIndex', String(i));
+      formData.append('totalChunks', String(totalChunks));
+      formData.append('fileName', file.name);
+      formData.append('mimeType', file.type || 'application/octet-stream');
+
+      const response = await fetch('/api/upload/chunk', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Chunk upload failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // Progress: 0-80% during upload
+      onProgress(Math.round(((i + 1) / totalChunks) * 80));
+
+      if (data.status === 'complete') {
+        return data.url;
+      }
+    }
+    throw new Error('Upload incomplete: server did not return final URL');
+  };
+
   const handleAnalyze = async () => {
     if (!file) return;
     setIsAnalyzing(true);
@@ -65,41 +108,7 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
     setError(null);
 
     try {
-      // Use multipart/form-data upload via XMLHttpRequest for progress tracking
-      // This avoids loading the entire file into memory as base64
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("fileName", file.name);
-      formData.append("mimeType", file.type);
-
-      const uploadUrl = await new Promise<string>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/upload");
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            setUploadProgress(Math.round((e.loaded / e.total) * 80)); // 0-80% for upload
-          }
-        };
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            try {
-              const data = JSON.parse(xhr.responseText);
-              resolve(data.url);
-            } catch {
-              reject(new Error("Invalid server response"));
-            }
-          } else {
-            try {
-              const err = JSON.parse(xhr.responseText);
-              reject(new Error(err.error || `Upload failed: ${xhr.status}`));
-            } catch {
-              reject(new Error(`Upload failed: ${xhr.status}`));
-            }
-          }
-        };
-        xhr.onerror = () => reject(new Error("Network error during upload"));
-        xhr.send(formData);
-      });
+      const uploadUrl = await uploadFileChunked(file, setUploadProgress);
 
       setUploadProgress(85); // Upload done, now analyzing
 

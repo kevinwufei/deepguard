@@ -26,6 +26,7 @@ export default function Navbar() {
     { href: '/detect/image', label: 'Image Detection', icon: Image, badge: 'NEW', color: 'text-violet-400' },
     { href: '/detect/video', label: 'Video Detection', icon: Video, color: 'text-blue-400' },
     { href: '/detect/audio', label: 'Audio Detection', icon: AudioLines, color: 'text-cyan-400' },
+    { href: '/detect/voice', label: 'Voice Deepfake', icon: Mic, badge: 'LIVE', color: 'text-violet-400' },
     { href: '/detect/text', label: 'Text Detection', icon: FileText, color: 'text-emerald-400' },
     { href: '/detect/screen', label: 'Screen Monitor', icon: Monitor, color: 'text-amber-400' },
     { href: '/batch', label: 'Batch Detection', icon: Layers, color: 'text-violet-400' },

@@ -75,53 +75,53 @@ export default function Home() {
           <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-cyan-500/5 rounded-full blur-[60px]" />
         </div>
 
-        <div className="container relative z-10 pt-24 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+        <div className="container relative z-10 pt-20 pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
             {/* Left: Copy */}
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
-                <Shield className="w-3.5 h-3.5" />
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+                <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
                 <span>Trusted by 50,000+ users in 30+ countries</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.15] mb-4 sm:mb-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                 <span className="text-foreground">Detect AI Images</span>
                 <br />
                 <span className="text-primary">& Deepfakes</span>
                 <br />
                 <span className="text-foreground">in Seconds</span>
               </h1>
-              <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-5 sm:mb-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 95%+ accuracy. Supports Midjourney, DALL·E, Stable Diffusion, FaceSwap, ElevenLabs, and 20+ more AI tools. Upload any image, video, or audio file and get a full forensic report.
               </p>
               {/* Key stats */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
                 {[
                   { value: '95%+', label: 'Accuracy', color: 'text-primary' },
                   { value: '2.1%', label: 'False positive', color: 'text-emerald-400' },
                   { value: '< 8s', label: 'Analysis time', color: 'text-cyan-400' },
                 ].map((s, i) => (
-                  <div key={i} className="text-center p-3 rounded-xl border border-border/60 bg-card/50">
-                    <div className={`text-xl font-bold ${s.color} mb-0.5`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{s.value}</div>
-                    <div className="text-[11px] text-muted-foreground">{s.label}</div>
+                  <div key={i} className="text-center p-2 sm:p-3 rounded-xl border border-border/60 bg-card/50">
+                    <div className={`text-lg sm:text-xl font-bold ${s.color} mb-0.5`} style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{s.value}</div>
+                    <div className="text-[10px] sm:text-[11px] text-muted-foreground">{s.label}</div>
                   </div>
                 ))}
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link href="/detect/image">
-                  <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8">
+                  <Button size="lg" className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6 sm:px-8">
                     Detect Image Free <ChevronRight className="w-4 h-4" />
                   </Button>
                 </Link>
                 <Link href="/detect/video">
-                  <Button size="lg" variant="outline" className="border-border hover:border-primary/50 gap-2 px-8">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto border-border hover:border-primary/50 gap-2 px-6 sm:px-8">
                     <Video className="w-4 h-4" /> Video & Audio
                   </Button>
                 </Link>
               </div>
               {/* Supported models */}
-              <div className="mt-6">
-                <p className="text-xs text-muted-foreground mb-2">Detects content from:</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-5 sm:mt-6">
+                <p className="text-xs text-muted-foreground mb-2 text-center lg:text-left">Detects content from:</p>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center lg:justify-start">
                   {['Midjourney', 'DALL·E 3', 'Stable Diffusion', 'FaceSwap', 'ElevenLabs', 'Runway', 'Adobe Firefly', 'DeepFaceLab'].map((m) => (
                     <span key={m} className="px-2 py-0.5 rounded-full bg-muted/50 border border-border/40 text-[10px] text-muted-foreground">{m}</span>
                   ))}

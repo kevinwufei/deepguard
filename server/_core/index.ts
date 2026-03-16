@@ -11,6 +11,9 @@ import { serveStatic, setupVite } from "./vite";
 import { apiRouter } from "../apiRoutes";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
+import os from "os";
+import path from "path";
+import fs from "fs";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -41,11 +44,21 @@ async function startServer() {
   registerOAuthRoutes(app);
 
   // Multipart file upload endpoint (streams to S3, avoids base64 memory issues)
+  // Chunk size: 8MB per chunk to stay under proxy limits
+  const CHUNK_SIZE = 8 * 1024 * 1024;
   const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 * 1024 }, // 5GB
+    limits: { fileSize: CHUNK_SIZE + 1024 * 1024 }, // 8MB + 1MB overhead per chunk
   });
-  app.post('/api/upload', upload.single('file'), async (req: any, res: any) => {
+  // In-memory chunk store: uploadId -> { chunks: Buffer[], totalChunks, fileName, mimeType }
+  const chunkStore = new Map<string, { chunks: (Buffer | null)[], totalChunks: number, fileName: string, mimeType: string }>();
+
+  // Single-request upload (small files < 8MB)
+  const uploadFull = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 8 * 1024 * 1024 },
+  });
+  app.post('/api/upload', uploadFull.single('file'), async (req: any, res: any) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file provided' });
       const { fileName, mimeType } = req.body;
@@ -57,6 +70,47 @@ async function startServer() {
     } catch (err: any) {
       console.error('[Upload] Error:', err);
       return res.status(500).json({ error: err?.message || 'Upload failed' });
+    }
+  });
+
+  // Chunked upload: POST /api/upload/chunk
+  // Body: FormData { file: Blob(chunk), uploadId, chunkIndex, totalChunks, fileName, mimeType }
+  app.post('/api/upload/chunk', upload.single('file'), async (req: any, res: any) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'No chunk data' });
+      const { uploadId, chunkIndex, totalChunks, fileName, mimeType } = req.body;
+      if (!uploadId || chunkIndex === undefined || !totalChunks) {
+        return res.status(400).json({ error: 'Missing chunk metadata' });
+      }
+      const idx = parseInt(chunkIndex);
+      const total = parseInt(totalChunks);
+
+      if (!chunkStore.has(uploadId)) {
+        chunkStore.set(uploadId, {
+          chunks: new Array(total).fill(null),
+          totalChunks: total,
+          fileName: fileName || 'upload',
+          mimeType: mimeType || 'application/octet-stream',
+        });
+      }
+      const entry = chunkStore.get(uploadId)!;
+      entry.chunks[idx] = req.file.buffer;
+
+      // Check if all chunks received
+      const received = entry.chunks.filter(c => c !== null).length;
+      if (received < total) {
+        return res.json({ status: 'partial', received, total });
+      }
+
+      // All chunks received - assemble and upload to S3
+      const combined = Buffer.concat(entry.chunks as Buffer[]);
+      chunkStore.delete(uploadId);
+      const key = `detections/${nanoid()}-${entry.fileName}`;
+      const { url } = await storagePut(key, combined, entry.mimeType);
+      return res.json({ status: 'complete', url, key });
+    } catch (err: any) {
+      console.error('[ChunkUpload] Error:', err);
+      return res.status(500).json({ error: err?.message || 'Chunk upload failed' });
     }
   });
 
