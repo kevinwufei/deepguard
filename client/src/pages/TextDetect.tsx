@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { QuotaExceededModal, useQuotaCheck } from '@/components/QuotaGuard';
+import { FeedbackWidget } from '@/components/FeedbackWidget';
 import { FileText, FlaskConical, AlertTriangle, CheckCircle2, HelpCircle, Loader2, RotateCcw, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
@@ -73,6 +74,7 @@ export default function TextDetect() {
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<DetectionResult | null>(null);
+  const [recordId, setRecordId] = useState<number | null>(null);
   const [showSentences, setShowSentences] = useState(true);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
@@ -84,7 +86,9 @@ export default function TextDetect() {
 
   const analyze = trpc.detection.analyzeText.useMutation({
     onSuccess: (data) => {
-      setResult(data as DetectionResult);
+      const { recordId: rid, ...rest } = data as DetectionResult & { recordId?: number | null };
+      setResult(rest as DetectionResult);
+      setRecordId(rid ?? null);
     },
     onError: (err) => {
       toast.error('Analysis failed: ' + err.message);
@@ -112,6 +116,7 @@ export default function TextDetect() {
   const handleReset = () => {
     setInputText('');
     setResult(null);
+    setRecordId(null);
   };
 
   const getScoreColor = (score: number) =>
@@ -312,6 +317,15 @@ Example: Paste an article, email, essay, or any written content here..."
               </div>
             )}
           </div>
+        )}
+
+        {/* Feedback widget */}
+        {result && recordId && (
+          <FeedbackWidget
+            recordId={recordId}
+            detectionType="text"
+            currentVerdict={result.verdict === 'human' ? 'safe' : result.verdict === 'mixed' ? 'suspicious' : 'deepfake'}
+          />
         )}
       </div>
     </div>

@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import DetectionResult from "./DetectionResult";
 import { useLang } from "@/contexts/LanguageContext";
 import { QuotaExceededModal, useQuotaCheck } from "@/components/QuotaGuard";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 interface FileUploadDetectProps {
   type: "audio" | "video";
@@ -35,6 +36,7 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [recordId, setRecordId] = useState<number | null>(null);
   const [saved, setSaved] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
@@ -126,25 +128,27 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
       setUploadProgress(85); // Upload done, now analyzing
 
       // Analyze the uploaded file
-      let analysisResult: AnalysisResult;
+      let rawResult: AnalysisResult & { recordId?: number | null };
       if (type === "audio") {
-        analysisResult = await analyzeAudio.mutateAsync({
+        rawResult = await analyzeAudio.mutateAsync({
           fileUrl: uploadUrl,
           fileName: file.name,
           mimeType: file.type,
           fileSize: file.size,
-        });
+        }) as AnalysisResult & { recordId?: number | null };
       } else {
-        analysisResult = await analyzeVideo.mutateAsync({
+        rawResult = await analyzeVideo.mutateAsync({
           fileUrl: uploadUrl,
           fileName: file.name,
           mimeType: file.type,
           fileSize: file.size,
-        });
+        }) as AnalysisResult & { recordId?: number | null };
       }
 
+      const { recordId: rid, ...analysisResult } = rawResult;
       setUploadProgress(100);
       setResult(analysisResult);
+      setRecordId(rid ?? null);
     } catch (err: any) {
       console.error("Detection error:", err);
       const msg = err?.message || "Analysis failed. Please try again.";
@@ -158,6 +162,7 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
   const handleReset = () => {
     setFile(null);
     setResult(null);
+    setRecordId(null);
     setSaved(false);
     setError(null);
     setUploadProgress(0);
@@ -174,15 +179,24 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
 
   if (result) {
     return (
-      <DetectionResult
-        riskScore={result.riskScore}
-        verdict={result.verdict as 'safe' | 'suspicious' | 'deepfake'}
-        features={result.features}
-        summary={result.summary}
-        onReset={handleReset}
-        onSave={handleSave}
-        saved={saved}
-      />
+      <>
+        <DetectionResult
+          riskScore={result.riskScore}
+          verdict={result.verdict as 'safe' | 'suspicious' | 'deepfake'}
+          features={result.features}
+          summary={result.summary}
+          onReset={handleReset}
+          onSave={handleSave}
+          saved={saved}
+        />
+        {recordId && (
+          <FeedbackWidget
+            recordId={recordId}
+            detectionType={type}
+            currentVerdict={result.verdict as 'safe' | 'suspicious' | 'deepfake'}
+          />
+        )}
+      </>
     );
   }
 

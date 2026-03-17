@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, createSharedReport, getSharedReportByToken, incrementReportViewCount, getUsageCount, incrementUsage, QUOTA_LIMITS } from "./db";
+import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, getMislabeledRecords, createSharedReport, getSharedReportByToken, incrementReportViewCount, getUsageCount, incrementUsage, QUOTA_LIMITS } from "./db";
 import { TRPCError } from '@trpc/server';
 import { nanoid } from "nanoid";
 
@@ -469,20 +469,18 @@ export const appRouter = router({
         await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeMediaForDeepfake('audio', input.fileUrl, input.fileName, input.mimeType);
         await recordUsage(ctx, input.fingerprint ?? 'unknown');
-        // Save to DB if user is logged in
-        if (ctx.user) {
-          await createDetectionRecord({
-            userId: ctx.user.id,
-            type: 'audio',
-            fileName: input.fileName,
-            fileUrl: input.fileUrl,
-            riskScore: result.riskScore,
-            verdict: result.verdict,
-            analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
-            fileSize: input.fileSize,
-          });
-        }
-        return result;
+        // Always save to DB (userId null for anonymous users) so feedback can be linked
+        const recordId = await createDetectionRecord({
+          userId: ctx.user?.id ?? null,
+          type: 'audio',
+          fileName: input.fileName,
+          fileUrl: input.fileUrl,
+          riskScore: result.riskScore,
+          verdict: result.verdict,
+          analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
+          fileSize: input.fileSize,
+        });
+        return { ...result, recordId };
       }),
 
     // Analyze video file
@@ -498,19 +496,18 @@ export const appRouter = router({
         await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeMediaForDeepfake('video', input.fileUrl, input.fileName, input.mimeType);
         await recordUsage(ctx, input.fingerprint ?? 'unknown');
-        if (ctx.user) {
-          await createDetectionRecord({
-            userId: ctx.user.id,
-            type: 'video',
-            fileName: input.fileName,
-            fileUrl: input.fileUrl,
-            riskScore: result.riskScore,
-            verdict: result.verdict,
-            analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
-            fileSize: input.fileSize,
-          });
-        }
-        return result;
+        // Always save to DB (userId null for anonymous users) so feedback can be linked
+        const recordId = await createDetectionRecord({
+          userId: ctx.user?.id ?? null,
+          type: 'video',
+          fileName: input.fileName,
+          fileUrl: input.fileUrl,
+          riskScore: result.riskScore,
+          verdict: result.verdict,
+          analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
+          fileSize: input.fileSize,
+        });
+        return { ...result, recordId };
       }),
 
     // Analyze realtime frame (camera/mic)
@@ -614,17 +611,16 @@ export const appRouter = router({
         await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeTextForAI(input.text);
         await recordUsage(ctx, input.fingerprint ?? 'unknown');
-        if (ctx.user) {
-          await createDetectionRecord({
-            userId: ctx.user.id,
-            type: 'text',
-            fileName: `Text (${input.text.slice(0, 40)}...)`,
-            riskScore: result.riskScore,
-            verdict: result.verdict === 'human' ? 'safe' : result.verdict === 'mixed' ? 'suspicious' : 'deepfake',
-            analysisReport: JSON.stringify(result),
-          });
-        }
-        return result;
+        // Always save to DB (userId null for anonymous users) so feedback can be linked
+        const recordId = await createDetectionRecord({
+          userId: ctx.user?.id ?? null,
+          type: 'text',
+          fileName: `Text (${input.text.slice(0, 40)}...)`,
+          riskScore: result.riskScore,
+          verdict: result.verdict === 'human' ? 'safe' : result.verdict === 'mixed' ? 'suspicious' : 'deepfake',
+          analysisReport: JSON.stringify(result),
+        });
+        return { ...result, recordId };
       }),
 
     // Analyze image file for deepfake detection
@@ -872,7 +868,7 @@ Return JSON:
       .input(z.object({
         recordId: z.number(),
         feedback: z.enum(['correct', 'incorrect', 'unsure']),
-        label: z.enum(['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio']).nullable(),
+        label: z.enum(['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio', 'ai_text', 'human_text']).nullable(),
         note: z.string().max(500).optional(),
       }))
       .mutation(async ({ input }) => {
@@ -948,6 +944,7 @@ Return JSON:
       if (ctx.user.role !== 'admin') throw new Error('Forbidden');
       return getFeedbackStats();
     }),
+    // All labeled records for CLIP fine-tuning export
     export: protectedProcedure
       .input(z.object({ limit: z.number().optional() }))
       .query(async ({ ctx, input }) => {
@@ -961,6 +958,25 @@ Return JSON:
           riskScore: r.riskScore,
           verdict: r.verdict,
           userFeedback: r.userFeedback,
+          feedbackLabel: r.feedbackLabel,
+          feedbackNote: r.feedbackNote,
+          feedbackAt: r.feedbackAt,
+          createdAt: r.createdAt,
+        }));
+      }),
+    // Only INCORRECT detections — highest priority for model correction
+    mislabeled: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const data = await getMislabeledRecords(input.limit || 200);
+        return data.map(r => ({
+          id: r.id,
+          type: r.type,
+          fileUrl: r.fileUrl,
+          fileName: r.fileName,
+          riskScore: r.riskScore,
+          verdict: r.verdict,
           feedbackLabel: r.feedbackLabel,
           feedbackNote: r.feedbackNote,
           feedbackAt: r.feedbackAt,

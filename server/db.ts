@@ -55,11 +55,18 @@ export async function getUserByOpenId(openId: string) {
 }
 
 // Detection records
-export async function createDetectionRecord(record: InsertDetectionRecord) {
+export async function createDetectionRecord(record: InsertDetectionRecord): Promise<number | null> {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(detectionRecords).values(record);
-  return result;
+  if (!db) return null;
+  try {
+    const result = await db.insert(detectionRecords).values(record);
+    // MySQL2 returns insertId on the result header
+    const insertId = (result as any)[0]?.insertId ?? null;
+    return insertId as number | null;
+  } catch (err) {
+    console.error('[DB] createDetectionRecord failed:', err);
+    return null;
+  }
 }
 
 export async function getDetectionRecordsByUser(userId: number, limit = 50) {
@@ -148,7 +155,7 @@ export async function getApiUsageStats(userId: number) {
 export async function submitDetectionFeedback(
   recordId: number,
   feedback: 'correct' | 'incorrect' | 'unsure',
-  label: 'ai_generated' | 'real' | 'deepfake_video' | 'ai_audio' | 'human_audio' | null,
+  label: 'ai_generated' | 'real' | 'deepfake_video' | 'ai_audio' | 'human_audio' | 'ai_text' | 'human_text' | null,
   note?: string
 ) {
   const db = await getDb();
@@ -165,6 +172,16 @@ export async function getTrainingData(limit = 5000) {
   return db.select().from(detectionRecords)
     .where(sql`${detectionRecords.userFeedback} IS NOT NULL`)
     .orderBy(desc(detectionRecords.createdAt))
+    .limit(limit);
+}
+
+// Return records where user said detection was WRONG (incorrect) — highest priority for retraining
+export async function getMislabeledRecords(limit = 200) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(detectionRecords)
+    .where(eq(detectionRecords.userFeedback, 'incorrect'))
+    .orderBy(desc(detectionRecords.feedbackAt))
     .limit(limit);
 }
 

@@ -43,6 +43,13 @@
       "when": 1773751924403,
       "tag": "0005_tiny_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1773755652586,
+      "tag": "0006_handy_nuke",
+      "breakpoints": true
     }
   ]
 }

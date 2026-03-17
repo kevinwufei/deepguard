@@ -308,3 +308,19 @@
 - [x] Add upgrade prompt modal when quota exceeded
 - [x] Anonymous: 3/day by IP+fingerprint | Free: 10/day by userId | Paid: unlimited
 - [x] QuotaExceededModal integrated into ImageDetect, VideoDetect (via FileUploadDetect), AudioDetect (via FileUploadDetect), TextDetect
+
+## Phase 27: User Feedback → Model Improvement Loop
+
+- [x] All detection procedures (audio, video, text) now save records for ALL users (including anonymous) and return recordId
+- [x] feedbackLabel DB enum extended with ai_text and human_text for text detection
+- [x] DB migration applied: ALTER TABLE detection_records MODIFY COLUMN feedbackLabel
+- [x] getMislabeledRecords() DB helper added — returns records where userFeedback = 'incorrect'
+- [x] trainingData.mislabeled tRPC procedure added (admin-only)
+- [x] FeedbackWidget redesigned: one-click "Yes/Wrong" UI, detail panel for label + note, i18n support
+- [x] FeedbackWidget integrated into FileUploadDetect (covers VideoDetect + AudioDetect)
+- [x] FeedbackWidget integrated into TextDetect result section
+- [x] TrainingData admin page rebuilt with 3 tabs: Overview, Error Cases, Export Dataset
+- [x] Error Cases tab shows mislabeled records with system verdict vs user correction
+- [x] Export mislabeled cases as JSON for CLIP fine-tuning
+- [x] 11 new vitest tests covering feedback.submit, trainingData.stats/mislabeled/export
+- [x] All 27 tests passing

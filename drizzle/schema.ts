@@ -41,7 +41,7 @@ export const detectionRecords = mysqlTable('detection_records', {
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   // User feedback for model training data collection
   userFeedback: mysqlEnum('userFeedback', ['correct', 'incorrect', 'unsure']),
-  feedbackLabel: mysqlEnum('feedbackLabel', ['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio']),
+  feedbackLabel: mysqlEnum('feedbackLabel', ['ai_generated', 'real', 'deepfake_video', 'ai_audio', 'human_audio', 'ai_text', 'human_text']),
   feedbackNote: text('feedbackNote'),
   feedbackAt: timestamp('feedbackAt'),
 });
