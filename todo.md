@@ -284,3 +284,16 @@
 ### Why DeepGuard (Competitive Positioning)
 - [x] Add "Why DeepGuard" section to Home page comparing vs Hive AI, Sensity, Reality Defender, Deepware
 - [x] Highlight multi-model ensemble vs single-model competitors
+
+## Phase 25: Fix i18n - All Pages Must Respond to Language Switch
+- [ ] Fix ImageDetect.tsx - replace all hardcoded English with t() calls
+- [ ] Fix VideoDetect.tsx - replace all hardcoded English with t() calls
+- [ ] Fix AudioDetect.tsx - replace all hardcoded English with t() calls
+- [ ] Fix TextDetect.tsx - replace all hardcoded English with t() calls
+- [ ] Fix MeetingGuard.tsx - replace all hardcoded English with t() calls
+- [ ] Fix Technology.tsx - replace all hardcoded English with t() calls
+- [ ] Fix UseCases.tsx - replace all hardcoded English with t() calls
+- [ ] Fix Extension.tsx - replace all hardcoded English with t() calls
+- [ ] Fix Pricing.tsx - replace all hardcoded English with t() calls
+- [ ] Fix all other pages with hardcoded text
+- [ ] Add all missing translation keys to all 13 language files

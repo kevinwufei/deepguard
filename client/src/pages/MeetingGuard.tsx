@@ -99,7 +99,7 @@ export default function MeetingGuard() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-rose-400/30 bg-rose-400/10 text-rose-400 text-sm font-medium mb-6">
               <Video className="w-3.5 h-3.5" />
-              <span>Real-Time Meeting Protection</span>
+              <span>{t("meeting_realtime_protection")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-5 leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               Is the person on your<br />
@@ -139,7 +139,7 @@ export default function MeetingGuard() {
       {/* Supported Platforms */}
       <section className="py-12 bg-card/30 border-y border-border/40">
         <div className="container">
-          <p className="text-center text-sm text-muted-foreground mb-6">Works with any video platform — no plugins or meeting bots required</p>
+          <p className="text-center text-sm text-muted-foreground mb-6">{t("meeting_works_any_platform")}</p>
           <div className="flex flex-wrap justify-center gap-3">
             {PLATFORMS.map((p, i) => (
               <div key={i} className={`flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 ${p.bg}`}>
@@ -155,8 +155,8 @@ export default function MeetingGuard() {
       <section className="py-20">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>How It Works</h2>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">No meeting bots, no calendar integrations, no privacy concerns. DeepGuard works entirely through your screen.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("meeting_how_it_works")}</h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">{t("meeting_no_bots_desc")}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {HOW_IT_WORKS.map((step, i) => (
@@ -182,8 +182,8 @@ export default function MeetingGuard() {
       <section className="py-20 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Real-World Threats We Stop</h2>
-            <p className="text-muted-foreground text-sm max-w-lg mx-auto">These aren't hypothetical scenarios. Each of these fraud types is actively occurring at scale.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("meeting_threats_title")}</h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">{t("meeting_threats_desc")}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
             {USE_CASES.map((uc, i) => (
@@ -194,11 +194,11 @@ export default function MeetingGuard() {
                 <h3 className="font-semibold text-foreground mb-3">{uc.title}</h3>
                 <div className="space-y-3 mb-4">
                   <div className="p-3 rounded-lg bg-muted/30 border border-border/30">
-                    <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">Scenario</p>
+                    <p className="text-xs text-muted-foreground font-medium mb-1 uppercase tracking-wider">{t("meeting_scenario")}</p>
                     <p className="text-xs text-foreground leading-relaxed">{uc.scenario}</p>
                   </div>
                   <div className={`p-3 rounded-lg ${uc.bg} border ${uc.border}`}>
-                    <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${uc.color}`}>DeepGuard Response</p>
+                    <p className={`text-xs font-medium mb-1 uppercase tracking-wider ${uc.color}`}>{t("meeting_deepguard_response")}</p>
                     <p className="text-xs text-foreground leading-relaxed">{uc.solution}</p>
                   </div>
                 </div>
@@ -219,8 +219,8 @@ export default function MeetingGuard() {
             <div className="rounded-2xl border border-rose-400/20 bg-rose-400/5 p-8">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Meeting Detection Pricing</h3>
-                  <p className="text-sm text-muted-foreground mb-4">Pay per session, or get unlimited sessions with Business plan.</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("meeting_pricing_title")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t("meeting_pricing_desc")}</p>
                   <div className="flex flex-wrap gap-3">
                     {[
                       { label: 'Single session', price: '$4.99', sub: 'Up to 2 hours' },
@@ -258,7 +258,7 @@ export default function MeetingGuard() {
         <div className="container">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Beyond Deepfake Detection: Zero-Trust for Video Calls</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("meeting_zero_trust_title")}</h2>
               <p className="text-muted-foreground text-sm max-w-xl mx-auto">Inspired by enterprise security frameworks, DeepGuard Business adds three additional verification layers beyond visual deepfake detection.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

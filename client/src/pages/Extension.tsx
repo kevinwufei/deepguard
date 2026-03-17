@@ -79,7 +79,7 @@ export default function Extension() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
               <Chrome className="w-3.5 h-3.5" />
-              <span>Browser Extension — Coming Soon</span>
+              <span>{t("ext_coming_soon")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-5 leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               Detect AI content<br />
@@ -98,7 +98,7 @@ export default function Extension() {
                 </Button>
               </Link>
             </div>
-            <p className="text-xs text-muted-foreground mt-4">Chrome extension in beta. Firefox and Safari versions planned for Q3 2025.</p>
+            <p className="text-xs text-muted-foreground mt-4">{t("ext_beta_note")}</p>
           </div>
         </div>
       </section>
@@ -107,7 +107,7 @@ export default function Extension() {
       <section className="py-16 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="max-w-2xl mx-auto">
-            <p className="text-center text-sm text-muted-foreground mb-8">Extension popup preview</p>
+            <p className="text-center text-sm text-muted-foreground mb-8">{t("ext_popup_preview")}</p>
             {/* Simulated extension popup */}
             <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-2xl shadow-black/30 max-w-sm mx-auto">
               {/* Extension header */}
@@ -116,7 +116,7 @@ export default function Extension() {
                 <span className="text-sm font-bold text-foreground" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Deep<span className="text-primary">Guard</span></span>
                 <div className="ml-auto flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs text-emerald-400">Active</span>
+                  <span className="text-xs text-emerald-400">{t("ext_active")}</span>
                 </div>
               </div>
               {/* Result */}
@@ -168,7 +168,7 @@ export default function Extension() {
       <section className="py-20">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>What the extension does</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("ext_what_it_does")}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {FEATURES.map((f, i) => (
@@ -188,7 +188,7 @@ export default function Extension() {
       <section className="py-20 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Works on every platform</h2>
+            <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("ext_works_on_every_platform")}</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {SOCIAL_PLATFORMS.map((p, i) => (
@@ -209,7 +209,7 @@ export default function Extension() {
         <div className="absolute inset-0 bg-primary/5" />
         <div className="container relative z-10 text-center">
           <Chrome className="w-12 h-12 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Join the beta waitlist</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("ext_join_beta")}</h2>
           <p className="text-muted-foreground mb-4 max-w-md mx-auto">
             The extension is in private beta. Pro and Business subscribers get early access. Sign up to be notified when it launches.
           </p>

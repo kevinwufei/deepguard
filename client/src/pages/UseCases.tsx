@@ -250,7 +250,7 @@ export default function UseCases() {
         <div className="container relative z-10 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
             <Shield className="w-3.5 h-3.5" />
-            <span>Real-World Use Cases</span>
+            <span>{t("usecase_real_world")}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Who needs DeepGuard — and why
@@ -299,7 +299,7 @@ export default function UseCases() {
 
             {/* Scenarios */}
             <div className="space-y-4 mb-8">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Attack Scenarios & Detection</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">{t("usecase_attack_scenarios")}</h3>
               {uc.scenarios.map((scenario, i) => {
                 const TypeIcon = TYPE_ICONS[scenario.type] || FileImage;
                 return (
@@ -337,7 +337,7 @@ export default function UseCases() {
             {/* Tools & Plan */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="p-5 rounded-xl border border-border/60 bg-card">
-                <h4 className="font-semibold text-foreground mb-3 text-sm">Recommended Tools</h4>
+                <h4 className="font-semibold text-foreground mb-3 text-sm">{t("usecase_recommended_tools")}</h4>
                 <ul className="space-y-2">
                   {uc.tools.map((tool, i) => (
                     <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -348,7 +348,7 @@ export default function UseCases() {
                 </ul>
               </div>
               <div className={`p-5 rounded-xl border ${uc.border} ${uc.bg}`}>
-                <h4 className={`font-semibold ${uc.color} mb-3 text-sm`}>Recommended Plan</h4>
+                <h4 className={`font-semibold ${uc.color} mb-3 text-sm`}>{t("usecase_recommended_plan")}</h4>
                 <p className="text-foreground font-bold text-lg mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{uc.plan}</p>
                 <div className="flex gap-3">
                   <Link href="/pricing">
@@ -392,7 +392,7 @@ export default function UseCases() {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-primary/5" />
         <div className="container relative z-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Start protecting your organization today</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("usecase_start_protecting")}</h2>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">No credit card required. 10 free detections every month. Upgrade when you need more.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/detect/text">

@@ -18,10 +18,10 @@ export default function SharedReport() {
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      await navigator.share({ title: "DeepGuard Detection Report", url });
+      await navigator.share({ title: t("report_public_title") + ", url" });
     } else {
       await navigator.clipboard.writeText(url);
-      alert(t("share_link_copied") || "Link copied to clipboard!");
+      alert(t("share_link_copied"));
     }
   };
 
@@ -30,7 +30,7 @@ export default function SharedReport() {
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">{t("loading") || "Loading report..."}</p>
+          <p className="text-gray-400">{t("report_loading")}</p>
         </div>
       </div>
     );
@@ -41,11 +41,11 @@ export default function SharedReport() {
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">{t("report_not_found") || "Report Not Found"}</h1>
-          <p className="text-gray-400 mb-6">{t("report_not_found_desc") || "This report may have expired or the link is invalid."}</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t("report_not_found")}</h1>
+          <p className="text-gray-400 mb-6">{t("report_not_found_desc")}</p>
           <Link href="/">
             <Button className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold">
-              {t("go_home") || "Go to DeepGuard"}
+              {t("go_home")}
             </Button>
           </Link>
         </div>
@@ -54,9 +54,9 @@ export default function SharedReport() {
   }
 
   const verdictConfig = {
-    safe: { color: "text-green-400", bg: "bg-green-500/10 border-green-500/30", icon: CheckCircle, label: t("verdict_safe") || "Safe", badgeClass: "bg-green-500/20 text-green-400 border-green-500/30" },
-    suspicious: { color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30", icon: AlertTriangle, label: t("verdict_suspicious") || "Suspicious", badgeClass: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-    deepfake: { color: "text-red-400", bg: "bg-red-500/10 border-red-500/30", icon: AlertTriangle, label: t("verdict_deepfake") || "Deepfake Detected", badgeClass: "bg-red-500/20 text-red-400 border-red-500/30" },
+    safe: { color: "text-green-400", bg: "bg-green-500/10 border-green-500/30", icon: CheckCircle, label: t("verdict_safe"), badgeClass: "bg-green-500/20 text-green-400 border-green-500/30" },
+    suspicious: { color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30", icon: AlertTriangle, label: t("verdict_suspicious"), badgeClass: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+    deepfake: { color: "text-red-400", bg: "bg-red-500/10 border-red-500/30", icon: AlertTriangle, label: t("verdict_deepfake"), badgeClass: "bg-red-500/20 text-red-400 border-red-500/30" },
   };
 
   const vc = verdictConfig[report.verdict as keyof typeof verdictConfig] || verdictConfig.safe;
@@ -82,7 +82,7 @@ export default function SharedReport() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-sm text-gray-400">
               <Eye className="w-4 h-4" />
-              <span>{report.viewCount} {t("views") || "views"}</span>
+              <span>{report.viewCount} {t("views")}</span>
             </div>
             <Button
               onClick={handleShare}
@@ -91,7 +91,7 @@ export default function SharedReport() {
               className="border-white/20 text-gray-300 hover:text-white hover:border-white/40 bg-transparent"
             >
               <Share2 className="w-4 h-4 mr-1.5" />
-              {t("share") || "Share"}
+              {t("share")}
             </Button>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function SharedReport() {
         <div className="flex items-center gap-2 mb-6">
           <div className="flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 text-xs text-cyan-400">
             <Shield className="w-3.5 h-3.5" />
-            <span>Verified by DeepGuard</span>
+            <span>{t("report_verified_by")}</span>
           </div>
           <span className="text-xs text-gray-500">
             {new Date(report.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -120,11 +120,11 @@ export default function SharedReport() {
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                   <h1 className={`text-3xl font-bold ${vc.color}`}>{vc.label}</h1>
                   <Badge className={`text-sm px-3 py-1 border ${vc.badgeClass}`}>
-                    {report.riskScore}% {t("ai_probability") || "AI Probability"}
+                    {report.riskScore}% {t("ai_probability")}
                   </Badge>
                 </div>
                 <p className="text-gray-400 text-sm">
-                  {analysisData?.summary || (t("report_summary_default") || "This content was analyzed by DeepGuard's multi-engine AI detection system.")}
+                  {analysisData?.summary || (t("report_summary_default"))}
                 </p>
               </div>
             </div>
@@ -132,8 +132,8 @@ export default function SharedReport() {
             {/* Risk meter */}
             <div className="mt-6">
               <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-                <span>{t("real") || "Real"}</span>
-                <span>{t("ai_generated") || "AI Generated"}</span>
+                <span>{t("real")}</span>
+                <span>{t("ai_generated")}</span>
               </div>
               <div className="h-3 bg-white/5 rounded-full overflow-hidden">
                 <div
@@ -155,20 +155,20 @@ export default function SharedReport() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-gray-400 font-medium flex items-center gap-2">
                 <FileType className="w-4 h-4" />
-                {t("file_info") || "File Information"}
+                {t("file_info")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("file_name") || "File Name"}</span>
+                <span className="text-gray-500">{t("file_name")}</span>
                 <span className="text-white truncate max-w-[160px]">{report.fileName || "—"}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("content_type") || "Content Type"}</span>
+                <span className="text-gray-500">{t("content_type")}</span>
                 <span className="text-white capitalize">{report.type}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("analyzed_on") || "Analyzed On"}</span>
+                <span className="text-gray-500">{t("analyzed_on")}</span>
                 <span className="text-white">{new Date(report.createdAt).toLocaleDateString()}</span>
               </div>
             </CardContent>
@@ -178,20 +178,20 @@ export default function SharedReport() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-gray-400 font-medium flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                {t("detection_summary") || "Detection Summary"}
+                {t("detection_summary")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("risk_score") || "Risk Score"}</span>
+                <span className="text-gray-500">{t("risk_score")}</span>
                 <span className={`font-semibold ${vc.color}`}>{report.riskScore}/100</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("verdict") || "Verdict"}</span>
+                <span className="text-gray-500">{t("verdict")}</span>
                 <Badge className={`text-xs border ${vc.badgeClass}`}>{vc.label}</Badge>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">{t("report_views") || "Report Views"}</span>
+                <span className="text-gray-500">{t("report_views")}</span>
                 <span className="text-white">{report.viewCount}</span>
               </div>
             </CardContent>
@@ -203,7 +203,7 @@ export default function SharedReport() {
           <Card className="border border-white/10 bg-white/[0.03] mb-6">
             <CardHeader>
               <CardTitle className="text-sm text-gray-400 font-medium">
-                {t("engine_breakdown") || "Multi-Engine Analysis"}
+                {t("engine_breakdown")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -212,7 +212,7 @@ export default function SharedReport() {
                   <div className="flex justify-between text-sm mb-1">
                     <span className={engine.available ? "text-white" : "text-gray-600"}>{engine.engine}</span>
                     <span className={engine.available ? "text-cyan-400" : "text-gray-600"}>
-                      {engine.available ? `${engine.score}%` : (t("unavailable") || "N/A")}
+                      {engine.available ? `${engine.score}%` : (t("unavailable"))}
                     </span>
                   </div>
                   <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -230,12 +230,12 @@ export default function SharedReport() {
         {/* CTA */}
         <div className="text-center py-8 border-t border-white/10">
           <p className="text-gray-400 mb-4 text-sm">
-            {t("shared_report_cta") || "Want to analyze your own content?"}
+            {t("shared_report_cta")}
           </p>
           <Link href="/">
             <Button className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-8">
               <Shield className="w-4 h-4 mr-2" />
-              {t("try_deepguard") || "Try DeepGuard Free"}
+              {t("try_deepguard")}
               <ExternalLink className="w-4 h-4 ml-2" />
             </Button>
           </Link>

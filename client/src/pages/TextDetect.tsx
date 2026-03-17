@@ -118,7 +118,7 @@ export default function TextDetect() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-medium mb-4">
             <FileText className="w-3.5 h-3.5" />
-            <span>AI Text Detection</span>
+            <span>{t('text_page_title')}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Detect AI-Generated Text

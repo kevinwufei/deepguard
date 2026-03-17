@@ -103,11 +103,11 @@ export default function Technology() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 text-violet-400 text-sm font-medium mb-6">
               <Cpu className="w-3.5 h-3.5" />
-              <span>Research-Grade Detection Technology</span>
+              <span>{t("tech_title")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-5 leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               How DeepGuard<br />
-              <span className="text-primary">Actually Works</span>
+              <span className="text-primary">{t("tech_actually_works")}</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl leading-relaxed">
               Our detection system combines six independent analysis layers, trained on over 2 million labeled samples across images, video, audio, and text. Here's the full technical picture — no marketing fluff.
@@ -133,8 +133,8 @@ export default function Technology() {
       <section className="py-20 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Six Detection Layers</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-sm">Each layer catches a different class of manipulation. Results are cross-validated — a single layer can't produce a false verdict.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("tech_six_layers")}</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm">{t("tech_six_layers_desc")}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {DETECTION_LAYERS.map((layer, i) => (
@@ -162,19 +162,19 @@ export default function Technology() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-4">
                 <BarChart3 className="w-3.5 h-3.5" />
-                <span>Independent Benchmark Results</span>
+                <span>{t("tech_benchmark_title")}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Accuracy by AI Model</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("tech_accuracy_title")}</h2>
               <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                 Tested on held-out validation sets not seen during training. Numbers reflect detection accuracy on real-world content, not curated lab samples.
               </p>
             </div>
             <div className="rounded-2xl border border-border/60 overflow-hidden">
               <div className="grid grid-cols-4 bg-muted/50 px-6 py-3 border-b border-border/40">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Model / Tool</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("tech_ai_model_col")}</div>
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">{t('tech_accuracy_title')}</div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">False Positive</div>
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Test Samples</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">{t("tech_false_positive_col")}</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">{t("tech_test_samples_col")}</div>
               </div>
               {BENCHMARK_DATA.map((row, i) => (
                 <div key={i} className={`grid grid-cols-4 px-6 py-4 border-b border-border/30 last:border-0 items-center ${i % 2 === 0 ? 'bg-card' : 'bg-card/50'}`}>
@@ -206,7 +206,7 @@ export default function Technology() {
         <div className="container">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Training Datasets</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('tech_datasets_title')}</h2>
               <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                 Models are trained on publicly available academic datasets plus proprietary collections. We do not train on user-submitted content.
               </p>
@@ -232,7 +232,7 @@ export default function Technology() {
         <div className="container">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Privacy & Data Handling</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("tech_privacy_title")}</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {[
@@ -260,7 +260,7 @@ export default function Technology() {
       <section className="py-16 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Standards & Certifications</h2>
+            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("tech_standards_title")}</h2>
           </div>
           <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
             {[
@@ -287,8 +287,8 @@ export default function Technology() {
         <div className="absolute inset-0 bg-primary/5" />
         <div className="container relative z-10 text-center">
           <Award className="w-12 h-12 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>See the technology in action</h2>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">Upload an image, video, or audio file and see the full detection report — including heatmap, forensic analysis, and confidence scores.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("tech_cta_title")}</h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t("tech_cta_desc")}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/detect/image">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8">

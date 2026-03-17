@@ -445,7 +445,7 @@ export default function Pricing() {
         <div className="container">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Frequently Asked Questions</h2>
+              <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('faq_title')}</h2>
             </div>
             <div className="space-y-3">
               {FAQS.map((faq, i) => (
