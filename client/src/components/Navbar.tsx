@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useLang, LANGUAGES } from '@/contexts/LanguageContext';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { QuotaBadge } from '@/components/QuotaGuard';
 import { getLoginUrl } from '@/const';
 import { trpc } from '@/lib/trpc';
 import { useTranslation } from 'react-i18next';
@@ -222,6 +223,7 @@ export default function Navbar() {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
+                <QuotaBadge />
                 <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground text-sm" asChild>
                   <a href={getLoginUrl()}>Sign In</a>
                 </Button>

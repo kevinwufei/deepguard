@@ -4,6 +4,7 @@ import { FileImage, Upload, X, Shield, AlertTriangle, CheckCircle2,
   Cpu, Eye, Hash, Clock, Camera, Zap, BarChart3, Share2
 } from 'lucide-react';
 import { FeedbackWidget } from '@/components/FeedbackWidget';
+import { QuotaExceededModal, useQuotaCheck } from '@/components/QuotaGuard';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -204,6 +205,9 @@ export default function ImageDetect() {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [recordId, setRecordId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'heatmap' | 'forensic' | 'report'>('heatmap');
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
+  const { fingerprint, checkAndEnforce } = useQuotaCheck();
 
   useEffect(() => {
     document.title = t('img_page_title') + ' — DeepGuard';
@@ -229,6 +233,13 @@ export default function ImageDetect() {
 
   const handleAnalyze = async () => {
     if (!file) return;
+    // Check quota before uploading
+    const { allowed, quotaInfo: qi } = await checkAndEnforce();
+    if (!allowed) {
+      setQuotaExceeded(true);
+      setQuotaInfo(qi ?? null);
+      return;
+    }
     setIsAnalyzing(true); setUploadProgress(0); setError(null);
     try {
       const formData = new FormData();
@@ -249,7 +260,7 @@ export default function ImageDetect() {
       });
 
       setUploadProgress(75);
-      const res = await analyzeImage.mutateAsync({ fileUrl: uploadUrl, fileName: file.name, mimeType: file.type, fileSize: file.size });
+      const res = await analyzeImage.mutateAsync({ fileUrl: uploadUrl, fileName: file.name, mimeType: file.type, fileSize: file.size, fingerprint });
       setUploadProgress(100);
       const typedRes = res as DetectionResult & { recordId?: number | null };
       setResult(typedRes);
@@ -628,6 +639,15 @@ export default function ImageDetect() {
           </div>
         </div>
       </div>
+
+      {/* Quota exceeded modal */}
+      <QuotaExceededModal
+        open={quotaExceeded}
+        onClose={() => setQuotaExceeded(false)}
+        isLoggedIn={quotaInfo?.isLoggedIn ?? false}
+        used={quotaInfo?.used ?? 0}
+        limit={quotaInfo?.limit ?? 3}
+      />
     </div>
   );
 }

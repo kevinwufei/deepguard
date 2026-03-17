@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `usage_quotas` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`fingerprint` varchar(128),\n\t`userId` int,\n\t`date` varchar(10) NOT NULL,\n\t`count` int NOT NULL DEFAULT 0,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `usage_quotas_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `usage_quotas` ADD CONSTRAINT `usage_quotas_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4CHdtredJ9TSu2M.root --database C63LRtvb89XZRBRQe8dCdG --execute CREATE TABLE `usage_quotas` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`fingerprint` varchar(128),\n\t`userId` int,\n\t`date` varchar(10) NOT NULL,\n\t`count` int NOT NULL DEFAULT 0,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `usage_quotas_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `usage_quotas` ADD CONSTRAINT `usage_quotas_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 4237
+}

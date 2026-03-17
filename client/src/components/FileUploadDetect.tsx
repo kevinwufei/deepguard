@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FileAudio, FileVideo, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import DetectionResult from "./DetectionResult";
 import { useLang } from "@/contexts/LanguageContext";
+import { QuotaExceededModal, useQuotaCheck } from "@/components/QuotaGuard";
 
 interface FileUploadDetectProps {
   type: "audio" | "video";
@@ -35,6 +36,9 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
+  const { checkAndEnforce } = useQuotaCheck();
 
   const analyzeAudio = trpc.detection.analyzeAudio.useMutation();
   const analyzeVideo = trpc.detection.analyzeVideo.useMutation();
@@ -103,6 +107,15 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
 
   const handleAnalyze = async () => {
     if (!file) return;
+
+    // Check quota before uploading
+    const { allowed, quotaInfo: qi } = await checkAndEnforce();
+    if (!allowed) {
+      setQuotaExceeded(true);
+      setQuotaInfo(qi ?? null);
+      return;
+    }
+
     setIsAnalyzing(true);
     setUploadProgress(0);
     setError(null);
@@ -174,6 +187,7 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
   }
 
   return (
+    <>
     <div className="space-y-4">
       {/* Drop zone */}
       <div
@@ -256,5 +270,15 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
         </Button>
       )}
     </div>
+
+    {/* Quota exceeded modal */}
+    <QuotaExceededModal
+      open={quotaExceeded}
+      onClose={() => setQuotaExceeded(false)}
+      isLoggedIn={quotaInfo?.isLoggedIn ?? false}
+      used={quotaInfo?.used ?? 0}
+      limit={quotaInfo?.limit ?? 3}
+    />
+    </>
   );
 }

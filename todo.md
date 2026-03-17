@@ -297,3 +297,14 @@
 - [ ] Fix Pricing.tsx - replace all hardcoded English with t() calls
 - [ ] Fix all other pages with hardcoded text
 - [ ] Add all missing translation keys to all 13 language files
+
+## Phase 26: Usage Quota System
+
+- [x] Add usage_quotas table to drizzle schema (fingerprint, user_id, date, count)
+- [x] Add DB helpers: getUsageCount, incrementUsage
+- [x] Add checkQuota + recordUsage tRPC procedures
+- [x] Enforce quota in all detection procedures (image, video, audio, text, camera, mic)
+- [x] Add frontend usage counter in Navbar (e.g. "3/10 uses today")
+- [x] Add upgrade prompt modal when quota exceeded
+- [x] Anonymous: 3/day by IP+fingerprint | Free: 10/day by userId | Paid: unlimited
+- [x] QuotaExceededModal integrated into ImageDetect, VideoDetect (via FileUploadDetect), AudioDetect (via FileUploadDetect), TextDetect

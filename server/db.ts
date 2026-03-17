@@ -1,6 +1,6 @@
 import { desc, eq, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey, sharedReports, InsertSharedReport } from "../drizzle/schema";
+import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey, sharedReports, InsertSharedReport, usageQuotas } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { createHash } from 'crypto';
 
@@ -208,4 +208,73 @@ export async function incrementReportViewCount(token: string) {
   await db.update(sharedReports)
     .set({ viewCount: sql`${sharedReports.viewCount} + 1` })
     .where(eq(sharedReports.token, token));
+}
+
+// ─── Usage Quota Helpers ───────────────────────────────────────────────────
+// Limits: anonymous = 3/day (by fingerprint), free user = 10/day, paid/admin = unlimited
+export const QUOTA_LIMITS = {
+  anonymous: 3,
+  free: 10,
+  paid: Infinity,
+  admin: Infinity,
+} as const;
+
+function getTodayDate(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+}
+
+/**
+ * Get today's usage count for a user or fingerprint.
+ * userId takes priority over fingerprint.
+ */
+export async function getUsageCount(params: { userId?: number; fingerprint?: string }): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const today = getTodayDate();
+  let result;
+  if (params.userId) {
+    result = await db.select({ count: usageQuotas.count })
+      .from(usageQuotas)
+      .where(and(eq(usageQuotas.userId, params.userId), eq(usageQuotas.date, today)))
+      .limit(1);
+  } else if (params.fingerprint) {
+    result = await db.select({ count: usageQuotas.count })
+      .from(usageQuotas)
+      .where(and(eq(usageQuotas.fingerprint, params.fingerprint), eq(usageQuotas.date, today)))
+      .limit(1);
+  } else {
+    return 0;
+  }
+  return result[0]?.count ?? 0;
+}
+
+/**
+ * Increment usage count by 1. Creates a new row if none exists for today.
+ * Returns the new count.
+ */
+export async function incrementUsage(params: { userId?: number; fingerprint?: string }): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const today = getTodayDate();
+  if (params.userId) {
+    // Upsert by userId + date
+    await db.insert(usageQuotas)
+      .values({ userId: params.userId, date: today, count: 1 })
+      .onDuplicateKeyUpdate({ set: { count: sql`${usageQuotas.count} + 1` } });
+    const result = await db.select({ count: usageQuotas.count })
+      .from(usageQuotas)
+      .where(and(eq(usageQuotas.userId, params.userId), eq(usageQuotas.date, today)))
+      .limit(1);
+    return result[0]?.count ?? 1;
+  } else if (params.fingerprint) {
+    await db.insert(usageQuotas)
+      .values({ fingerprint: params.fingerprint, date: today, count: 1 })
+      .onDuplicateKeyUpdate({ set: { count: sql`${usageQuotas.count} + 1` } });
+    const result = await db.select({ count: usageQuotas.count })
+      .from(usageQuotas)
+      .where(and(eq(usageQuotas.fingerprint, params.fingerprint), eq(usageQuotas.date, today)))
+      .limit(1);
+    return result[0]?.count ?? 1;
+  }
+  return 0;
 }

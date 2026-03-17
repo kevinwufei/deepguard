@@ -96,3 +96,20 @@ export const sharedReports = mysqlTable('shared_reports', {
 
 export type SharedReport = typeof sharedReports.$inferSelect;
 export type InsertSharedReport = typeof sharedReports.$inferInsert;
+
+// Usage quota tracking for rate limiting
+export const usageQuotas = mysqlTable('usage_quotas', {
+  id: int('id').autoincrement().primaryKey(),
+  // For anonymous users: IP + browser fingerprint hash
+  fingerprint: varchar('fingerprint', { length: 128 }),
+  // For logged-in users: userId (takes priority over fingerprint)
+  userId: int('userId').references(() => users.id, { onDelete: 'cascade' }),
+  // Date in YYYY-MM-DD format for daily reset
+  date: varchar('date', { length: 10 }).notNull(),
+  count: int('count').notNull().default(0),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type UsageQuota = typeof usageQuotas.$inferSelect;
+export type InsertUsageQuota = typeof usageQuotas.$inferInsert;

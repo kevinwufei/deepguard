@@ -5,8 +5,42 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, createSharedReport, getSharedReportByToken, incrementReportViewCount } from "./db";
+import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, createSharedReport, getSharedReportByToken, incrementReportViewCount, getUsageCount, incrementUsage, QUOTA_LIMITS } from "./db";
+import { TRPCError } from '@trpc/server';
 import { nanoid } from "nanoid";
+
+// Helper: check and enforce quota, throws TRPCError if exceeded
+async function enforceQuota(
+  ctx: { user?: { id: number; role: string } | null },
+  fingerprint: string
+): Promise<void> {
+  // Admins have unlimited access
+  if (ctx.user?.role === 'admin') return;
+  const userId = ctx.user?.id;
+  const limit = userId ? QUOTA_LIMITS.free : QUOTA_LIMITS.anonymous;
+  if (limit === Infinity) return;
+  const count = await getUsageCount(userId ? { userId } : { fingerprint });
+  if (count >= limit) {
+    throw new TRPCError({
+      code: 'TOO_MANY_REQUESTS',
+      message: JSON.stringify({
+        code: 'QUOTA_EXCEEDED',
+        used: count,
+        limit,
+        isLoggedIn: !!userId,
+      }),
+    });
+  }
+}
+
+async function recordUsage(
+  ctx: { user?: { id: number; role: string } | null },
+  fingerprint: string
+): Promise<void> {
+  if (ctx.user?.role === 'admin') return;
+  const userId = ctx.user?.id;
+  await incrementUsage(userId ? { userId } : { fingerprint });
+}
 
 // Helper: analyze text with multi-model LLM approach
 async function analyzeTextForAI(text: string): Promise<{
@@ -429,10 +463,12 @@ export const appRouter = router({
         fileName: z.string(),
         mimeType: z.string(),
         fileSize: z.number().optional(),
+        fingerprint: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeMediaForDeepfake('audio', input.fileUrl, input.fileName, input.mimeType);
-        
+        await recordUsage(ctx, input.fingerprint ?? 'unknown');
         // Save to DB if user is logged in
         if (ctx.user) {
           await createDetectionRecord({
@@ -456,10 +492,12 @@ export const appRouter = router({
         fileName: z.string(),
         mimeType: z.string(),
         fileSize: z.number().optional(),
+        fingerprint: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeMediaForDeepfake('video', input.fileUrl, input.fileName, input.mimeType);
-        
+        await recordUsage(ctx, input.fingerprint ?? 'unknown');
         if (ctx.user) {
           await createDetectionRecord({
             userId: ctx.user.id,
@@ -481,8 +519,10 @@ export const appRouter = router({
         type: z.enum(['camera', 'microphone']),
         frameData: z.string(), // base64 image or audio chunk
         mimeType: z.string(),
+        fingerprint: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         // For realtime, use a faster/lighter analysis
         const systemPrompt = input.type === 'camera'
           ? `You are a real-time deepfake video frame detector. Analyze this video frame for AI face-swap artifacts, unnatural facial features, or deepfake indicators. Return a quick JSON assessment.`
@@ -568,9 +608,12 @@ export const appRouter = router({
     analyzeText: publicProcedure
       .input(z.object({
         text: z.string().min(50).max(10000),
+        fingerprint: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         const result = await analyzeTextForAI(input.text);
+        await recordUsage(ctx, input.fingerprint ?? 'unknown');
         if (ctx.user) {
           await createDetectionRecord({
             userId: ctx.user.id,
@@ -591,8 +634,10 @@ export const appRouter = router({
         fileName: z.string(),
         mimeType: z.string(),
         fileSize: z.number().optional(),
+        fingerprint: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await enforceQuota(ctx, input.fingerprint ?? 'unknown');
         try {
           // Build LLM request separately to avoid nesting issues in Promise.all
           const llmRequest = invokeLLM({
@@ -737,6 +782,9 @@ Return JSON:
             },
           };
 
+          // Record usage (quota tracking)
+          await recordUsage(ctx, input.fingerprint ?? 'unknown');
+
           let recordId: number | null = null;
           if (ctx.user) {
             const dbResult = await createDetectionRecord({
@@ -873,6 +921,27 @@ Return JSON:
       }),
   }),
 
+  // Usage quota status
+  quota: router({
+    status: publicProcedure
+      .input(z.object({ fingerprint: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.user?.id;
+        const role = ctx.user?.role;
+        // Admin = unlimited
+        if (role === 'admin') return { used: 0, limit: -1, remaining: -1, isUnlimited: true, isLoggedIn: true };
+        const limit = userId ? QUOTA_LIMITS.free : QUOTA_LIMITS.anonymous;
+        const fingerprint = input.fingerprint ?? 'unknown';
+        const used = await getUsageCount(userId ? { userId } : { fingerprint });
+        return {
+          used,
+          limit,
+          remaining: Math.max(0, limit - used),
+          isUnlimited: false,
+          isLoggedIn: !!userId,
+        };
+      }),
+  }),
   // Admin: training data export
   trainingData: router({
     stats: protectedProcedure.query(async ({ ctx }) => {

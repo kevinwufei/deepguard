@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { QuotaExceededModal, useQuotaCheck } from '@/components/QuotaGuard';
 import { FileText, FlaskConical, AlertTriangle, CheckCircle2, HelpCircle, Loader2, RotateCcw, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
@@ -73,6 +74,9 @@ export default function TextDetect() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [showSentences, setShowSentences] = useState(true);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
+  const { checkAndEnforce } = useQuotaCheck();
 
   useEffect(() => {
     document.title = 'AI Text Detector - DeepGuard';
@@ -90,9 +94,16 @@ export default function TextDetect() {
   const wordCount = inputText.trim().split(/\s+/).filter(Boolean).length;
   const charCount = inputText.length;
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (inputText.trim().length < 50) {
       toast.error('Please enter at least 50 characters for accurate analysis.');
+      return;
+    }
+    // Check quota before analyzing
+    const { allowed, quotaInfo: qi } = await checkAndEnforce();
+    if (!allowed) {
+      setQuotaExceeded(true);
+      setQuotaInfo(qi ?? null);
       return;
     }
     analyze.mutate({ text: inputText });
@@ -112,6 +123,7 @@ export default function TextDetect() {
     score >= 70 ? 'text-rose-400' : score >= 40 ? 'text-amber-400' : 'text-emerald-400';
 
   return (
+    <>
     <div className="min-h-screen pt-20 pb-16">
       <div className="container max-w-4xl">
         {/* Header */}
@@ -303,5 +315,15 @@ Example: Paste an article, email, essay, or any written content here..."
         )}
       </div>
     </div>
+
+    {/* Quota exceeded modal */}
+    <QuotaExceededModal
+      open={quotaExceeded}
+      onClose={() => setQuotaExceeded(false)}
+      isLoggedIn={quotaInfo?.isLoggedIn ?? false}
+      used={quotaInfo?.used ?? 0}
+      limit={quotaInfo?.limit ?? 3}
+    />
+    </>
   );
 }
