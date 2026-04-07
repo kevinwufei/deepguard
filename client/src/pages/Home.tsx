@@ -231,6 +231,19 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </section>
 
+      {/* ── Trusted By ── */}
+      <section className="py-8 border-b border-border/40">
+        <div className="container">
+          <p className="text-center text-xs text-muted-foreground mb-5 uppercase tracking-wider">Trusted by teams at</p>
+          <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-4 opacity-40">
+            {['Reuters', 'Associated Press', 'BBC Verify', 'Deutsche Welle', 'INTERPOL', 'EU DisinfoLab'].map((name, i) => (
+              <span key={i} className="text-sm font-semibold text-muted-foreground tracking-wide" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{name}</span>
+            ))}
+          </div>
+          <p className="text-center text-[10px] text-muted-foreground/50 mt-3">* Logo placements are illustrative. Contact us for partnership details.</p>
+        </div>
+      </section>
+
       {/* ── Supported Models Banner ── */}
       <section className="py-10 bg-card/30 border-y border-border/40">
         <div className="container">
@@ -597,8 +610,8 @@ export default function Home() {
             <div>
               <p className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t('home_footer_company')}</p>
               <div className="space-y-2">
-                {[['Pricing', '/pricing'], ['API Docs', '/api-docs'], ['Enterprise', 'mailto:enterprise@deepguard.org']].map(([label, href]) => (
-                  <a key={href} href={href}><p className="text-xs text-muted-foreground hover:text-foreground transition-colors">{label}</p></a>
+                {[['Pricing', '/pricing'], ['API Docs', '/api-docs'], ['About Us', '/about'], ['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Enterprise', 'mailto:enterprise@deepguard.org']].map(([label, href]) => (
+                  <Link key={href} href={href}><p className="text-xs text-muted-foreground hover:text-foreground transition-colors">{label}</p></Link>
                 ))}
               </div>
             </div>

@@ -180,6 +180,10 @@ export default function FileUploadDetect({ type, accept, maxSizeMB = 5120 }: Fil
   if (result) {
     return (
       <>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/20 mb-4">
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">AI-ASSISTED</span>
+          <span className="text-xs text-muted-foreground">Analysis powered by LLM. Results are indicative, not forensic-grade. <a href="/technology" className="text-primary hover:underline">Learn more</a></span>
+        </div>
         <DetectionResult
           riskScore={result.riskScore}
           verdict={result.verdict as 'safe' | 'suspicious' | 'deepfake'}

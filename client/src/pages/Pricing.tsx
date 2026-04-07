@@ -10,7 +10,7 @@ import { getLoginUrl } from '@/const';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
-// Competitor pricing reference: deepguardtech.com Pro ~$42, Business ~$70, Enterprise ~$280
+// Competitor pricing reference: Sensity.ai ~$300+/mo, Reality Defender ~$300+/mo enterprise
 // Our pricing: 30%+ cheaper across all tiers
 function makePlans(t: (k: string) => string) { return [
   {
@@ -28,18 +28,18 @@ function makePlans(t: (k: string) => string) { return [
     ctaVariant: 'outline' as const,
     highlight: false,
     features: [
-      { text: '10 detections / month', included: true },
-      { text: 'Text AI detection', included: true },
-      { text: 'Image deepfake detection', included: true },
-      { text: 'Audio AI detection', included: true },
-      { text: 'Video deepfake (up to 100 MB)', included: true },
-      { text: 'Basic risk score report', included: true },
-      { text: 'Heatmap visualization', included: false },
-      { text: 'File forensic analysis', included: false },
-      { text: 'Batch detection', included: false },
-      { text: 'API access', included: false },
-      { text: 'Meeting detection', included: false },
-      { text: 'PDF forensic report export', included: false },
+      { text: t('pricing_free_feat_1'), included: true },
+      { text: t('pricing_free_feat_2'), included: true },
+      { text: t('pricing_free_feat_3'), included: true },
+      { text: t('pricing_free_feat_4'), included: true },
+      { text: t('pricing_free_feat_5'), included: true },
+      { text: t('pricing_free_feat_6'), included: true },
+      { text: t('pricing_free_feat_7'), included: false },
+      { text: t('pricing_free_feat_8'), included: false },
+      { text: t('pricing_free_feat_9'), included: false },
+      { text: t('pricing_free_feat_10'), included: false },
+      { text: t('pricing_free_feat_11'), included: false },
+      { text: t('pricing_free_feat_12'), included: false },
     ],
   },
   {
@@ -57,18 +57,18 @@ function makePlans(t: (k: string) => string) { return [
     ctaVariant: 'default' as const,
     highlight: true,
     features: [
-      { text: '500 detections / month', included: true },
-      { text: 'Text AI detection', included: true },
-      { text: 'Image deepfake detection', included: true },
-      { text: 'Audio AI detection', included: true },
-      { text: 'Video deepfake (up to 2 GB)', included: true },
-      { text: 'Detailed risk score report', included: true },
-      { text: 'Heatmap visualization', included: true },
-      { text: 'File forensic analysis (EXIF/metadata)', included: true },
-      { text: 'Batch detection (up to 20 files)', included: true },
-      { text: 'API access (1,000 calls/month)', included: true },
-      { text: 'Meeting detection ($4.99/session)', included: true },
-      { text: 'PDF forensic report export', included: true },
+      { text: t('pricing_pro_feat_1'), included: true },
+      { text: t('pricing_pro_feat_2'), included: true },
+      { text: t('pricing_pro_feat_3'), included: true },
+      { text: t('pricing_pro_feat_4'), included: true },
+      { text: t('pricing_pro_feat_5'), included: true },
+      { text: t('pricing_pro_feat_6'), included: true },
+      { text: t('pricing_pro_feat_7'), included: true },
+      { text: t('pricing_pro_feat_8'), included: true },
+      { text: t('pricing_pro_feat_9'), included: true },
+      { text: t('pricing_pro_feat_10'), included: true, comingSoon: true },
+      { text: t('pricing_pro_feat_11'), included: true, comingSoon: true },
+      { text: t('pricing_pro_feat_12'), included: true },
     ],
   },
   {
@@ -86,47 +86,47 @@ function makePlans(t: (k: string) => string) { return [
     ctaVariant: 'outline' as const,
     highlight: false,
     features: [
-      { text: '3,000 detections / month', included: true },
-      { text: 'All Pro features included', included: true },
-      { text: 'Video deepfake (up to 5 GB)', included: true },
-      { text: 'Full forensic analysis report', included: true },
-      { text: 'Heatmap + artifact visualization', included: true },
-      { text: 'Unlimited batch detection', included: true },
-      { text: 'API access (10,000 calls/month)', included: true },
-      { text: 'Meeting detection (30 sessions/month)', included: true },
-      { text: 'White-label PDF reports', included: true },
-      { text: 'Priority processing', included: true },
-      { text: 'Team seats (up to 5)', included: true },
-      { text: 'Email + chat support', included: true },
+      { text: t('pricing_business_feat_1'), included: true },
+      { text: t('pricing_business_feat_2'), included: true },
+      { text: t('pricing_business_feat_3'), included: true },
+      { text: t('pricing_business_feat_4'), included: true },
+      { text: t('pricing_business_feat_5'), included: true },
+      { text: t('pricing_business_feat_6'), included: true },
+      { text: t('pricing_business_feat_7'), included: true, comingSoon: true },
+      { text: t('pricing_business_feat_8'), included: true, comingSoon: true },
+      { text: t('pricing_business_feat_9'), included: true, comingSoon: true },
+      { text: t('pricing_business_feat_10'), included: true },
+      { text: t('pricing_business_feat_11'), included: true, comingSoon: true },
+      { text: t('pricing_business_feat_12'), included: true },
     ],
   },
   {
     id: 'enterprise',
-    name: 'Enterprise',
-    tagline: 'For platforms, law enforcement & government',
+    name: t('pricing_enterprise_name'),
+    tagline: t('pricing_enterprise_tagline'),
     monthlyPrice: 199,
     yearlyPrice: 159,
     color: 'text-violet-400',
     borderColor: 'border-violet-500/40',
     bgColor: 'bg-violet-500/5',
     badgeColor: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
-    badge: 'Court-Ready',
-    cta: 'Contact Sales',
+    badge: t('pricing_enterprise_badge'),
+    cta: t('pricing_enterprise_cta'),
     ctaVariant: 'outline' as const,
     highlight: false,
     features: [
-      { text: 'Unlimited detections', included: true },
-      { text: 'All Business features included', included: true },
-      { text: 'Video deepfake (up to 5 GB)', included: true },
-      { text: 'Court-admissible forensic reports', included: true },
-      { text: 'Pixel-level heatmap + bounding boxes', included: true },
-      { text: 'Unlimited batch detection', included: true },
-      { text: 'Unlimited API + webhooks', included: true },
-      { text: 'Unlimited meeting detection', included: true },
-      { text: 'Dedicated GPU processing', included: true },
-      { text: 'Unlimited team seats', included: true },
-      { text: 'SLA + dedicated account manager', included: true },
-      { text: 'On-premise deployment option', included: true },
+      { text: t('pricing_enterprise_feat_1'), included: true },
+      { text: t('pricing_enterprise_feat_2'), included: true },
+      { text: t('pricing_enterprise_feat_3'), included: true },
+      { text: t('pricing_enterprise_feat_4'), included: true, comingSoon: true },
+      { text: t('pricing_enterprise_feat_5'), included: true },
+      { text: t('pricing_enterprise_feat_6'), included: true },
+      { text: t('pricing_enterprise_feat_7'), included: true, comingSoon: true },
+      { text: t('pricing_enterprise_feat_8'), included: true },
+      { text: t('pricing_enterprise_feat_9'), included: true, comingSoon: true },
+      { text: t('pricing_enterprise_feat_10'), included: true },
+      { text: t('pricing_enterprise_feat_11'), included: true },
+      { text: t('pricing_enterprise_feat_12'), included: true, comingSoon: true },
     ],
   },
 ]; }
@@ -138,52 +138,53 @@ const MEETING_ADDON = {
   monthly: 29.99,
 };
 
-const COMPETITOR_COMPARISON = [
-  { feature: 'Image deepfake detection', us: true, them: true },
-  { feature: 'Video deepfake detection', us: true, them: true },
-  { feature: 'Audio AI voice detection', us: true, them: false },
-  { feature: 'Text AI detection', us: true, them: false },
-  { feature: 'Pixel-level heatmap', us: true, them: true },
-  { feature: 'File forensic analysis (EXIF)', us: true, them: false },
-  { feature: 'Real-time meeting detection', us: true, them: false },
-  { feature: 'Court-ready PDF reports', us: true, them: true },
-  { feature: 'Batch detection', us: true, them: true },
-  { feature: '13 languages supported', us: true, them: false },
-  { feature: 'API access', us: true, them: true },
-  { feature: 'Pro plan price', us: '$19/mo', them: '$42/mo', highlight: true },
-  { feature: 'Business plan price', us: '$49/mo', them: '$70/mo', highlight: true },
+const COMPETITOR_COMPARISON = (t: (k: string) => string) => [
+  { feature: t('pricing_comp_feat_1'), us: true, them: true },
+  { feature: t('pricing_comp_feat_2'), us: true, them: true },
+  { feature: t('pricing_comp_feat_3'), us: true, them: true },
+  { feature: t('pricing_comp_feat_4'), us: true, them: false },
+  { feature: t('pricing_comp_feat_5'), us: true, them: true },
+  { feature: t('pricing_comp_feat_6'), us: true, them: true },
+  { feature: t('pricing_comp_feat_7'), us: true, them: false },
+  { feature: t('pricing_comp_feat_8'), us: true, them: false },
+  { feature: t('pricing_comp_feat_9'), us: true, them: false },
+  { feature: t('pricing_comp_feat_10'), us: true, them: true },
+  { feature: t('pricing_comp_feat_11'), us: true, them: true },
+  { feature: t('pricing_comp_feat_12'), us: t('pricing_comp_us_price'), them: t('pricing_comp_them_price'), highlight: true },
 ];
 
-const FAQS = [
+const makeFaqs = (t: (k: string) => string) => [
   {
-    q: 'What counts as one "detection"?',
-    a: 'Each file upload or text submission counts as one detection, regardless of file size or length. Running the same file again counts as a new detection.',
+    q: t('pricing_faq_6_q'),
+    a: t('pricing_faq_6_a'),
   },
   {
-    q: 'How does meeting detection work?',
-    a: 'Our screen-sharing monitor captures frames from your Zoom, Teams, or Google Meet session every few seconds and analyzes them in real time for deepfake indicators. Each session is billed at $4.99 (Pro) or included in Business/Enterprise plans.',
+    q: t('pricing_faq_7_q'),
+    a: t('pricing_faq_7_a'),
   },
   {
-    q: 'Can I cancel anytime?',
-    a: 'Yes — cancel at any time from your account settings. You keep access until the end of your billing period. No cancellation fees.',
+    q: t('pricing_faq_8_q'),
+    a: t('pricing_faq_8_a'),
   },
   {
-    q: 'Do you offer discounts for NGOs or academic institutions?',
-    a: 'Yes — 50% discount for verified non-profits, academic institutions, and independent journalists. Contact us with your credentials.',
+    q: t('pricing_faq_9_q'),
+    a: t('pricing_faq_9_a'),
   },
   {
-    q: 'Is my data private?',
-    a: 'All uploaded files are processed in isolated environments and deleted immediately after analysis. We never store, train on, or share your content.',
+    q: t('pricing_faq_10_q'),
+    a: t('pricing_faq_10_a'),
   },
   {
-    q: 'What is a "court-ready" forensic report?',
-    a: 'Enterprise reports include a structured PDF with chain-of-custody metadata, pixel-level evidence, confidence scores, and a signed analysis summary — formatted to meet evidentiary standards for legal proceedings.',
+    q: t('pricing_faq_11_q'),
+    a: t('pricing_faq_11_a'),
   },
 ];
 
 export default function Pricing() {
   const { t } = useTranslation();
   const PLANS = makePlans(t);
+  const COMPARISON = COMPETITOR_COMPARISON(t);
+  const FAQS = makeFaqs(t);
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const { isAuthenticated } = useAuth();
   const [isYearly, setIsYearly] = useState(false);
@@ -297,7 +298,10 @@ export default function Pricing() {
                       ) : (
                         <X className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted-foreground/30" />
                       )}
-                      <span className={`text-xs leading-relaxed ${f.included ? 'text-foreground' : 'text-muted-foreground/40'}`}>{f.text}</span>
+                      <span className={`text-xs leading-relaxed ${f.included ? 'text-foreground' : 'text-muted-foreground/40'}`}>
+                        {f.text}
+                        {(f as any).comingSoon && <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[9px] font-semibold border border-amber-500/20">Soon</span>}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -322,7 +326,7 @@ export default function Pricing() {
                 <span>Meeting Detection Add-on</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Real-Time Zoom & Teams Protection
+                {t('pricing_meeting_title')}
               </h2>
               <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                 Detect deepfake faces and AI voice clones during live video calls. Available as pay-per-session or a monthly bundle.
@@ -330,10 +334,10 @@ export default function Pricing() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { label: 'Single session', price: '$4.99', sub: 'Up to 2 hours', icon: Camera, color: 'text-primary', border: 'border-primary/30', bg: 'bg-primary/5' },
-                { label: '10-session pack', price: '$39.99', sub: 'Save 20%', icon: Video, color: 'text-cyan-400', border: 'border-cyan-500/30', bg: 'bg-cyan-500/5' },
-                { label: '30-session pack', price: '$99.99', sub: 'Save 33%', icon: BarChart3, color: 'text-violet-400', border: 'border-violet-500/30', bg: 'bg-violet-500/5' },
-                { label: 'Unlimited monthly', price: '$29.99', sub: 'Business plan', icon: Zap, color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/5' },
+                { label: t('pricing_meeting_single'), price: '$4.99', sub: t('pricing_meeting_single_sub'), icon: Camera, color: 'text-primary', border: 'border-primary/30', bg: 'bg-primary/5' },
+                { label: t('pricing_meeting_10pack'), price: '$39.99', sub: t('pricing_meeting_10pack_sub'), icon: Video, color: 'text-cyan-400', border: 'border-cyan-500/30', bg: 'bg-cyan-500/5' },
+                { label: t('pricing_meeting_30pack'), price: '$99.99', sub: t('pricing_meeting_30pack_sub'), icon: BarChart3, color: 'text-violet-400', border: 'border-violet-500/30', bg: 'bg-violet-500/5' },
+                { label: t('pricing_meeting_unlimited'), price: '$29.99', sub: t('pricing_meeting_unlimited_sub'), icon: Zap, color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/5' },
               ].map((item, i) => (
                 <div key={i} className={`p-4 rounded-xl border ${item.border} ${item.bg} text-center`}>
                   <item.icon className={`w-6 h-6 ${item.color} mx-auto mb-2`} />
@@ -355,16 +359,16 @@ export default function Pricing() {
         <div className="container">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Why DeepGuard?</h2>
-              <p className="text-muted-foreground text-sm">More detection types, more languages, lower prices than the leading competitor.</p>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('pricing_comparison_title')}</h2>
+              <p className="text-muted-foreground text-sm">{t('pricing_comparison_subtitle')}</p>
             </div>
             <div className="rounded-2xl border border-border/60 overflow-hidden">
               <div className="grid grid-cols-3 bg-muted/50 px-6 py-3 border-b border-border/40">
-                <div className="text-sm font-medium text-muted-foreground">Feature</div>
-                <div className="text-sm font-semibold text-primary text-center">DeepGuard</div>
-                <div className="text-sm font-medium text-muted-foreground text-center">Competitor</div>
+                <div className="text-sm font-medium text-muted-foreground">{t('pricing_comp_header_feature')}</div>
+                <div className="text-sm font-semibold text-primary text-center">{t('pricing_comp_header_us')}</div>
+                <div className="text-sm font-medium text-muted-foreground text-center">{t('pricing_comp_header_them')}</div>
               </div>
-              {COMPETITOR_COMPARISON.map((row, i) => (
+              {COMPARISON.map((row, i) => (
                 <div key={i} className={`grid grid-cols-3 px-6 py-3 border-b border-border/30 last:border-0 ${row.highlight ? 'bg-primary/5' : i % 2 === 0 ? 'bg-card' : 'bg-card/50'}`}>
                   <div className={`text-sm ${row.highlight ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{row.feature}</div>
                   <div className="text-center">
@@ -375,10 +379,12 @@ export default function Pricing() {
                     )}
                   </div>
                   <div className="text-center">
-                    {typeof row.them === 'boolean' ? (
-                      row.them ? <Check className="w-4 h-4 text-muted-foreground mx-auto" /> : <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
+                    {row.them === true ? (
+                      <Check className="w-4 h-4 text-muted-foreground mx-auto" />
+                    ) : row.them === false ? (
+                      <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />
                     ) : (
-                      <span className={`text-sm ${row.highlight ? 'text-rose-400 font-bold' : 'text-muted-foreground'}`}>{row.them}</span>
+                      <span className={`text-sm ${row.highlight ? 'text-rose-400 font-bold' : 'text-amber-400/80'}`}>{row.them}</span>
                     )}
                   </div>
                 </div>
@@ -393,14 +399,14 @@ export default function Pricing() {
       <section className="py-16 bg-card/30 border-y border-border/40">
         <div className="container">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>The Right Plan for Every Use Case</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('pricing_usecase_title')}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
             {[
-              { icon: Users, title: 'Journalists & Fact-Checkers', plan: 'Pro', planColor: 'text-primary', desc: 'Verify images and videos before publishing. Detect AI-generated misinformation at scale.', bg: 'bg-primary/10', color: 'text-primary' },
-              { icon: Shield, title: 'Law Enforcement', plan: 'Enterprise', planColor: 'text-violet-400', desc: 'Court-admissible forensic reports with chain-of-custody. Dedicated support and SLA.', bg: 'bg-violet-500/10', color: 'text-violet-400' },
-              { icon: Building2, title: 'Social Media Platforms', plan: 'Enterprise', planColor: 'text-violet-400', desc: 'Unlimited API for real-time content moderation. Webhook integration for automated workflows.', bg: 'bg-blue-500/10', color: 'text-blue-400' },
-              { icon: Star, title: 'Individuals & Creators', plan: 'Free → Pro', planColor: 'text-amber-400', desc: 'Protect your identity online. Verify content authenticity before sharing.', bg: 'bg-amber-500/10', color: 'text-amber-400' },
+              { icon: Users, title: t('pricing_usecase_1_title'), plan: t('pricing_usecase_1_plan'), planColor: 'text-primary', desc: t('pricing_usecase_1_desc'), bg: 'bg-primary/10', color: 'text-primary' },
+              { icon: Shield, title: t('pricing_usecase_2_title'), plan: t('pricing_usecase_2_plan'), planColor: 'text-violet-400', desc: t('pricing_usecase_2_desc'), bg: 'bg-violet-500/10', color: 'text-violet-400' },
+              { icon: Building2, title: t('pricing_usecase_3_title'), plan: t('pricing_usecase_3_plan'), planColor: 'text-violet-400', desc: t('pricing_usecase_3_desc'), bg: 'bg-blue-500/10', color: 'text-blue-400' },
+              { icon: Star, title: t('pricing_usecase_4_title'), plan: t('pricing_usecase_4_plan'), planColor: 'text-amber-400', desc: t('pricing_usecase_4_desc'), bg: 'bg-amber-500/10', color: 'text-amber-400' },
             ].map((item, i) => (
               <div key={i} className="p-5 rounded-xl border border-border/60 bg-card">
                 <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center mb-4`}>
@@ -421,9 +427,9 @@ export default function Pricing() {
           <div className="max-w-3xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {[
-                { icon: Lock, title: 'Privacy First', desc: 'Files deleted immediately after analysis. Zero data retention. SOC 2 compliant infrastructure.' },
-                { icon: Globe2, title: '13 Languages', desc: 'Full platform support for English, Chinese, Spanish, Arabic, Hindi, French, and 7 more languages.' },
-                { icon: FileImage, title: 'Court-Ready Reports', desc: 'Enterprise reports include chain-of-custody metadata and pixel-level evidence for legal proceedings.' },
+                { icon: Lock, title: t('pricing_trust_1_title'), desc: t('pricing_trust_1_desc') },
+                { icon: Globe2, title: t('pricing_trust_2_title'), desc: t('pricing_trust_2_desc') },
+                { icon: FileImage, title: t('pricing_trust_3_title'), desc: t('pricing_trust_3_desc') },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-4 p-5 rounded-xl border border-border/40 bg-card/40">
                   <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -474,8 +480,8 @@ export default function Pricing() {
         <div className="absolute inset-0 bg-primary/5" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[300px] bg-primary/8 rounded-full blur-[100px]" />
         <div className="container relative z-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Start detecting AI content today</h2>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">No credit card required. 10 free detections every month, forever.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t('pricing_cta_heading')}</h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t('pricing_cta_desc')}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/detect/text">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-cyan gap-2 px-8">
@@ -498,7 +504,7 @@ export default function Pricing() {
             <span className="font-bold text-foreground" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Deep<span className="text-primary">Guard</span></span>
           </div>
           <p className="text-sm text-muted-foreground">AI Deepfake Detection & Anti-Scam Platform</p>
-          <p className="text-xs text-muted-foreground">© 2025 DeepGuard. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© 2025-2026 DeepGuard. All rights reserved.</p>
         </div>
       </footer>
     </div>

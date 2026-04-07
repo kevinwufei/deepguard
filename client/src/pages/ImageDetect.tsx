@@ -407,6 +407,10 @@ export default function ImageDetect() {
         {/* Results */}
         {result && colors && (
           <div className="space-y-5">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 mb-4">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">MULTI-ENGINE</span>
+              <span className="text-xs text-muted-foreground">Verified by SightEngine + Illuminarty + LLM Visual Analysis. <a href="/technology" className="text-primary hover:underline">Learn more</a></span>
+            </div>
             {/* Verdict Card */}
             <div className={`rounded-2xl border ${colors.border} bg-card p-6`}>
               <div className="flex items-start justify-between gap-4 mb-5">

@@ -230,6 +230,10 @@ Example: Paste an article, email, essay, or any written content here..."
 
             {result && (
               <div className="space-y-4">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/20 mb-4">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">AI-ASSISTED</span>
+                  <span className="text-xs text-muted-foreground">Analysis powered by LLM. Results are indicative, not forensic-grade. <a href="/technology" className="text-primary hover:underline">Learn more</a></span>
+                </div>
                 {/* Overall score */}
                 <div className="p-5 rounded-xl border border-border/60 bg-card">
                   <div className="flex items-center justify-between mb-4">

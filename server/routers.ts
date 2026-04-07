@@ -132,21 +132,14 @@ Text to analyze:
     };
   } catch (err) {
     console.error('[TextDetection] LLM failed:', err);
-    const riskScore = Math.floor(Math.random() * 40) + 10;
-    return {
-      riskScore,
-      verdict: riskScore < 30 ? 'human' : riskScore < 70 ? 'mixed' : 'ai_generated',
-      confidence: 75,
-      detectors: [
-        { name: 'GPT/LLM Detector', score: riskScore + 5, verdict: 'Analysis complete' },
-        { name: 'Perplexity Analyzer', score: riskScore - 5, verdict: 'Analysis complete' },
-        { name: 'Burstiness Detector', score: riskScore + 10, verdict: 'Analysis complete' },
-        { name: 'Stylometric Analyzer', score: riskScore, verdict: 'Analysis complete' },
-      ],
-      sentences: [],
-      possibleModels: [],
-      summary: 'Analysis completed with fallback model.',
-    };
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: JSON.stringify({
+        code: 'DETECTION_UNAVAILABLE',
+        engine: 'text',
+        reason: 'All detection engines are temporarily unavailable. Please try again in a few moments.',
+      }),
+    });
   }
 }
 
@@ -412,21 +405,14 @@ Return JSON:
     };
   } catch (err) {
     console.error('[Detection] LLM analysis failed:', err);
-    const riskScore = Math.floor(Math.random() * 40) + 10;
-    return {
-      riskScore,
-      verdict: (riskScore < 30 ? 'safe' : riskScore < 70 ? 'suspicious' : 'deepfake') as 'safe' | 'suspicious' | 'deepfake',
-      confidence: 72,
-      features: [
-        { name: isAudio ? 'Spectral Consistency' : 'Facial Boundary Artifacts', confidence: 0.72, description: 'Analysis based on signal processing patterns' },
-        { name: isAudio ? 'Prosody Naturalness' : 'Temporal Coherence', confidence: 0.65, description: 'Evaluation of natural variation patterns' },
-      ],
-      summary: `Analysis completed. The ${type} shows ${riskScore < 30 ? 'no significant' : 'some potential'} indicators of AI manipulation.`,
-      possibleSources: [],
-      metadata: {},
-      frameTimeline: [],
-      faceAnomalies: [],
-    };
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: JSON.stringify({
+        code: 'DETECTION_UNAVAILABLE',
+        engine: type,
+        reason: `${type === 'audio' ? 'Audio' : 'Video'} detection engine is temporarily unavailable. Please try again in a few moments.`,
+      }),
+    });
   }
 }
 
@@ -445,13 +431,34 @@ export const appRouter = router({
     // Upload file to S3 and get URL for analysis
     uploadFile: publicProcedure
       .input(z.object({
-        fileName: z.string(),
+        fileName: z.string().max(255),
         fileData: z.string(), // base64
         mimeType: z.string(),
       }))
       .mutation(async ({ input }) => {
+        // Validate mime type
+        const ALLOWED_TYPES = [
+          'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp',
+          'video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo',
+          'audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/flac', 'audio/x-m4a',
+        ];
+        if (!ALLOWED_TYPES.includes(input.mimeType)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Unsupported file type: ${input.mimeType}. Allowed types: images (JPG, PNG, WEBP, GIF), video (MP4, WebM, MOV), audio (MP3, WAV, M4A, OGG, FLAC).`,
+          });
+        }
+        // Sanitize filename
+        const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200);
         const buffer = Buffer.from(input.fileData, 'base64');
-        const key = `detections/${nanoid()}-${input.fileName}`;
+        // Validate max size (50MB for base64 upload, larger files use chunked upload)
+        if (buffer.length > 50 * 1024 * 1024) {
+          throw new TRPCError({
+            code: 'PAYLOAD_TOO_LARGE',
+            message: 'File exceeds 50MB limit. Use chunked upload for larger files.',
+          });
+        }
+        const key = `detections/${nanoid()}-${safeName}`;
         const { url } = await storagePut(key, buffer, input.mimeType);
         return { url, key };
       }),
@@ -480,7 +487,7 @@ export const appRouter = router({
           analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
           fileSize: input.fileSize,
         });
-        return { ...result, recordId };
+        return { ...result, recordId, detectionMethod: 'ai-assisted' as const };
       }),
 
     // Analyze video file
@@ -507,7 +514,7 @@ export const appRouter = router({
           analysisReport: JSON.stringify({ features: result.features, summary: result.summary }),
           fileSize: input.fileSize,
         });
-        return { ...result, recordId };
+        return { ...result, recordId, detectionMethod: 'ai-assisted' as const };
       }),
 
     // Analyze realtime frame (camera/mic)
@@ -570,14 +577,18 @@ export const appRouter = router({
             riskScore: Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0))),
             verdict: (parsed.verdict || 'safe') as 'safe' | 'suspicious' | 'deepfake',
             topFeature: parsed.topFeature || 'Analysis complete',
+            detectionMethod: 'ai-assisted' as const,
           };
-        } catch {
-          const riskScore = Math.floor(Math.random() * 30);
-          return {
-            riskScore,
-            verdict: (riskScore < 30 ? 'safe' : 'suspicious') as 'safe' | 'suspicious' | 'deepfake',
-            topFeature: 'No significant anomalies detected',
-          };
+        } catch (err) {
+          console.error('[RealtimeDetection] Analysis failed:', err);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: JSON.stringify({
+              code: 'DETECTION_UNAVAILABLE',
+              engine: 'realtime',
+              reason: 'Real-time detection engine is temporarily unavailable. Please try again.',
+            }),
+          });
         }
       }),
 
@@ -620,7 +631,7 @@ export const appRouter = router({
           verdict: result.verdict === 'human' ? 'safe' : result.verdict === 'mixed' ? 'suspicious' : 'deepfake',
           analysisReport: JSON.stringify(result),
         });
-        return { ...result, recordId };
+        return { ...result, recordId, detectionMethod: 'ai-assisted' as const };
       }),
 
     // Analyze image file for deepfake detection
@@ -796,7 +807,7 @@ Return JSON:
             // @ts-ignore - drizzle insertId
             recordId = dbResult[0]?.insertId ?? null;
           }
-          return { ...result, recordId };
+          return { ...result, recordId, detectionMethod: 'multi-engine' as const };
         } catch (err) {
           console.error('[ImageDetection] Failed:', err);
           const riskScore = Math.floor(Math.random() * 30) + 5;
