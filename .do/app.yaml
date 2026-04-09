@@ -1,0 +1,67 @@
+name: deepguard
+region: nyc
+services:
+  - name: web
+    github:
+      repo: kevinwufei/deepguard
+      branch: main
+      deploy_on_push: true
+    build_command: npm install -g pnpm && pnpm install && pnpm build
+    run_command: pnpm start
+    environment_slug: node-js
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 3000
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: "${db.DATABASE_URL}"
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: VITE_APP_ID
+        scope: BUILD_TIME
+        type: SECRET
+      - key: OAUTH_SERVER_URL
+        value: https://api.manus.im
+      - key: VITE_OAUTH_PORTAL_URL
+        value: https://manus.im
+      - key: OWNER_OPEN_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: OWNER_NAME
+        scope: RUN_TIME
+        type: SECRET
+      - key: BUILT_IN_FORGE_API_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: BUILT_IN_FORGE_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: VITE_FRONTEND_FORGE_API_KEY
+        scope: BUILD_TIME
+        type: SECRET
+      - key: VITE_FRONTEND_FORGE_API_URL
+        scope: BUILD_TIME
+        type: SECRET
+      - key: SIGHTENGINE_API_USER
+        scope: RUN_TIME
+        type: SECRET
+      - key: SIGHTENGINE_API_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: ILLUMINARTY_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: VITE_APP_TITLE
+        value: DeepGuard
+        scope: BUILD_TIME
+databases:
+  - name: db
+    engine: MYSQL
+    version: "8"
+    size: db-s-1vcpu-1gb
+    num_nodes: 1
