@@ -3,31 +3,65 @@ import path from "path";
 import fs from "fs";
 
 /**
- * Auto-migrate: runs all SQL migration files on startup.
- * Works with DigitalOcean PostgreSQL Dev Database.
- * Resolves unresolved ${component.VAR} template strings by scanning all env vars.
+ * Resolve a valid PostgreSQL connection URL from environment variables.
+ * DigitalOcean may inject the URL under various names depending on how
+ * the database component is attached. We try multiple strategies.
  */
-export async function runMigrations() {
-  // Resolve the real DATABASE_URL
-  let dbUrl = process.env.DATABASE_URL ?? "";
+function resolvePostgresUrl(): string | null {
+  // Strategy 1: DATABASE_URL is set and not an unresolved template
+  const raw = process.env.DATABASE_URL ?? "";
+  if (raw && !raw.startsWith("${")) {
+    console.log("[Migrate] Using DATABASE_URL env var");
+    return raw;
+  }
+  if (raw.startsWith("${")) {
+    console.warn(`[Migrate] DATABASE_URL is unresolved template: ${raw}`);
+  }
 
-  // If it's an unresolved DO template like ${dev-db-xxxxx.DATABASE_URL},
-  // scan all env vars for one that looks like a postgres connection string
-  if (!dbUrl || dbUrl.startsWith("${")) {
-    const pgVar = Object.entries(process.env).find(
-      ([k, v]) =>
-        k !== "DATABASE_URL" &&
-        v &&
-        (v.startsWith("postgres://") || v.startsWith("postgresql://"))
-    );
-    if (pgVar) {
-      dbUrl = pgVar[1]!;
-      console.log(`[Migrate] Resolved DATABASE_URL from env var: ${pgVar[0]}`);
+  // Strategy 2: Scan ALL env vars for a postgres connection string
+  // DO may inject it as db_DATABASE_URL, POSTGRES_URL, etc.
+  const pgEntry = Object.entries(process.env).find(
+    ([k, v]) =>
+      k !== "DATABASE_URL" &&
+      v &&
+      (v.startsWith("postgres://") || v.startsWith("postgresql://"))
+  );
+  if (pgEntry) {
+    console.log(`[Migrate] Found postgres URL in env var: ${pgEntry[0]}`);
+    return pgEntry[1]!;
+  }
+
+  // Strategy 3: Reconstruct from individual DO component vars
+  // DO injects: {prefix}_HOST, {prefix}_PORT, {prefix}_USERNAME, {prefix}_PASSWORD, {prefix}_DATABASE
+  const prefixes = ["db", "DB", "database", "DATABASE", "pg", "PG", "postgres", "POSTGRES"];
+  for (const prefix of prefixes) {
+    const host = process.env[`${prefix}_HOST`];
+    const port = process.env[`${prefix}_PORT`] || "25060";
+    const user = process.env[`${prefix}_USERNAME`] || process.env[`${prefix}_USER`];
+    const pass = process.env[`${prefix}_PASSWORD`];
+    const name = process.env[`${prefix}_DATABASE`] || process.env[`${prefix}_NAME`];
+    if (host && user && pass && name) {
+      const url = `postgresql://${user}:${encodeURIComponent(pass)}@${host}:${port}/${name}?sslmode=require`;
+      console.log(`[Migrate] Reconstructed postgres URL from ${prefix}_* vars`);
+      return url;
     }
   }
 
-  if (!dbUrl || dbUrl.startsWith("${")) {
+  return null;
+}
+
+/**
+ * Auto-migrate: runs all SQL migration files on startup.
+ * Works with DigitalOcean PostgreSQL Dev Database.
+ */
+export async function runMigrations() {
+  const dbUrl = resolvePostgresUrl();
+
+  if (!dbUrl) {
+    // Print all env var KEYS (not values) to help diagnose what DO actually injects
+    const allKeys = Object.keys(process.env).sort().join(", ");
     console.warn("[Migrate] No valid DATABASE_URL found — skipping migrations");
+    console.warn("[Migrate] Available env var keys:", allKeys);
     return;
   }
 

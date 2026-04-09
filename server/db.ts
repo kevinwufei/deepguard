@@ -11,16 +11,31 @@ import { createHash } from 'crypto';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 function resolveDbUrl(): string | null {
-  let url = process.env.DATABASE_URL ?? "";
-  // If DO template string is unresolved, scan for any postgres URL in env
-  if (!url || url.startsWith("${")) {
-    const found = Object.entries(process.env).find(
-      ([k, v]) => k !== "DATABASE_URL" && v &&
-        (v.startsWith("postgres://") || v.startsWith("postgresql://"))
-    );
-    if (found) url = found[1]!;
+  // Strategy 1: DATABASE_URL is set and not an unresolved template
+  const raw = process.env.DATABASE_URL ?? "";
+  if (raw && !raw.startsWith("${")) return raw;
+
+  // Strategy 2: Scan ALL env vars for a postgres connection string
+  const pgEntry = Object.entries(process.env).find(
+    ([k, v]) => k !== "DATABASE_URL" && v &&
+      (v.startsWith("postgres://") || v.startsWith("postgresql://"))
+  );
+  if (pgEntry) return pgEntry[1]!;
+
+  // Strategy 3: Reconstruct from individual DO component vars
+  const prefixes = ["db", "DB", "database", "DATABASE", "pg", "PG"];
+  for (const prefix of prefixes) {
+    const host = process.env[`${prefix}_HOST`];
+    const port = process.env[`${prefix}_PORT`] || "25060";
+    const user = process.env[`${prefix}_USERNAME`] || process.env[`${prefix}_USER`];
+    const pass = process.env[`${prefix}_PASSWORD`];
+    const name = process.env[`${prefix}_DATABASE`] || process.env[`${prefix}_NAME`];
+    if (host && user && pass && name) {
+      return `postgresql://${user}:${encodeURIComponent(pass)}@${host}:${port}/${name}?sslmode=require`;
+    }
   }
-  return url && !url.startsWith("${") ? url : null;
+
+  return null;
 }
 
 export async function getDb() {
