@@ -1,53 +1,549 @@
 {
-  "version": "5",
-  "dialect": "mysql",
-  "id": "272a1cf1-4644-4c62-8781-0657b02e6429",
+  "id": "87a43102-10a5-40bb-b118-6cac03ad0d90",
   "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "users": {
-      "name": "users",
+    "public.api_keys": {
+      "name": "api_keys",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keyHash": {
+          "name": "keyHash",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keyPrefix": {
+          "name": "keyPrefix",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tier": {
+          "name": "tier",
+          "type": "api_tier",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": true
+          "default": "'free'"
+        },
+        "usageCount": {
+          "name": "usageCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "dailyLimit": {
+          "name": "dailyLimit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 100
+        },
+        "isActive": {
+          "name": "isActive",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "lastUsedAt": {
+          "name": "lastUsedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "api_keys_userId_users_id_fk": {
+          "name": "api_keys_userId_users_id_fk",
+          "tableFrom": "api_keys",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "api_keys_keyHash_unique": {
+          "name": "api_keys_keyHash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "keyHash"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.api_usage_logs": {
+      "name": "api_usage_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "apiKeyId": {
+          "name": "apiKeyId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endpoint": {
+          "name": "endpoint",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "statusCode": {
+          "name": "statusCode",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 200
+        },
+        "responseTimeMs": {
+          "name": "responseTimeMs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "api_usage_logs_apiKeyId_api_keys_id_fk": {
+          "name": "api_usage_logs_apiKeyId_api_keys_id_fk",
+          "tableFrom": "api_usage_logs",
+          "tableTo": "api_keys",
+          "columnsFrom": [
+            "apiKeyId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.detection_records": {
+      "name": "detection_records",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "detection_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fileName": {
+          "name": "fileName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fileUrl": {
+          "name": "fileUrl",
+          "type": "varchar(1024)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "riskScore": {
+          "name": "riskScore",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "verdict": {
+          "name": "verdict",
+          "type": "verdict",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'safe'"
+        },
+        "analysisReport": {
+          "name": "analysisReport",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fileSize": {
+          "name": "fileSize",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "userFeedback": {
+          "name": "userFeedback",
+          "type": "user_feedback",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedbackLabel": {
+          "name": "feedbackLabel",
+          "type": "feedback_label",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedbackNote": {
+          "name": "feedbackNote",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feedbackAt": {
+          "name": "feedbackAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "detection_records_userId_users_id_fk": {
+          "name": "detection_records_userId_users_id_fk",
+          "tableFrom": "detection_records",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shared_reports": {
+      "name": "shared_reports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detectionRecordId": {
+          "name": "detectionRecordId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "detection_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fileName": {
+          "name": "fileName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fileUrl": {
+          "name": "fileUrl",
+          "type": "varchar(1024)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "riskScore": {
+          "name": "riskScore",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "verdict": {
+          "name": "verdict",
+          "type": "verdict",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'safe'"
+        },
+        "analysisReport": {
+          "name": "analysisReport",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "viewCount": {
+          "name": "viewCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shared_reports_userId_users_id_fk": {
+          "name": "shared_reports_userId_users_id_fk",
+          "tableFrom": "shared_reports",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "shared_reports_detectionRecordId_detection_records_id_fk": {
+          "name": "shared_reports_detectionRecordId_detection_records_id_fk",
+          "tableFrom": "shared_reports",
+          "tableTo": "detection_records",
+          "columnsFrom": [
+            "detectionRecordId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shared_reports_token_unique": {
+          "name": "shared_reports_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.usage_quotas": {
+      "name": "usage_quotas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fingerprint": {
+          "name": "fingerprint",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "usage_quotas_userId_users_id_fk": {
+          "name": "usage_quotas_userId_users_id_fk",
+          "tableFrom": "usage_quotas",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
         },
         "openId": {
           "name": "openId",
           "type": "varchar(64)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "email": {
           "name": "email",
           "type": "varchar(320)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "loginMethod": {
           "name": "loginMethod",
           "type": "varchar(64)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "role": {
           "name": "role",
-          "type": "enum('user','admin')",
+          "type": "role",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "'user'"
         },
         "createdAt": {
@@ -55,56 +551,111 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "updatedAt": {
           "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "onUpdate": true,
-          "default": "(now())"
+          "default": "now()"
         },
         "lastSignedIn": {
           "name": "lastSignedIn",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "users_id": {
-          "name": "users_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "openId"
           ]
         }
       },
-      "checkConstraint": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
+  "enums": {
+    "public.api_tier": {
+      "name": "api_tier",
+      "schema": "public",
+      "values": [
+        "free",
+        "pro",
+        "enterprise"
+      ]
+    },
+    "public.detection_type": {
+      "name": "detection_type",
+      "schema": "public",
+      "values": [
+        "audio",
+        "video",
+        "camera",
+        "microphone",
+        "text",
+        "screen",
+        "image"
+      ]
+    },
+    "public.feedback_label": {
+      "name": "feedback_label",
+      "schema": "public",
+      "values": [
+        "ai_generated",
+        "real",
+        "deepfake_video",
+        "ai_audio",
+        "human_audio",
+        "ai_text",
+        "human_text"
+      ]
+    },
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "user",
+        "admin"
+      ]
+    },
+    "public.user_feedback": {
+      "name": "user_feedback",
+      "schema": "public",
+      "values": [
+        "correct",
+        "incorrect",
+        "unsure"
+      ]
+    },
+    "public.verdict": {
+      "name": "verdict",
+      "schema": "public",
+      "values": [
+        "safe",
+        "suspicious",
+        "deepfake"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
   "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {},
-    "indexes": {}
+    "tables": {}
   }
 }

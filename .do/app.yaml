@@ -61,7 +61,7 @@ services:
         scope: BUILD_TIME
 databases:
   - name: db
-    engine: MYSQL
-    version: "8"
+    engine: PG
+    version: "17"
     size: db-s-1vcpu-1gb
     num_nodes: 1

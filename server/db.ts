@@ -1,18 +1,39 @@
 import { desc, eq, and, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, detectionRecords, InsertDetectionRecord, apiKeys, apiUsageLogs, InsertApiKey, sharedReports, InsertSharedReport, usageQuotas } from "../drizzle/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import {
+  InsertUser, users, detectionRecords, InsertDetectionRecord,
+  apiKeys, apiUsageLogs, InsertApiKey, sharedReports, InsertSharedReport, usageQuotas,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { createHash } from 'crypto';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+function resolveDbUrl(): string | null {
+  let url = process.env.DATABASE_URL ?? "";
+  // If DO template string is unresolved, scan for any postgres URL in env
+  if (!url || url.startsWith("${")) {
+    const found = Object.entries(process.env).find(
+      ([k, v]) => k !== "DATABASE_URL" && v &&
+        (v.startsWith("postgres://") || v.startsWith("postgresql://"))
+    );
+    if (found) url = found[1]!;
+  }
+  return url && !url.startsWith("${") ? url : null;
+}
+
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      _db = drizzle(process.env.DATABASE_URL);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
+  if (!_db) {
+    const url = resolveDbUrl();
+    if (url) {
+      try {
+        const client = postgres(url, { ssl: "require", max: 10 });
+        _db = drizzle(client);
+      } catch (error) {
+        console.warn("[Database] Failed to connect:", error);
+        _db = null;
+      }
     }
   }
   return _db;
@@ -40,7 +61,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
     if (!values.lastSignedIn) values.lastSignedIn = new Date();
     if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
+      set: updateSet as any,
+    });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -59,10 +83,8 @@ export async function createDetectionRecord(record: InsertDetectionRecord): Prom
   const db = await getDb();
   if (!db) return null;
   try {
-    const result = await db.insert(detectionRecords).values(record);
-    // MySQL2 returns insertId on the result header
-    const insertId = (result as any)[0]?.insertId ?? null;
-    return insertId as number | null;
+    const result = await db.insert(detectionRecords).values(record).returning({ id: detectionRecords.id });
+    return result[0]?.id ?? null;
   } catch (err) {
     console.error('[DB] createDetectionRecord failed:', err);
     return null;
@@ -168,14 +190,12 @@ export async function submitDetectionFeedback(
 export async function getTrainingData(limit = 5000) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  // Return records that have user feedback (labeled data for training)
   return db.select().from(detectionRecords)
     .where(sql`${detectionRecords.userFeedback} IS NOT NULL`)
     .orderBy(desc(detectionRecords.createdAt))
     .limit(limit);
 }
 
-// Return records where user said detection was WRONG (incorrect) — highest priority for retraining
 export async function getMislabeledRecords(limit = 200) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -228,7 +248,6 @@ export async function incrementReportViewCount(token: string) {
 }
 
 // ─── Usage Quota Helpers ───────────────────────────────────────────────────
-// Limits: anonymous = 3/day (by fingerprint), free user = 10/day, paid/admin = unlimited
 export const QUOTA_LIMITS = {
   anonymous: 3,
   free: 10,
@@ -237,13 +256,9 @@ export const QUOTA_LIMITS = {
 } as const;
 
 function getTodayDate(): string {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+  return new Date().toISOString().slice(0, 10);
 }
 
-/**
- * Get today's usage count for a user or fingerprint.
- * userId takes priority over fingerprint.
- */
 export async function getUsageCount(params: { userId?: number; fingerprint?: string }): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
@@ -265,19 +280,17 @@ export async function getUsageCount(params: { userId?: number; fingerprint?: str
   return result[0]?.count ?? 0;
 }
 
-/**
- * Increment usage count by 1. Creates a new row if none exists for today.
- * Returns the new count.
- */
 export async function incrementUsage(params: { userId?: number; fingerprint?: string }): Promise<number> {
   const db = await getDb();
   if (!db) return 0;
   const today = getTodayDate();
   if (params.userId) {
-    // Upsert by userId + date
     await db.insert(usageQuotas)
       .values({ userId: params.userId, date: today, count: 1 })
-      .onDuplicateKeyUpdate({ set: { count: sql`${usageQuotas.count} + 1` } });
+      .onConflictDoUpdate({
+        target: [usageQuotas.userId, usageQuotas.date],
+        set: { count: sql`${usageQuotas.count} + 1`, updatedAt: new Date() },
+      });
     const result = await db.select({ count: usageQuotas.count })
       .from(usageQuotas)
       .where(and(eq(usageQuotas.userId, params.userId), eq(usageQuotas.date, today)))
@@ -286,7 +299,10 @@ export async function incrementUsage(params: { userId?: number; fingerprint?: st
   } else if (params.fingerprint) {
     await db.insert(usageQuotas)
       .values({ fingerprint: params.fingerprint, date: today, count: 1 })
-      .onDuplicateKeyUpdate({ set: { count: sql`${usageQuotas.count} + 1` } });
+      .onConflictDoUpdate({
+        target: [usageQuotas.fingerprint, usageQuotas.date],
+        set: { count: sql`${usageQuotas.count} + 1`, updatedAt: new Date() },
+      });
     const result = await db.select({ count: usageQuotas.count })
       .from(usageQuotas)
       .where(and(eq(usageQuotas.fingerprint, params.fingerprint), eq(usageQuotas.date, today)))

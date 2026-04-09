@@ -1,54 +1,12 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1773498353095,
-      "tag": "0000_rare_wrecker",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1773670710361,
-      "tag": "0001_melodic_nick_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1773688603380,
-      "tag": "0002_overrated_ulik",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1773695176367,
-      "tag": "0003_thin_purple_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1773702302644,
-      "tag": "0004_next_kronos",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1773751924403,
-      "tag": "0005_tiny_aaron_stack",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1773755652586,
-      "tag": "0006_handy_nuke",
+      "version": "7",
+      "when": 1775757022722,
+      "tag": "0000_sudden_butterfly",
       "breakpoints": true
     }
   ]

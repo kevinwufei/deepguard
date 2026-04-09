@@ -1,28 +1,28 @@
-import mysql from "mysql2/promise";
+import postgres from "postgres";
 import path from "path";
 import fs from "fs";
 
 /**
  * Auto-migrate: runs all SQL migration files on startup.
- * Resolves the DigitalOcean ${component.VAR} template by reading
- * the actual env var that DO injects under a different name.
+ * Works with DigitalOcean PostgreSQL Dev Database.
+ * Resolves unresolved ${component.VAR} template strings by scanning all env vars.
  */
 export async function runMigrations() {
-  // Resolve the real DATABASE_URL — DO sometimes injects it as a different var
+  // Resolve the real DATABASE_URL
   let dbUrl = process.env.DATABASE_URL ?? "";
 
-  // If it's still an unresolved template like ${dev-db-297387.DATABASE_URL},
-  // scan all env vars for one that looks like a mysql connection string
+  // If it's an unresolved DO template like ${dev-db-xxxxx.DATABASE_URL},
+  // scan all env vars for one that looks like a postgres connection string
   if (!dbUrl || dbUrl.startsWith("${")) {
-    const mysqlVar = Object.entries(process.env).find(
+    const pgVar = Object.entries(process.env).find(
       ([k, v]) =>
         k !== "DATABASE_URL" &&
         v &&
-        (v.startsWith("mysql://") || v.startsWith("mysql2://"))
+        (v.startsWith("postgres://") || v.startsWith("postgresql://"))
     );
-    if (mysqlVar) {
-      dbUrl = mysqlVar[1]!;
-      console.log(`[Migrate] Resolved DATABASE_URL from env var: ${mysqlVar[0]}`);
+    if (pgVar) {
+      dbUrl = pgVar[1]!;
+      console.log(`[Migrate] Resolved DATABASE_URL from env var: ${pgVar[0]}`);
     }
   }
 
@@ -31,25 +31,25 @@ export async function runMigrations() {
     return;
   }
 
-  let connection: mysql.Connection | null = null;
+  let sql: ReturnType<typeof postgres> | null = null;
   try {
-    connection = await mysql.createConnection(dbUrl);
-    console.log("[Migrate] Connected to database");
+    sql = postgres(dbUrl, { ssl: "require", max: 1 });
+    console.log("[Migrate] Connected to PostgreSQL database");
 
     // Create migrations tracking table
-    await connection.execute(`
+    await sql`
       CREATE TABLE IF NOT EXISTS __drizzle_migrations (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         hash VARCHAR(255) NOT NULL UNIQUE,
         created_at BIGINT
       )
-    `);
+    `;
 
     // Get list of already-applied migrations
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      "SELECT hash FROM __drizzle_migrations"
-    );
-    const applied = new Set(rows.map((r) => r.hash));
+    const applied = await sql<{ hash: string }[]>`
+      SELECT hash FROM __drizzle_migrations
+    `;
+    const appliedSet = new Set(applied.map((r) => r.hash));
 
     // Find all SQL migration files
     const migrationsDir = path.join(process.cwd(), "drizzle");
@@ -64,32 +64,28 @@ export async function runMigrations() {
       .sort();
 
     for (const file of sqlFiles) {
-      if (applied.has(file)) {
+      if (appliedSet.has(file)) {
         console.log(`[Migrate] Already applied: ${file}`);
         continue;
       }
 
-      const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
+      const content = fs.readFileSync(path.join(migrationsDir, file), "utf8");
 
-      // Split on --> statement-breakpoint or semicolons
-      const statements = sql
+      // Split on --> statement-breakpoint markers
+      const statements = content
         .split(/-->.*statement-breakpoint/i)
-        .flatMap((s) => s.split(/;\s*\n/))
         .map((s) => s.trim())
         .filter((s) => s.length > 0 && !s.startsWith("--"));
 
       for (const stmt of statements) {
         try {
-          await connection.execute(stmt);
+          await sql.unsafe(stmt);
         } catch (err: any) {
           // Ignore "already exists" errors so re-runs are safe
           if (
-            err.code === "ER_TABLE_EXISTS_ERROR" ||
-            err.code === "ER_DUP_FIELDNAME" ||
-            err.code === "ER_DUP_KEYNAME" ||
-            err.errno === 1060 ||
-            err.errno === 1061 ||
-            err.errno === 1050
+            err.code === "42P07" || // relation already exists
+            err.code === "42710" || // duplicate object (enum)
+            err.code === "42701"    // duplicate column
           ) {
             // silently skip
           } else {
@@ -98,18 +94,19 @@ export async function runMigrations() {
         }
       }
 
-      await connection.execute(
-        "INSERT IGNORE INTO __drizzle_migrations (hash, created_at) VALUES (?, ?)",
-        [file, Date.now()]
-      );
+      await sql`
+        INSERT INTO __drizzle_migrations (hash, created_at)
+        VALUES (${file}, ${Date.now()})
+        ON CONFLICT (hash) DO NOTHING
+      `;
       console.log(`[Migrate] Applied: ${file}`);
     }
 
     console.log("[Migrate] All migrations complete");
   } catch (err) {
     console.error("[Migrate] Migration error:", err);
-    // Don't crash the server — app can still run with existing schema
+    // Don't crash the server
   } finally {
-    if (connection) await connection.end();
+    if (sql) await sql.end();
   }
 }

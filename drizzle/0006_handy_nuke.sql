@@ -1,1 +1,0 @@
-ALTER TABLE `detection_records` MODIFY COLUMN `feedbackLabel` enum('ai_generated','real','deepfake_video','ai_audio','human_audio','ai_text','human_text');
