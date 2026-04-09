@@ -12,6 +12,8 @@ import { serveStatic, setupVite } from "./vite";
 import { apiRouter } from "../apiRoutes";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
+import { ENV } from "./env";
+import cors from "cors";
 import os from "os";
 import path from "path";
 import fs from "fs";
@@ -41,6 +43,13 @@ async function startServer() {
 
   const app = express();
   const server = createServer(app);
+
+  // CORS - allow frontend on different domain
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN || true,
+    credentials: true,
+  }));
+
   // Security headers
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -49,11 +58,20 @@ async function startServer() {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
+
+  // Serve uploaded files
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+  app.use('/uploads', express.static(uploadsDir));
+
   // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "5gb" }));
-  app.use(express.urlencoded({ limit: "5gb", extended: true }));
-  // OAuth callback under /api/oauth/callback
-  registerOAuthRoutes(app);
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // OAuth callback (only if auth is configured)
+  if (ENV.authEnabled) {
+    registerOAuthRoutes(app);
+  }
 
   // Multipart file upload endpoint (streams to S3, avoids base64 memory issues)
   // Chunk size: 8MB per chunk to stay under proxy limits
