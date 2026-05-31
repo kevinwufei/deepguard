@@ -204,6 +204,7 @@ export default function ImageDetect() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [recordId, setRecordId] = useState<number | null>(null);
+  const [urlInput, setUrlInput] = useState("")
   const [activeTab, setActiveTab] = useState<'heatmap' | 'forensic' | 'report'>('heatmap');
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [quotaInfo, setQuotaInfo] = useState<{ used: number; limit: number; isLoggedIn: boolean } | null>(null);
@@ -214,6 +215,18 @@ export default function ImageDetect() {
   }, []);
 
   const analyzeImage = trpc.detection.analyzeImage.useMutation();
+
+  const handleUrlSubmit = async () => {
+    if (!urlInput.trim()) return;
+    setError(null); setIsAnalyzing(true); setUploadProgress(80);
+    try {
+      const ext = urlInput.split(".").pop()?.split("?")[0]?.toLowerCase() || "jpg";
+      const mt: Record<string,string> = {jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",gif:"image/gif",webp:"image/webp"};
+      setPreviewUrl(urlInput);
+      const res = await analyzeImage.mutateAsync({fileUrl:urlInput, fileName:urlInput.split("/").pop()?.split("?")[0]||"image.jpg", mimeType:mt[ext]||"image/jpeg", fileSize:0, fingerprint});
+      setResult(res as any); if((res as any).recordId) setRecordId((res as any).recordId);
+    } catch(e:any){setError(e.message||"Failed")} finally{setIsAnalyzing(false);setUploadProgress(0)}
+  };
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith('image/')) { setError('Please upload an image file (JPG, PNG, WebP, GIF, BMP)'); return; }
@@ -351,6 +364,13 @@ export default function ImageDetect() {
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
+            {/* URL Input Section */}
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => { if(e.key==="Enter") handleUrlSubmit(); }} placeholder="Or paste image URL here..." className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm" />
+                <button type="button" onClick={handleUrlSubmit} disabled={isAnalyzing} className="px-5 py-3 bg-violet-500 text-white rounded-lg text-sm font-medium hover:bg-violet-600 disabled:opacity-50">Scan URL</button>
+              </div>
+            </div>
               className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-200 ${isDragging ? 'border-violet-400 bg-violet-400/5' : 'border-border/60 hover:border-violet-400/50 hover:bg-violet-400/5'}`}
             >
               <input ref={fileInputRef} type="file" accept={ACCEPTED} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
