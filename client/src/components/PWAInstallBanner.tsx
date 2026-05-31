@@ -78,7 +78,7 @@ export default function PWAInstallBanner() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">
-                {lang === 'zh' ? '安装 DeepGuard 到手机' : 'Install DeepGuard on your phone'}
+                {lang === 'zh' ? '安装 FakeGuard 到手机' : 'Install FakeGuard on your phone'}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                 {lang === 'zh'
@@ -127,11 +127,11 @@ export default function PWAInstallBanner() {
               {(lang === 'zh' ? [
                 { step: '1', text: '点击 Safari 底部的「分享」按钮（方块加箭头图标）' },
                 { step: '2', text: '在弹出菜单中向下滑动，找到「添加到主屏幕」' },
-                { step: '3', text: '点击「添加」，DeepGuard 图标将出现在您的主屏幕上' },
+                { step: '3', text: '点击「添加」，FakeGuard 图标将出现在您的主屏幕上' },
               ] : [
                 { step: '1', text: 'Tap the Share button at the bottom of Safari (square with arrow icon)' },
                 { step: '2', text: 'Scroll down in the menu and tap "Add to Home Screen"' },
-                { step: '3', text: 'Tap "Add" — the DeepGuard icon will appear on your home screen' },
+                { step: '3', text: 'Tap "Add" — the FakeGuard icon will appear on your home screen' },
               ]).map(item => (
                 <div key={item.step} className="flex gap-3 items-start">
                   <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">

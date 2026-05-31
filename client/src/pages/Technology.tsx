@@ -88,7 +88,7 @@ const DATASETS = [
 export default function Technology() {
   const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'Technology & Benchmarks — DeepGuard';
+    document.title = 'Technology & Benchmarks — FakeGuard';
   }, []);
 
   return (
@@ -106,7 +106,7 @@ export default function Technology() {
               <span>{t("tech_title")}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-5 leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              How DeepGuard<br />
+              How FakeGuard<br />
               <span className="text-primary">{t("tech_actually_works")}</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl leading-relaxed">

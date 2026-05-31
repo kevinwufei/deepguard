@@ -131,7 +131,7 @@ export default function ApiDocs() {
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
-    document.title = 'API Documentation - DeepGuard';
+    document.title = 'API Documentation - FakeGuard';
   }, []);
 
   return (
@@ -144,7 +144,7 @@ export default function ApiDocs() {
             <span>Enterprise API</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            DeepGuard API Documentation
+            FakeGuard API Documentation
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Integrate AI content detection into your platform with a single REST API call.

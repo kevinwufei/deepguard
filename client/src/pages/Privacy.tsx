@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Shield } from 'lucide-react';
 
 export default function Privacy() {
-  useEffect(() => { document.title = 'Privacy Policy — DeepGuard'; }, []);
+  useEffect(() => { document.title = 'Privacy Policy — FakeGuard'; }, []);
 
   return (
     <div className="min-h-screen">
@@ -17,7 +17,7 @@ export default function Privacy() {
           <div className="prose prose-invert prose-sm max-w-none space-y-8">
             <div>
               <h2 className="text-xl font-bold text-foreground mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>1. Data We Collect</h2>
-              <p className="text-muted-foreground leading-relaxed">When you use DeepGuard, we collect minimal data necessary to provide our services. This includes: files you upload for detection (temporarily processed and immediately deleted), basic usage analytics (page views, feature usage), and account information if you register (email address, display name). We use browser fingerprinting solely for anonymous usage quota enforcement.</p>
+              <p className="text-muted-foreground leading-relaxed">When you use FakeGuard, we collect minimal data necessary to provide our services. This includes: files you upload for detection (temporarily processed and immediately deleted), basic usage analytics (page views, feature usage), and account information if you register (email address, display name). We use browser fingerprinting solely for anonymous usage quota enforcement.</p>
             </div>
 
             <div>

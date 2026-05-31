@@ -54,7 +54,7 @@ export default function BatchDetect() {
   const analyzeAudioMutation = trpc.detection.analyzeAudio.useMutation();
 
   useEffect(() => {
-    document.title = 'Batch Detection — DeepGuard';
+    document.title = 'Batch Detection — FakeGuard';
   }, []);
 
   const addFiles = (newFiles: FileList | File[]) => {
@@ -211,7 +211,7 @@ export default function BatchDetect() {
               <span className="text-violet-400">at once</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-6 max-w-2xl">
-              Upload up to 50 images, videos, or audio files in one batch. DeepGuard processes them in parallel and gives you a downloadable CSV report.
+              Upload up to 50 images, videos, or audio files in one batch. FakeGuard processes them in parallel and gives you a downloadable CSV report.
             </p>
             <div className="flex flex-wrap gap-4">
               {[

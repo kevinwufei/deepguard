@@ -46,3 +46,13 @@ export function getSessionCookieOptions(
     secure: isSecureRequest(req),
   };
 }
+
+export function deleteCookie(name: string, options: any = {}): string {
+  const parts = [`${name}=; Max-Age=0`];
+  if (options.path) parts.push(`Path=${options.path}`);
+  if (options.domain) parts.push(`Domain=${options.domain}`);
+  if (options.secure) parts.push("Secure");
+  if (options.httpOnly) parts.push("HttpOnly");
+  if (options.sameSite) parts.push(`SameSite=${options.sameSite}`);
+  return parts.join("; ");
+}

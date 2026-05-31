@@ -1,5 +1,5 @@
 /**
- * DeepGuard Public REST API v1
+ * FakeGuard Public REST API v1
  * Endpoints callable by third-party applications using API keys.
  * All endpoints require: Authorization: Bearer dg_xxx_...
  */

@@ -28,7 +28,7 @@ export default function LiveVerify() {
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
-    document.title = 'Live Person Verification - DeepGuard';
+    document.title = 'Live Person Verification - FakeGuard';
     return () => stopCamera();
   }, []);
 

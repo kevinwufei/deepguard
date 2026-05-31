@@ -29,21 +29,21 @@ const USE_CASES = {
       {
         title: 'Fake CFO Wire Transfer Request',
         threat: 'Attacker creates a deepfake video of your CFO and calls your finance team on Zoom, requesting an urgent wire transfer to a new account.',
-        detection: 'DeepGuard\'s real-time meeting monitor detects the synthetic face and alerts the finance team before any transfer is initiated.',
+        detection: 'FakeGuard\'s real-time meeting monitor detects the synthetic face and alerts the finance team before any transfer is initiated.',
         type: 'video',
         severity: 'Critical',
       },
       {
         title: 'AI-Cloned CEO Voice Authorization',
         threat: 'A voice clone of your CEO calls your bank\'s phone line to authorize a large transaction, using ElevenLabs or similar TTS technology.',
-        detection: 'DeepGuard\'s audio analysis detects the prosody anomalies and spectral artifacts characteristic of AI voice synthesis.',
+        detection: 'FakeGuard\'s audio analysis detects the prosody anomalies and spectral artifacts characteristic of AI voice synthesis.',
         type: 'audio',
         severity: 'Critical',
       },
       {
         title: 'Fake Vendor Identity Verification',
         threat: 'A fraudulent vendor sends AI-generated ID documents and a deepfake selfie video to pass your KYC process.',
-        detection: 'DeepGuard\'s image and video analysis flags the synthetic face and inconsistent document metadata.',
+        detection: 'FakeGuard\'s image and video analysis flags the synthetic face and inconsistent document metadata.',
         type: 'image',
         severity: 'High',
       },
@@ -62,14 +62,14 @@ const USE_CASES = {
       {
         title: 'Deepfake Video Interview',
         threat: 'A candidate uses a real-time deepfake filter (HeyGen, DeepFaceLive) to appear as a different person during a Zoom interview.',
-        detection: 'DeepGuard detects the face-swap overlay in real time during the interview session.',
+        detection: 'FakeGuard detects the face-swap overlay in real time during the interview session.',
         type: 'video',
         severity: 'High',
       },
       {
         title: 'AI-Generated Resume & Portfolio',
         threat: 'A candidate submits an AI-generated portfolio of work samples (images, writing) that they didn\'t actually create.',
-        detection: 'DeepGuard\'s text and image detection identifies AI-generated content across submitted materials.',
+        detection: 'FakeGuard\'s text and image detection identifies AI-generated content across submitted materials.',
         type: 'image',
         severity: 'Medium',
       },
@@ -95,14 +95,14 @@ const USE_CASES = {
       {
         title: 'Viral Fake News Image',
         threat: 'An AI-generated image of a political event or natural disaster goes viral on social media before journalists can verify it.',
-        detection: 'Right-click the image with the DeepGuard extension or upload it directly. Get a pixel-level heatmap showing manipulation regions.',
+        detection: 'Right-click the image with the FakeGuard extension or upload it directly. Get a pixel-level heatmap showing manipulation regions.',
         type: 'image',
         severity: 'High',
       },
       {
         title: 'Deepfake Political Video',
         threat: 'A fabricated video of a politician saying something they never said is shared across platforms ahead of an election.',
-        detection: 'DeepGuard\'s video analysis detects face-swap artifacts and temporal inconsistencies, with a frame-by-frame timeline.',
+        detection: 'FakeGuard\'s video analysis detects face-swap artifacts and temporal inconsistencies, with a frame-by-frame timeline.',
         type: 'video',
         severity: 'Critical',
       },
@@ -237,7 +237,7 @@ export default function UseCases() {
   const uc = USE_CASES[active as keyof typeof USE_CASES];
 
   useEffect(() => {
-    document.title = 'Use Cases — DeepGuard AI Detection';
+    document.title = 'Use Cases — FakeGuard AI Detection';
   }, []);
 
   return (
@@ -253,10 +253,10 @@ export default function UseCases() {
             <span>{t("usecase_real_world")}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            Who needs DeepGuard — and why
+            Who needs FakeGuard — and why
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            AI-generated content is being weaponized across industries. Here's how DeepGuard is being used to stop it.
+            AI-generated content is being weaponized across industries. Here's how FakeGuard is being used to stop it.
           </p>
         </div>
       </section>
@@ -324,7 +324,7 @@ export default function UseCases() {
                       <div className={`p-4 rounded-xl ${uc.bg} border ${uc.border}`}>
                         <div className="flex items-center gap-2 mb-2">
                           <CheckCircle2 className={`w-3.5 h-3.5 ${uc.color}`} />
-                          <span className={`text-xs font-semibold ${uc.color} uppercase tracking-wider`}>DeepGuard</span>
+                          <span className={`text-xs font-semibold ${uc.color} uppercase tracking-wider`}>FakeGuard</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">{scenario.detection}</p>
                       </div>

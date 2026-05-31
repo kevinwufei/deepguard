@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
 const HOW_IT_WORKS = [
   {
     step: '01',
-    title: 'Share your screen in DeepGuard',
-    desc: 'Open DeepGuard\'s Screen Monitor tab during your Zoom, Teams, or Google Meet call. No plugins or meeting bot required — it works with any video platform.',
+    title: 'Share your screen in FakeGuard',
+    desc: 'Open FakeGuard\'s Screen Monitor tab during your Zoom, Teams, or Google Meet call. No plugins or meeting bot required — it works with any video platform.',
     icon: Monitor,
   },
   {
     step: '02',
     title: 'AI analyzes every participant in real time',
-    desc: 'DeepGuard captures frames from your screen every few seconds and runs deepfake detection on each visible face. You see a live risk score for each participant.',
+    desc: 'FakeGuard captures frames from your screen every few seconds and runs deepfake detection on each visible face. You see a live risk score for each participant.',
     icon: Eye,
   },
   {
@@ -37,7 +37,7 @@ const USE_CASES = [
     bg: 'bg-rose-400/10',
     border: 'border-rose-400/20',
     scenario: 'A caller on a Zoom call claims to be your CFO, requesting an urgent wire transfer.',
-    solution: 'DeepGuard detects the deepfake face in real time and alerts you before any action is taken.',
+    solution: 'FakeGuard detects the deepfake face in real time and alerts you before any action is taken.',
     stat: '$2.9B lost to BEC fraud in 2023 (FBI IC3)',
   },
   {
@@ -47,7 +47,7 @@ const USE_CASES = [
     bg: 'bg-amber-400/10',
     border: 'border-amber-400/20',
     scenario: 'A job applicant uses a real-time deepfake filter to impersonate someone else during a video interview.',
-    solution: 'DeepGuard flags the synthetic face overlay, protecting your hiring process from identity fraud.',
+    solution: 'FakeGuard flags the synthetic face overlay, protecting your hiring process from identity fraud.',
     stat: '1 in 4 remote job interviews now involves identity deception (KPMG 2024)',
   },
   {
@@ -57,7 +57,7 @@ const USE_CASES = [
     bg: 'bg-primary/10',
     border: 'border-primary/20',
     scenario: 'A remote notarization requires verifying the signer\'s identity over video call.',
-    solution: 'DeepGuard provides a session report confirming no deepfake activity was detected, usable as supporting documentation.',
+    solution: 'FakeGuard provides a session report confirming no deepfake activity was detected, usable as supporting documentation.',
     stat: 'Remote notarization fraud increased 340% since 2021',
   },
   {
@@ -67,7 +67,7 @@ const USE_CASES = [
     bg: 'bg-cyan-400/10',
     border: 'border-cyan-400/20',
     scenario: 'A journalist interviews a source over video who may be using a deepfake to hide their identity.',
-    solution: 'DeepGuard verifies the authenticity of the video feed and generates a timestamped verification report.',
+    solution: 'FakeGuard verifies the authenticity of the video feed and generates a timestamped verification report.',
     stat: 'Deepfake video calls increased 900% in 2024 (Onfido)',
   },
 ];
@@ -84,7 +84,7 @@ const PLATFORMS = [
 export default function MeetingGuard() {
   const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'Real-Time Meeting Deepfake Detection — DeepGuard';
+    document.title = 'Real-Time Meeting Deepfake Detection — FakeGuard';
   }, []);
 
   return (
@@ -106,7 +106,7 @@ export default function MeetingGuard() {
               <span className="text-rose-400">video call really who they say they are?</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl leading-relaxed">
-              Deepfake video call fraud is rising fast. DeepGuard monitors your Zoom, Teams, and Google Meet sessions in real time — alerting you the moment a synthetic face is detected.
+              Deepfake video call fraud is rising fast. FakeGuard monitors your Zoom, Teams, and Google Meet sessions in real time — alerting you the moment a synthetic face is detected.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/detect/screen">
@@ -259,7 +259,7 @@ export default function MeetingGuard() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{t("meeting_zero_trust_title")}</h2>
-              <p className="text-muted-foreground text-sm max-w-xl mx-auto">Inspired by enterprise security frameworks, DeepGuard Business adds three additional verification layers beyond visual deepfake detection.</p>
+              <p className="text-muted-foreground text-sm max-w-xl mx-auto">Inspired by enterprise security frameworks, FakeGuard Business adds three additional verification layers beyond visual deepfake detection.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[

@@ -77,7 +77,7 @@ export default function SharedReport() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Shield className="w-6 h-6 text-cyan-400" />
-            <span className="font-bold text-lg">DeepGuard</span>
+            <span className="font-bold text-lg">FakeGuard</span>
           </Link>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-sm text-gray-400">

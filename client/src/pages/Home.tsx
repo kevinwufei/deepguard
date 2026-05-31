@@ -29,7 +29,7 @@ export default function Home() {
   const analyzeImageMutation = trpc.detection.analyzeImage.useMutation();
 
   useEffect(() => {
-    document.title = 'DeepGuard — Detect AI Images, Deepfakes & Voice Clones';
+    document.title = 'FakeGuard — Detect AI Images, Deepfakes & Voice Clones';
   }, []);
 
   const handleDemoFile = async (file: File) => {
@@ -361,7 +361,7 @@ export default function Home() {
             <div className="rounded-2xl border border-border/60 overflow-hidden">
               <div className="grid grid-cols-4 bg-muted/50 px-5 py-3 border-b border-border/40">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('home_compare_feature')}</div>
-                <div className="text-xs font-semibold text-primary uppercase tracking-wider text-center">DeepGuard</div>
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider text-center">FakeGuard</div>
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">Sensity.ai</div>
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">{t('home_compare_typical')}</div>
               </div>
@@ -478,13 +478,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Why DeepGuard ── */}
+      {/* ── Why FakeGuard ── */}
       <section className="py-20 border-t border-border/40">
         <div className="container">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
               <Layers className="w-3.5 h-3.5" />
-              {t('why_deepguard_badge') || 'Why DeepGuard'}
+              {t('why_deepguard_badge') || 'Why FakeGuard'}
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               {t('why_deepguard_title') || 'Built different. Not just another detector.'}
@@ -501,7 +501,7 @@ export default function Home() {
                 <tr className="border-b border-border/60">
                   <th className="text-left py-3 px-4 text-muted-foreground font-medium w-1/2">{t('why_feature') || 'Feature'}</th>
                   <th className="text-center py-3 px-4 text-muted-foreground font-medium">{t('why_others') || 'Others'}</th>
-                  <th className="text-center py-3 px-4 font-semibold text-primary">{t('why_deepguard_col') || 'DeepGuard'}</th>
+                  <th className="text-center py-3 px-4 font-semibold text-primary">{t('why_deepguard_col') || 'FakeGuard'}</th>
                 </tr>
               </thead>
               <tbody>

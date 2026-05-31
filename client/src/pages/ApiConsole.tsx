@@ -62,7 +62,7 @@ export default function ApiConsole() {
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">Sign in to access API Console</h2>
             <p className="text-muted-foreground max-w-md">
-              Generate and manage your API keys to integrate DeepGuard detection into your own applications.
+              Generate and manage your API keys to integrate FakeGuard detection into your own applications.
             </p>
           </div>
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
@@ -86,7 +86,7 @@ export default function ApiConsole() {
             <h1 className="text-2xl font-bold">{t('api_console_title')}</h1>
           </div>
           <p className="text-muted-foreground">
-            Manage your API keys and integrate DeepGuard detection into any application.
+            Manage your API keys and integrate FakeGuard detection into any application.
           </p>
         </div>
 

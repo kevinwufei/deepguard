@@ -1,21 +1,30 @@
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
+import { getSessionCookieOptions, deleteCookie } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
+import { extractImageMetadata } from "./exif";
 import { createDetectionRecord, getDetectionRecordsByUser, createApiKey, getApiKeysByUser, revokeApiKey, getApiUsageStats, submitDetectionFeedback, getTrainingData, getFeedbackStats, getMislabeledRecords, createSharedReport, getSharedReportByToken, incrementReportViewCount, getUsageCount, incrementUsage, QUOTA_LIMITS } from "./db";
+import { ENV } from "./_core/env";
 import { TRPCError } from '@trpc/server';
 import { nanoid } from "nanoid";
 
 // Helper: check and enforce quota, throws TRPCError if exceeded
 async function enforceQuota(
-  ctx: { user?: { id: number; role: string } | null },
+  ctx: { user?: { id: number; role: string; subscriptionTier?: string; subscriptionStatus?: string } | null },
   fingerprint: string
 ): Promise<void> {
   // Admins have unlimited access
   if (ctx.user?.role === 'admin') return;
+
+  // Paid subscribers (active subscription) have unlimited web detections
+  const userAny = ctx.user as any;
+  if (userAny?.subscriptionStatus === 'active' && userAny?.subscriptionTier && userAny.subscriptionTier !== 'free') {
+    return;
+  }
+
   const userId = ctx.user?.id;
   const limit = userId ? QUOTA_LIMITS.free : QUOTA_LIMITS.anonymous;
   if (limit === Infinity) return;
@@ -148,8 +157,8 @@ Text to analyze:
 // Engine 1: SightEngine AI-generated image detection
 // Returns score 0-1 (1 = definitely AI), or null if API key not configured
 async function sightEngineDetect(imageUrl: string): Promise<{ score: number; type: string } | null> {
-  const apiUser = process.env.SIGHTENGINE_API_USER;
-  const apiSecret = process.env.SIGHTENGINE_API_SECRET;
+  const apiUser = ENV.sightengineApiUser;
+  const apiSecret = ENV.sightengineApiSecret;
   if (!apiUser || !apiSecret) return null;
   try {
     const params = new URLSearchParams({
@@ -170,29 +179,97 @@ async function sightEngineDetect(imageUrl: string): Promise<{ score: number; typ
   }
 }
 
-// Engine 3 (optional): DeepGuard CLIP model — loaded from HuggingFace if available
-// Returns score 0-100 (100 = definitely AI-generated), or null if service not running
-async function clipModelDetect(imageUrl: string): Promise<{ score: number } | null> {
+// Engine 3: FakeGuard CLIP model via Hugging Face Inference API
+// Returns score 0-100 (100 = definitely AI-generated), or null if not configured
+async function clipModelDetect(imageUrl: string): Promise<{ score: number; label: string } | null> {
+  const apiKey = ENV.hfApiKey;
+  const modelRepo = ENV.hfModelRepo;
+  if (!apiKey || !modelRepo) {
+    // Fallback: try well-known public AI image detection models on HF
+    return hfPublicModelDetect(imageUrl);
+  }
   try {
-    const res = await fetch('http://localhost:8765/predict', {
+    // Fetch the image bytes to send to HF Inference API
+    const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+    if (!imgRes.ok) return null;
+    const imgBytes = await imgRes.arrayBuffer();
+
+    const res = await fetch(`https://api-inference.huggingface.co/models/${modelRepo}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: imageUrl }),
-      signal: AbortSignal.timeout(5000),
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/octet-stream',
+      },
+      body: imgBytes,
+      signal: AbortSignal.timeout(15000),
     });
-    if (!res.ok) return null;
-    const data = await res.json() as { score?: number };
-    if (typeof data.score !== 'number') return null;
-    return { score: Math.round(data.score * 100) };
-  } catch {
-    return null; // Service not running — silently skip
+    if (!res.ok) {
+      console.warn(`[FakeGuard-CLIP] HF API error: ${res.status}`);
+      return hfPublicModelDetect(imageUrl);
+    }
+    const data = await res.json() as Array<Array<{ label: string; score: number }>>;
+    // HF image-classification returns [[{label, score}, ...]]
+    const results = Array.isArray(data[0]) ? data[0] : (data as unknown as Array<{ label: string; score: number }>);
+    // Find the AI/fake label
+    const aiLabel = results.find(r =>
+      /ai|fake|generated|synthetic|artificial/i.test(r.label)
+    );
+    const realLabel = results.find(r =>
+      /real|authentic|human|natural|photo/i.test(r.label)
+    );
+    if (aiLabel) {
+      return { score: Math.round(aiLabel.score * 100), label: aiLabel.label };
+    }
+    if (realLabel) {
+      return { score: Math.round((1 - realLabel.score) * 100), label: `not-${realLabel.label}` };
+    }
+    return null;
+  } catch (e) {
+    console.warn('[FakeGuard-CLIP] Detection failed:', e);
+    return null;
+  }
+}
+
+// Fallback: use a well-known public AI image detection model on HF (no API key needed for some)
+async function hfPublicModelDetect(imageUrl: string): Promise<{ score: number; label: string } | null> {
+  // Use umm-maybe/AI-image-detector — a popular open model on HF
+  const PUBLIC_MODEL = 'umm-maybe/AI-image-detector';
+  try {
+    const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(8000) });
+    if (!imgRes.ok) return null;
+    const imgBytes = await imgRes.arrayBuffer();
+
+    const apiKey = ENV.hfApiKey;
+    const headers: Record<string, string> = { 'Content-Type': 'application/octet-stream' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+    const res = await fetch(`https://api-inference.huggingface.co/models/${PUBLIC_MODEL}`, {
+      method: 'POST',
+      headers,
+      body: imgBytes,
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) {
+      console.warn(`[HF-Public] API error: ${res.status}`);
+      return null;
+    }
+    const data = await res.json() as Array<Array<{ label: string; score: number }>>;
+    const results = Array.isArray(data[0]) ? data[0] : (data as unknown as Array<{ label: string; score: number }>);
+    const aiLabel = results.find(r => /ai|fake|generated|artificial/i.test(r.label));
+    const realLabel = results.find(r => /real|human|natural/i.test(r.label));
+    if (aiLabel) return { score: Math.round(aiLabel.score * 100), label: aiLabel.label };
+    if (realLabel) return { score: Math.round((1 - realLabel.score) * 100), label: `not-${realLabel.label}` };
+    return null;
+  } catch (e) {
+    console.warn('[HF-Public] Detection failed:', e);
+    return null;
   }
 }
 
 // Engine 2: Illuminarty AI image detection
 // Returns score 0-100, or null if API key not configured or API returns empty
 async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isAI: boolean } | null> {
-  const apiKey = process.env.ILLUMINARTY_API_KEY;
+  const apiKey = ENV.illuminartyApiKey;
   if (!apiKey) return null;
   try {
     // Illuminarty API endpoint (confirmed working)
@@ -221,18 +298,19 @@ async function illuminartyDetect(imageUrl: string): Promise<{ score: number; isA
 }
 
 // Combine multi-engine results with weighted average
-// LLM: 35%, SightEngine: 35%, Illuminarty: 15%, DeepGuard CLIP: 15%
+// LLM: 35%, SightEngine: 35%, Illuminarty: 15%, FakeGuard CLIP: 15%
 function combineEngineScores(
   llmScore: number,
   sightEngine: { score: number } | null,
   illuminarty: { score: number } | null,
-  clipModel?: { score: number } | null
+  clipModel?: { score: number; label?: string } | null
 ): { finalScore: number; engineBreakdown: Array<{ engine: string; score: number; weight: number; available: boolean }> } {
+  const llmAvailable = llmScore >= 0;
   const engines = [
-    { engine: 'LLM Visual Analysis', score: llmScore, weight: 0.35, available: true },
-    { engine: 'SightEngine', score: sightEngine ? Math.round(sightEngine.score * 100) : 0, weight: 0.35, available: !!sightEngine },
+    { engine: 'LLM Visual Analysis', score: llmAvailable ? llmScore : 0, weight: 0.30, available: llmAvailable },
+    { engine: 'SightEngine', score: sightEngine ? Math.round(sightEngine.score * 100) : 0, weight: 0.30, available: !!sightEngine },
+    { engine: 'FakeGuard CLIP', score: clipModel ? clipModel.score : 0, weight: 0.25, available: !!clipModel },
     { engine: 'Illuminarty', score: illuminarty ? illuminarty.score : 0, weight: 0.15, available: !!illuminarty },
-    { engine: 'DeepGuard CLIP', score: clipModel ? clipModel.score : 0, weight: 0.15, available: !!clipModel },
   ];
 
   // Recalculate weights if some engines are unavailable
@@ -422,7 +500,8 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      const cookie = deleteCookie(COOKIE_NAME, cookieOptions);
+      ctx.resHeaders.set("Set-Cookie", cookie);
       return { success: true } as const;
     }),
   }),
@@ -450,9 +529,11 @@ export const appRouter = router({
         }
         // Sanitize filename
         const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200);
-        const buffer = Buffer.from(input.fileData, 'base64');
+        const binaryStr = atob(input.fileData);
+        const buffer = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) buffer[i] = binaryStr.charCodeAt(i);
         // Validate max size (50MB for base64 upload, larger files use chunked upload)
-        if (buffer.length > 50 * 1024 * 1024) {
+        if (buffer.byteLength > 50 * 1024 * 1024) {
           throw new TRPCError({
             code: 'PAYLOAD_TOO_LARGE',
             message: 'File exceeds 50MB limit. Use chunked upload for larger files.',
@@ -533,7 +614,9 @@ export const appRouter = router({
           : `You are a real-time AI voice detector. Analyze this audio sample for AI synthesis artifacts, unnatural prosody, or voice cloning indicators. Return a quick JSON assessment.`;
 
         try {
-          const buffer = Buffer.from(input.frameData, 'base64');
+          const binaryStr2 = atob(input.frameData);
+          const buffer = new Uint8Array(binaryStr2.length);
+          for (let i = 0; i < binaryStr2.length; i++) buffer[i] = binaryStr2.charCodeAt(i);
           const key = `realtime/${nanoid()}.${input.type === 'camera' ? 'jpg' : 'wav'}`;
           const { url } = await storagePut(key, buffer, input.mimeType);
 
@@ -752,20 +835,61 @@ Return JSON:
             },
           });
 
-          // Run all engines in parallel
-          const [llmResponse, sightEngineResult, illuminartyResult, clipResult] = await Promise.all([
-            llmRequest,
+          // Run all engines + EXIF extraction in parallel — each wrapped to not throw
+          const [llmResult, sightEngineResult, illuminartyResult, clipResult, realMetadata] = await Promise.all([
+            llmRequest.then(r => r).catch(e => { console.warn('[LLM] Failed:', e); return null; }),
             sightEngineDetect(input.fileUrl),
             illuminartyDetect(input.fileUrl),
             clipModelDetect(input.fileUrl),
+            extractImageMetadata(input.fileUrl, input.fileName, input.mimeType, input.fileSize),
           ]);
-          // Parse LLM result
-          const content = llmResponse.choices[0]?.message?.content;
-          if (!content) throw new Error('No response from AI');
-          const parsed = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
-          const llmScore = Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0)));
+
+          // Parse LLM result (may be null if failed)
+          let parsed: any = {};
+          let llmScore = 0;
+          let llmAvailable = false;
+          if (llmResult) {
+            try {
+              const content = llmResult.choices[0]?.message?.content;
+              if (content) {
+                parsed = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+                llmScore = Math.round(Math.max(0, Math.min(100, parsed.riskScore || 0)));
+                llmAvailable = true;
+              }
+            } catch (e) { console.warn('[LLM] Parse failed:', e); }
+          }
+
+          // Check that at least one engine returned a result
+          const anyEngineAvailable = llmAvailable || !!sightEngineResult || !!illuminartyResult || !!clipResult;
+          if (!anyEngineAvailable) {
+            throw new Error('All detection engines failed — no results available');
+          }
+
           // Combine all engine scores
-          const { finalScore, engineBreakdown } = combineEngineScores(llmScore, sightEngineResult, illuminartyResult, clipResult);
+          const { finalScore: rawScore, engineBreakdown } = combineEngineScores(
+            llmAvailable ? llmScore : -1,
+            sightEngineResult,
+            illuminartyResult,
+            clipResult
+          );
+
+          // EXIF-based confidence adjustment:
+          // - No EXIF + no camera = slight upward nudge (AI images rarely have EXIF)
+          // - Has EXIF + real camera + GPS = slight downward nudge (likely real photo)
+          let exifAdjustment = 0;
+          if (!realMetadata.hasExif) {
+            exifAdjustment = 3; // No EXIF is a weak AI signal
+          } else {
+            if (realMetadata.cameraModel !== 'Not found') exifAdjustment -= 3;
+            if (realMetadata.gpsData !== 'Not found') exifAdjustment -= 2;
+            if (realMetadata.software) {
+              const sw = realMetadata.software.toLowerCase();
+              if (/midjourney|dall-e|stable.diffusion|comfyui|automatic1111/i.test(sw)) {
+                exifAdjustment = 15; // Strong AI signal in EXIF software tag
+              }
+            }
+          }
+          const finalScore = Math.round(Math.max(0, Math.min(100, rawScore + exifAdjustment)));
           const verdict = finalScore >= 66 ? 'deepfake' : finalScore >= 36 ? 'suspicious' : 'safe';
 
           const result = {
@@ -778,15 +902,8 @@ Return JSON:
             possibleSources: parsed.possibleSources || [],
             heatmapRegions: parsed.heatmapRegions || [],
             engineBreakdown,
-            forensic: parsed.forensic || {
-              fileName: input.fileName,
-              fileSize: input.fileSize ? `${(input.fileSize / 1024).toFixed(1)} KB` : 'Unknown',
-              format: input.mimeType.split('/')[1]?.toUpperCase() || 'Unknown',
-              dimensions: 'Unknown', colorSpace: 'Unknown', hasExif: false,
-              software: 'Unknown', creationDate: 'Unknown', modificationDate: 'Unknown',
-              gpsData: 'Not found', cameraModel: 'Not found',
-              compressionArtifacts: 'Unknown', metadataIntegrity: 'Unknown', noisePattern: 'Unknown',
-            },
+            // Use REAL EXIF data (code-parsed), not LLM-guessed metadata
+            forensic: realMetadata,
           };
 
           // Record usage (quota tracking)
@@ -809,32 +926,15 @@ Return JSON:
           }
           return { ...result, recordId, detectionMethod: 'multi-engine' as const };
         } catch (err) {
-          console.error('[ImageDetection] Failed:', err);
-          const riskScore = Math.floor(Math.random() * 30) + 5;
-          return {
-            riskScore,
-            verdict: (riskScore < 30 ? 'safe' : riskScore < 70 ? 'suspicious' : 'deepfake') as 'safe' | 'suspicious' | 'deepfake',
-            confidence: 70,
-            aiModel: 'Unknown',
-            features: [
-              { name: 'Pixel Noise Analysis', confidence: 0.1, description: 'No significant noise pattern anomalies detected.' },
-              { name: 'Face Symmetry Check', confidence: 0.08, description: 'Facial features appear natural and consistent.' },
-              { name: 'GAN Fingerprint Detection', confidence: 0.12, description: 'No GAN-specific artifacts identified.' },
-              { name: 'Metadata Integrity', confidence: 0.05, description: 'File metadata appears consistent.' },
-            ],
-            summary: 'Image analysis completed. No significant deepfake indicators detected.',
-            possibleSources: [],
-            heatmapRegions: [],
-            forensic: {
-              fileName: input.fileName,
-              fileSize: input.fileSize ? `${(input.fileSize / 1024).toFixed(1)} KB` : 'Unknown',
-              format: input.mimeType.split('/')[1]?.toUpperCase() || 'Unknown',
-              dimensions: 'Unknown', colorSpace: 'sRGB', hasExif: false,
-              software: 'Unknown', creationDate: 'Not available', modificationDate: 'Not available',
-              gpsData: 'Not found', cameraModel: 'Not found',
-              compressionArtifacts: 'Normal', metadataIntegrity: 'Consistent', noisePattern: 'Natural',
-            },
-          };
+          console.error('[ImageDetection] All engines failed:', err);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: JSON.stringify({
+              code: 'DETECTION_UNAVAILABLE',
+              engine: 'image',
+              reason: 'All detection engines are temporarily unavailable. Please try again in a few moments.',
+            }),
+          });
         }
       }),
 

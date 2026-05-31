@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 export default function AboutUs() {
   const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'About Us — DeepGuard AI Deepfake Detection';
+    document.title = 'About Us — FakeGuard AI Deepfake Detection';
   }, []);
 
   return (
@@ -20,14 +20,14 @@ export default function AboutUs() {
         <div className="container relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
             <Shield className="w-3.5 h-3.5" />
-            <span>About DeepGuard</span>
+            <span>About FakeGuard</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Protecting truth in<br />
             <span className="text-primary">the age of AI</span>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-4">
-            DeepGuard is an AI-powered media forensics platform that helps individuals, journalists, enterprises, and governments detect manipulated content — including AI-generated images, deepfake videos, cloned voices, and machine-written text.
+            FakeGuard is an AI-powered media forensics platform that helps individuals, journalists, enterprises, and governments detect manipulated content — including AI-generated images, deepfake videos, cloned voices, and machine-written text.
           </p>
           <p className="text-muted-foreground text-base leading-relaxed">
             We believe that in a world where synthetic media is becoming indistinguishable from reality, accessible and transparent detection tools are essential to maintaining trust in digital communication.
@@ -114,7 +114,7 @@ export default function AboutUs() {
               Deep<span className="text-primary">Guard</span>
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">© 2025–2026 DeepGuard. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© 2025–2026 FakeGuard. All rights reserved.</p>
         </div>
       </footer>
     </div>

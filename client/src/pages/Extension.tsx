@@ -12,7 +12,7 @@ const FEATURES = [
   {
     icon: MousePointer2,
     title: 'Right-Click to Detect',
-    desc: 'Right-click any image or video on any website and select "Check with DeepGuard." Results appear in under 5 seconds.',
+    desc: 'Right-click any image or video on any website and select "Check with FakeGuard." Results appear in under 5 seconds.',
     color: 'text-primary',
     bg: 'bg-primary/10',
   },
@@ -40,7 +40,7 @@ const FEATURES = [
   {
     icon: Lock,
     title: 'Privacy First',
-    desc: 'Images are sent to DeepGuard\'s API only when you explicitly request analysis. Passive badge mode uses local heuristics only.',
+    desc: 'Images are sent to FakeGuard\'s API only when you explicitly request analysis. Passive badge mode uses local heuristics only.',
     color: 'text-emerald-400',
     bg: 'bg-emerald-400/10',
   },
@@ -65,7 +65,7 @@ const SOCIAL_PLATFORMS = [
 export default function Extension() {
   const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'Browser Extension — DeepGuard AI Detection';
+    document.title = 'Browser Extension — FakeGuard AI Detection';
   }, []);
 
   return (
@@ -86,7 +86,7 @@ export default function Extension() {
               <span className="text-primary">as you browse the web</span>
             </h1>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl leading-relaxed">
-              The DeepGuard browser extension brings AI detection to every website you visit. Right-click any image, get a result in seconds. No tab switching, no copy-pasting URLs.
+              The FakeGuard browser extension brings AI detection to every website you visit. Right-click any image, get a result in seconds. No tab switching, no copy-pasting URLs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8" onClick={() => { window.location.href = 'mailto:beta@deepguard.org?subject=Extension Beta Access'; }}>

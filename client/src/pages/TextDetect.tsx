@@ -81,7 +81,7 @@ export default function TextDetect() {
   const { checkAndEnforce } = useQuotaCheck();
 
   useEffect(() => {
-    document.title = 'AI Text Detector - DeepGuard';
+    document.title = 'AI Text Detector - FakeGuard';
   }, []);
 
   const analyze = trpc.detection.analyzeText.useMutation({

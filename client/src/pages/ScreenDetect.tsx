@@ -28,7 +28,7 @@ const SUPPORTED_APPS = [
 const STEPS = [
   { zh: '点击下方按钮，选择"共享屏幕"', en: 'Click the button below and select "Share Screen"' },
   { zh: '在弹出窗口中选择 Zoom / 微信 / Teams 等通话窗口，或选择整个屏幕', en: 'In the popup, select your Zoom / WeChat / Teams call window, or share entire screen' },
-  { zh: 'DeepGuard 将每 6 秒自动截取一帧进行 AI 分析，实时显示风险评分', en: 'DeepGuard captures a frame every 6 seconds for AI analysis and shows live risk score' },
+  { zh: 'FakeGuard 将每 6 秒自动截取一帧进行 AI 分析，实时显示风险评分', en: 'FakeGuard captures a frame every 6 seconds for AI analysis and shows live risk score' },
 ];
 
 export default function ScreenDetect() {

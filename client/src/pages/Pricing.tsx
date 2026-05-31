@@ -191,7 +191,7 @@ export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = 'Pricing — DeepGuard AI Deepfake Detection';
+    document.title = 'Pricing — FakeGuard AI Deepfake Detection';
   }, []);
 
   return (
@@ -504,7 +504,7 @@ export default function Pricing() {
             <span className="font-bold text-foreground" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Deep<span className="text-primary">Guard</span></span>
           </div>
           <p className="text-sm text-muted-foreground">AI Deepfake Detection & Anti-Scam Platform</p>
-          <p className="text-xs text-muted-foreground">© 2025-2026 DeepGuard. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© 2025-2026 FakeGuard. All rights reserved.</p>
         </div>
       </footer>
     </div>
