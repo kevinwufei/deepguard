@@ -113,7 +113,7 @@ export default function Extension() {
               {/* Extension header */}
               <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-muted/30">
                 <Shield className="w-4 h-4 text-primary" />
-                <span className="text-sm font-bold text-foreground" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Deep<span className="text-primary">Guard</span></span>
+                <span className="text-sm font-bold text-foreground" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Fake<span className="text-primary">Guard</span></span>
                 <div className="ml-auto flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs text-emerald-400">{t("ext_active")}</span>

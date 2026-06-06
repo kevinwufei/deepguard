@@ -63,7 +63,7 @@ export default function Navbar() {
             </div>
             <div>
               <span className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Deep<span className="text-primary">Guard</span>
+                Fake<span className="text-primary">Guard</span>
               </span>
               <p className="text-[10px] text-muted-foreground leading-none hidden sm:block">{t('nav_platform_tagline')}</p>
             </div>

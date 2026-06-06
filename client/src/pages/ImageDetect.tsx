@@ -358,12 +358,7 @@ export default function ImageDetect() {
 
         {/* Upload Card */}
         <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8 mb-6">
-          {!file ? (
-            <div
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
+          {!file ? (<>
             {/* URL Input Section */}
             <div className="mb-4">
               <div className="flex gap-2">
@@ -371,6 +366,11 @@ export default function ImageDetect() {
                 <button type="button" onClick={handleUrlSubmit} disabled={isAnalyzing} className="px-5 py-3 bg-violet-500 text-white rounded-lg text-sm font-medium hover:bg-violet-600 disabled:opacity-50">Scan URL</button>
               </div>
             </div>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-200 ${isDragging ? 'border-violet-400 bg-violet-400/5' : 'border-border/60 hover:border-violet-400/50 hover:bg-violet-400/5'}`}
             >
               <input ref={fileInputRef} type="file" accept={ACCEPTED} className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
@@ -380,6 +380,7 @@ export default function ImageDetect() {
               <p className="text-foreground font-medium mb-1">{t('img_drop_title')}</p>
               <p className="text-sm text-muted-foreground">{t('img_drop_formats', { max: MAX_MB })}</p>
             </div>
+            </>
           ) : (
             <div className="space-y-4">
               {/* Preview + file info */}
